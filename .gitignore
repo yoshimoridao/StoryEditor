@@ -1,3 +1,8 @@
 trunk/Logs/
 trunk/Library/
 trunk/Packages/
+trunk/obj/
+trunk/Assembly-CSharp.csproj
+trunk/Assembly-CSharp-Editor.csproj
+trunk/trunk.sln
+trunk/.vs/trunk/v15/.suo
