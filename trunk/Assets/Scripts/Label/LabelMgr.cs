@@ -10,9 +10,9 @@ public class LabelMgr : MonoBehaviour
 
     // prop
     RectTransform rt;
-    [SerializeField]
-    Vector2 prevSizeDelta = Vector2.zero;
+    bool isChangeVal = false;
 
+    // ========================================= UNITY FUNCS =========================================
     void Awake()
     {
         rt = GetComponent<RectTransform>();
@@ -27,26 +27,27 @@ public class LabelMgr : MonoBehaviour
     {
     }
 
+    // ========================================= PUBLIC FUNCS =========================================
     public void OnEditDone()
     {
-        // if (rt.sizeDelta != prevSizeDelta)
-        {
-            contentSize.enabled = false;
-            rt.sizeDelta = new Vector2(rt.sizeDelta.x + offset.x, rt.sizeDelta.y + offset.y);
-            // prevSizeDelta = rt.sizeDelta;
-            Debug.Log("resize done");
-        }
+        if (!isChangeVal)
+            return;
+
+        isChangeVal = false;
+        contentSize.enabled = false;
+        rt.sizeDelta = new Vector2(rt.sizeDelta.x + offset.x, rt.sizeDelta.y + offset.y);
+        CanvasMgr.RefreshCanvas();
     }
 
     public void OnChangeValue()
     {
         if (!contentSize)
             return;
-            
+
+        isChangeVal = true;
         contentSize.enabled = false;
         contentSize.enabled = true;
-        // prevSizeDelta = rt.sizeDelta;
 
-        Debug.Log("resize");
+        CanvasMgr.RefreshCanvas();
     }
 }
