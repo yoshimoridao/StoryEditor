@@ -16,4 +16,9 @@ public class AddBtn : MonoBehaviour
     {
         
     }
+
+    public void OnTouchBtn()
+    {
+        
+    }
 }

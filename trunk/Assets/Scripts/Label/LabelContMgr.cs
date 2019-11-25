@@ -4,15 +4,29 @@ using UnityEngine;
 
 public class LabelContMgr : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public string prefRowLabelPath = "Prefabs/row_label";
+
+    GameObject prefRowLabel;
+    List<RowLabelMgr> labelRows = new List<RowLabelMgr>();
+
+    // ========================================= UNITY FUNCS =========================================
     void Start()
+    {
+        prefRowLabel = Resources.Load<GameObject>(prefRowLabelPath);
+    }
+
+    void Update()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
+    // ========================================= PUBLIC FUNCS =========================================
+    public void AddLabelRow()
     {
-        
+        if (prefRowLabel)
+        {
+            RowLabelMgr rowLabel = Instantiate(prefRowLabel, transform).GetComponent<RowLabelMgr>();
+            labelRows.Add(rowLabel);
+        }
     }
 }
