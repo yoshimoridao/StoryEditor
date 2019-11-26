@@ -450,7 +450,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefRow: Prefabs/row_label
   transLabelCont: {fileID: 5597673473371183034}
+  titleLabel: {fileID: 5597673472519946653}
   lLabelRows: []
+  panelZoneW: 0
 --- !u!1 &5597673473371183035
 GameObject:
   m_ObjectHideFlags: 0
@@ -504,7 +506,7 @@ MonoBehaviour:
   m_Padding:
     m_Left: 0
     m_Right: 0
-    m_Top: 5
+    m_Top: 0
     m_Bottom: 5
   m_ChildAlignment: 7
   m_Spacing: 0

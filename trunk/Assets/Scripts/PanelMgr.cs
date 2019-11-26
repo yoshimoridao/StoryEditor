@@ -7,6 +7,7 @@ public class PanelMgr : MonoBehaviour
 {
     public string prefRow = "Prefabs/row_label";
     public Transform transLabelCont;
+    public LabelMgr titleLabel;
 
     RootPanelMgr parentPanel;
     RectTransform rt;
@@ -41,43 +42,38 @@ public class PanelMgr : MonoBehaviour
         // store parent
         parentPanel = rootPanel;
 
-        // add template first row
+        // clear all child rows
         for (int i = 0; i < transLabelCont.childCount; i++)
         {
-            RowLabelMgr row = transLabelCont.GetChild(i).GetComponent<RowLabelMgr>();
-            if (row)
-            {
-                row.Init(this);
-                lLabelRows.Add(row);
-            }
+            Destroy(transLabelCont.GetChild(i).gameObject);
         }
 
         // calculate panel's zone
         RectOffset rootPadding = parentPanel.GetComponent<VerticalLayoutGroup>().padding;
         panelZoneW = (parentPanel.transform as RectTransform).sizeDelta.x - (rootPadding.left + rootPadding.right);
+
+        // init title
+        if (titleLabel)
+            titleLabel.Init();
     }
 
     public void AddLabel()
     {
-        RowLabelMgr rowLabel = null;
-        if (lLabelRows.Count == 1 && !lLabelRows[0].gameObject.active)
-        {
-            rowLabel = lLabelRows[0];
-            rowLabel.gameObject.SetActive(true);
-        }
-        else if (lLabelRows.Count > 0)
+        // add new row if empty
+        if (lLabelRows.Count == 0)
+            AddLabelRow();
+
+        if (lLabelRows.Count > 0)
         {
             // append label to last row
-            rowLabel = lLabelRows[lLabelRows.Count - 1];
-        }
+            RowLabelMgr rowLabel = lLabelRows[lLabelRows.Count - 1];
+            if (rowLabel)
+            {
+                rowLabel.AddLabel();
 
-        // add label into row
-        if (rowLabel)
-        {
-            rowLabel.AddLabel();
-
-            RefactorLabelRows();
-            CanvasMgr.RefreshCanvas();
+                RefactorLabelRows();
+                CanvasMgr.RefreshCanvas();
+            }
         }
     }
 
@@ -118,7 +114,6 @@ public class PanelMgr : MonoBehaviour
                     if (panelW < panelZoneW)
                     {
                         rt.sizeDelta = new Vector2(panelZoneW, rt.sizeDelta.y);
-                        Debug.Log("enter");
                     }
 
                     if (row.ChildCount() > 1)

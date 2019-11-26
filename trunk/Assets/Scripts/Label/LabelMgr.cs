@@ -43,14 +43,18 @@ public class LabelMgr : MonoBehaviour
     {
     }
 
-    public void Init(RowLabelMgr rowLabel)
+    // ========================================= PUBLIC FUNCS =========================================
+    public void Init()
     {
-        rowParent = rowLabel;
-
         rt = GetComponent<RectTransform>();
     }
 
-    // ========================================= PUBLIC FUNCS =========================================
+    public void Init(RowLabelMgr rowLabel)
+    {
+        rowParent = rowLabel;
+        rt = GetComponent<RectTransform>();
+    }
+
     public void OnEditDone()
     {
         if (!isChangeVal)

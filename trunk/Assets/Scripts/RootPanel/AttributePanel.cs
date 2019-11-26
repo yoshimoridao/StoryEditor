@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class AttributePanel : RootPanelMgr
 {
+    public string prefPanelPath = "Prefabs/Panel";
+    public Transform transPanelCont;
+
     List<PanelMgr> lPanels = new List<PanelMgr>();
+    GameObject prefPanel;
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
@@ -22,15 +26,24 @@ public class AttributePanel : RootPanelMgr
     {
         base.Init();
 
-        // get template panel
-        for (int i = 0; i < transform.childCount; i++)
+        // load prefab
+        prefPanel = Resources.Load<GameObject>(prefPanelPath);
+
+        // clear all child
+        for (int i = 0; i < transPanelCont.childCount; i++)
         {
-            PanelMgr panel = transform.GetChild(i).GetComponent<PanelMgr>();
-            if (panel)
-            {
-                lPanels.Add(panel);
-                panel.Init(this);
-            }
+            Destroy(transPanelCont.GetChild(i).gameObject);
         }
+    }
+
+    public void AddPanel()
+    {
+        PanelMgr panel = Instantiate(prefPanel, transPanelCont).GetComponent<PanelMgr>();
+        panel.Init(this);
+
+        if (panel)
+            lPanels.Add(panel);
+
+        CanvasMgr.RefreshCanvas();
     }
 }
