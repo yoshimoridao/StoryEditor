@@ -10,14 +10,30 @@ public class LabelMgr : MonoBehaviour
 
     // prop
     RectTransform rt;
+    RowLabelMgr rowParent;
     bool isChangeVal = false;
 
-    // ========================================= UNITY FUNCS =========================================
-    void Awake()
+    // ========================================= GET/ SET FUNCS =========================================
+    public void SetParent(RowLabelMgr rowLabel, bool isAsFirstElement = false)
     {
-        rt = GetComponent<RectTransform>();
+        // set transform parent
+        if (rowLabel)
+        {
+            transform.parent = rowLabel.transform;
+            if (isAsFirstElement)
+                transform.SetAsFirstSibling();
+
+            // store parent
+            rowParent = rowLabel;
+        }
+        else
+        {
+            transform.parent = null;
+            rowParent = null;
+        }
     }
 
+    // ========================================= UNITY FUNCS =========================================
     void Start()
     {
         
@@ -25,6 +41,13 @@ public class LabelMgr : MonoBehaviour
 
     void Update()
     {
+    }
+
+    public void Init(RowLabelMgr rowLabel)
+    {
+        rowParent = rowLabel;
+
+        rt = GetComponent<RectTransform>();
     }
 
     // ========================================= PUBLIC FUNCS =========================================
@@ -36,7 +59,12 @@ public class LabelMgr : MonoBehaviour
         isChangeVal = false;
         contentSize.enabled = false;
         rt.sizeDelta = new Vector2(rt.sizeDelta.x + offset.x, rt.sizeDelta.y + offset.y);
+
         CanvasMgr.RefreshCanvas();
+
+        // call event to parent
+        if (rowParent)
+            rowParent.OnChildLabelEditDone();
     }
 
     public void OnChangeValue()

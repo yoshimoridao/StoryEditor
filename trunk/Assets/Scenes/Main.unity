@@ -308,6 +308,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95a5c71c2b3a8ad45aec592c2c4ec8b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attributePanel: {fileID: 546644972}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -403,8 +404,9 @@ GameObject:
   - component: {fileID: 546644970}
   - component: {fileID: 546644969}
   - component: {fileID: 546644971}
+  - component: {fileID: 546644972}
   m_Layer: 5
-  m_Name: AttributeCont
+  m_Name: AttributePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -491,6 +493,18 @@ MonoBehaviour:
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
+--- !u!114 &546644972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546644967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71fb564776e8c4645992c72a88fd4182, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &594320481
 GameObject:
   m_ObjectHideFlags: 0
@@ -564,6 +578,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 594320481}
   m_CullTransparentMesh: 0
+--- !u!114 &966386303 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5597673473024673156, guid: 6406eeb89933f8241ba0e42623d891f6,
+    type: 3}
+  m_PrefabInstance: {fileID: 5597673472433748213}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9eb2bda5e3463847ab8eebe9710add0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &1028210032 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5597673473024673157, guid: 6406eeb89933f8241ba0e42623d891f6,
@@ -879,12 +905,12 @@ PrefabInstance:
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
@@ -894,12 +920,12 @@ PrefabInstance:
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -17.93
       objectReference: {fileID: 0}
     - target: {fileID: 2583891613987878000, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
@@ -916,5 +942,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 5597673473371183015, guid: 6406eeb89933f8241ba0e42623d891f6,
+        type: 3}
+      propertyPath: transPanel
+      value: 
+      objectReference: {fileID: 1028210032}
+    - target: {fileID: 5597673473547447734, guid: 6406eeb89933f8241ba0e42623d891f6,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5597673472452484927, guid: 6406eeb89933f8241ba0e42623d891f6,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 966386303}
+    - target: {fileID: 5597673472452484927, guid: 6406eeb89933f8241ba0e42623d891f6,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: AddLabel
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 5597673473371183015, guid: 6406eeb89933f8241ba0e42623d891f6, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 6406eeb89933f8241ba0e42623d891f6, type: 3}

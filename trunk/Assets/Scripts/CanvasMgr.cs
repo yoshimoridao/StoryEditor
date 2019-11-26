@@ -5,23 +5,25 @@ using UnityEngine.UI;
 
 public class CanvasMgr : MonoBehaviour
 {
-    public static float refreshCanvasTime = 1.0f;
+    private static Vector2 refreshCanvasDt = new Vector2(0, 1.0f);
 
-    private static float refreshCanvasDt;
+    public RootPanelMgr attributePanel;
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
+        attributePanel.Init();
+
         RefreshCanvas();
     }
 
     private void Update()
     {
-        if (refreshCanvasDt > 0)
+        if (refreshCanvasDt.x > 0)
         {
-            refreshCanvasDt -= Time.deltaTime;
-            if (refreshCanvasDt <= 0)
-                refreshCanvasDt = 0;
+            refreshCanvasDt.x -= Time.deltaTime;
+            if (refreshCanvasDt.x <= 0)
+                refreshCanvasDt.x = 0;
 
             var arr = GetComponentsInChildren<VerticalLayoutGroup>();
             foreach (var layout in arr)
@@ -39,8 +41,13 @@ public class CanvasMgr : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
+    public static bool IsRefreshCanvas()
+    {
+        return refreshCanvasDt.x > 0;
+    }
+
     public static void RefreshCanvas()
     {
-        refreshCanvasDt = refreshCanvasTime;
+        refreshCanvasDt.x = refreshCanvasDt.y;
     }
 }

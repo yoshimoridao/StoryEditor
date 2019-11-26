@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 5597673472452484921}
   - component: {fileID: 5597673472452484926}
   - component: {fileID: 5597673472452484927}
-  - component: {fileID: 5597673472452484920}
   m_Layer: 5
   m_Name: addbtn
   m_TagString: Untagged
@@ -119,7 +118,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5597673473371183015}
+      - m_Target: {fileID: 5597673473024673156}
         m_MethodName: AddLabel
         m_Mode: 1
         m_Arguments:
@@ -130,19 +129,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &5597673472452484920
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5597673472452484925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2379a0cd8c4719041aa0210fe0c1d3c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  funcType: 0
 --- !u!1 &5597673472519946646
 GameObject:
   m_ObjectHideFlags: 0
@@ -462,6 +448,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9eb2bda5e3463847ab8eebe9710add0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefRow: Prefabs/row_label
+  transLabelCont: {fileID: 5597673473371183034}
+  lLabelRows: []
 --- !u!1 &5597673473371183035
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,7 +462,6 @@ GameObject:
   - component: {fileID: 5597673473371183034}
   - component: {fileID: 5597673473371183012}
   - component: {fileID: 5597673473371183013}
-  - component: {fileID: 5597673473371183015}
   m_Layer: 5
   m_Name: LabelCont
   m_TagString: Untagged
@@ -540,20 +528,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 1
   m_VerticalFit: 1
---- !u!114 &5597673473371183015
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5597673473371183035}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a399adc34a9cd9429cdf47149657351, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prefRowLabelPath: Prefabs/row_label
-  lLabelRows: []
 --- !u!1 &5597673473549419011
 GameObject:
   m_ObjectHideFlags: 0
@@ -820,17 +794,17 @@ PrefabInstance:
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 13
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -17.93
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 26
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
@@ -845,7 +819,7 @@ PrefabInstance:
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
@@ -855,7 +829,7 @@ PrefabInstance:
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
