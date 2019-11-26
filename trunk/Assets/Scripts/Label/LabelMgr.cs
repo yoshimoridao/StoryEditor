@@ -33,6 +33,11 @@ public class LabelMgr : MonoBehaviour
         }
     }
 
+    public Text GetText()
+    {
+        return GetComponentInChildren<Text>();
+    }
+
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
@@ -64,7 +69,7 @@ public class LabelMgr : MonoBehaviour
         contentSize.enabled = false;
         rt.sizeDelta = new Vector2(rt.sizeDelta.x + offset.x, rt.sizeDelta.y + offset.y);
 
-        CanvasMgr.RefreshCanvas();
+        CanvasMgr.Instance.RefreshCanvas();
 
         // call event to parent
         if (rowParent)
@@ -80,6 +85,6 @@ public class LabelMgr : MonoBehaviour
         contentSize.enabled = false;
         contentSize.enabled = true;
 
-        CanvasMgr.RefreshCanvas();
+        CanvasMgr.Instance.RefreshCanvas();
     }
 }

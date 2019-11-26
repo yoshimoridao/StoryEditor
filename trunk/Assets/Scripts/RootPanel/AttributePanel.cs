@@ -10,6 +10,12 @@ public class AttributePanel : RootPanelMgr
     List<PanelMgr> lPanels = new List<PanelMgr>();
     GameObject prefPanel;
 
+    // ========================================= GET/ SET =========================================
+    public List<PanelMgr> GetPanels()
+    {
+        return lPanels;
+    }
+
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
@@ -18,7 +24,10 @@ public class AttributePanel : RootPanelMgr
 
     void Update()
     {
-        
+        for (int i = 0; i < lPanels.Count; i++)
+        {
+            RectTransform panelRt = lPanels[i].transform as RectTransform;
+        }
     }
 
     // ========================================= PUBLIC FUNCS =========================================
@@ -44,6 +53,6 @@ public class AttributePanel : RootPanelMgr
         if (panel)
             lPanels.Add(panel);
 
-        CanvasMgr.RefreshCanvas();
+        CanvasMgr.Instance.RefreshCanvas();
     }
 }

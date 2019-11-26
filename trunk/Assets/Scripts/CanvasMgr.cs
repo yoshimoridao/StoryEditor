@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CanvasMgr : MonoBehaviour
+public class CanvasMgr : Singleton<CanvasMgr>
 {
-    private static Vector2 refreshCanvasDt = new Vector2(0, 1.0f);
+    private Vector2 refreshCanvasDt = new Vector2(0, 1.0f);
 
     public RootPanelMgr attributePanel;
 
     // ========================================= UNITY FUNCS =========================================
+    private void Awake()
+    {
+        instance = this;       
+    }
+
     void Start()
     {
         attributePanel.Init();
@@ -41,12 +46,12 @@ public class CanvasMgr : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public static bool IsRefreshCanvas()
+    public bool IsRefreshCanvas()
     {
         return refreshCanvasDt.x > 0;
     }
 
-    public static void RefreshCanvas()
+    public void RefreshCanvas()
     {
         refreshCanvasDt.x = refreshCanvasDt.y;
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PanelMgr : MonoBehaviour
+public class PanelMgr : DragingElement
 {
     public string prefRow = "Prefabs/row_label";
     public Transform transLabelCont;
@@ -72,7 +72,7 @@ public class PanelMgr : MonoBehaviour
                 rowLabel.AddLabel();
 
                 RefactorLabelRows();
-                CanvasMgr.RefreshCanvas();
+                CanvasMgr.Instance.RefreshCanvas();
             }
         }
     }
@@ -82,10 +82,16 @@ public class PanelMgr : MonoBehaviour
         isRefactorRows = true;
     }
 
+    // ========================================= OVERRIDE FUNCS =========================================
+    public override LabelMgr GetTitleObj()
+    {
+        return titleLabel;
+    }
+
     // ========================================= PRIVATE FUNCS =========================================
     private void RefractorLabelRow()
     {
-        if (!CanvasMgr.IsRefreshCanvas())
+        if (!CanvasMgr.Instance.IsRefreshCanvas())
         {
             if (isRefactorRows)
                 isRefactorRows = false;

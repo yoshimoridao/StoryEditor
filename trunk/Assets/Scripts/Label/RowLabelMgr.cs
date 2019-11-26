@@ -38,11 +38,7 @@ public class RowLabelMgr : MonoBehaviour
 
         // add template first row
         for (int i = 0; i < transform.childCount; i++)
-        {
-            LabelMgr label = transform.GetChild(i).GetComponent<LabelMgr>();
-            if (label)
-                lLabels.Add(label);
-        }
+            Destroy(transform.GetChild(i).gameObject);
     }
 
     // ========================================= PUBLIC FUNCS =========================================
@@ -50,31 +46,13 @@ public class RowLabelMgr : MonoBehaviour
     {
         if (prefLabel)
         {
-            LabelMgr label = null;
-
-            // get de-active label
-            for (int i = 0; i < lLabels.Count; i++)
-            {
-                if (!lLabels[i].gameObject.active)
-                {
-                    label = lLabels[i];
-                    label.gameObject.SetActive(true);
-                    break;
-                }
-            }
-           
             // gen new label
-            if (label == null)
-            {
-                label = Instantiate(prefLabel, transform).GetComponent<LabelMgr>();
-                // store generated label
-                lLabels.Add(label);
-            }
-
+            LabelMgr label = Instantiate(prefLabel, transform).GetComponent<LabelMgr>();
             label.Init(this);
+            lLabels.Add(label);
 
             // refresh canvas
-            CanvasMgr.RefreshCanvas();
+            CanvasMgr.Instance.RefreshCanvas();
         }
     }
 
