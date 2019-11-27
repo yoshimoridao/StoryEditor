@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class InputLabel : Label
 {
-    public ContentSizeFitter contentSize;
-    public Vector2 offset = new Vector2(20, 20);    // pixel
-
     bool isChangeVal = false;
 
     // ========================================= UNITY FUNCS =========================================
@@ -16,9 +13,9 @@ public class InputLabel : Label
         
     }
 
-    void Update()
+    public void Update()
     {
-        
+        base.Update();
     }
 
     // ========================================= PUBLIC FUNCS =========================================
@@ -34,7 +31,7 @@ public class InputLabel : Label
 
         isChangeVal = false;
         contentSize.enabled = false;
-        rt.sizeDelta = new Vector2(rt.sizeDelta.x + offset.x, rt.sizeDelta.y + offset.y);
+        contentSize.enabled = true;
 
         CanvasMgr.Instance.RefreshCanvas();
 
@@ -49,6 +46,7 @@ public class InputLabel : Label
             return;
 
         isChangeVal = true;
+
         contentSize.enabled = false;
         contentSize.enabled = true;
 

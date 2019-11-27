@@ -1,0 +1,13 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class DataConfig
+{
+    public static string prefPanelPath         = "Prefabs/Panel";
+    public static string prefOriginPanelPath   = "Prefabs/panel_origin";
+    public static string prefRow               = "Prefabs/row_label";
+    public static string prefLabelPath         = "Prefabs/label";
+    public static string prefInputLabelPath    = "Prefabs/label_input";
+    public static string prefLinkLabelPath     = "Prefabs/label_link";
+}

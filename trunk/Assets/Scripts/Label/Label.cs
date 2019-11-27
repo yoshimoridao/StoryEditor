@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 public class Label : MonoBehaviour
 {
+    public InputField inputField;
+    public ContentSizeFitter contentSize;
+    public float scaleText = 0.8f;
+
     // prop
     protected RectTransform rt;
     protected RowLabelMgr rowParent;
@@ -39,7 +43,12 @@ public class Label : MonoBehaviour
     }
     public void SetText(string val)
     {
-        GetComponentInChildren<Text>().text = val;
+        inputField.text = val;
+    }
+    public void SetText(Text t)
+    {
+        inputField.text = t.text;
+        GetComponentInChildren<Text>().fontSize = t.fontSize;
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -48,7 +57,7 @@ public class Label : MonoBehaviour
         
     }
 
-    void Update()
+    public void Update()
     {
     }
 
@@ -56,11 +65,15 @@ public class Label : MonoBehaviour
     public void Init()
     {
         rt = GetComponent<RectTransform>();
+
+        GetTextObj().transform.localScale = Vector3.one * scaleText;
     }
 
     public void Init(RowLabelMgr rowLabel)
     {
         rowParent = rowLabel;
         rt = GetComponent<RectTransform>();
+
+        GetTextObj().transform.localScale = Vector3.one * scaleText;
     }
 }

@@ -92,7 +92,7 @@ GameObject:
   - component: {fileID: 8326000602738434116}
   - component: {fileID: 4285359077764683235}
   m_Layer: 5
-  m_Name: input_label
+  m_Name: label_input
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -116,7 +116,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 104.75, y: 33.03}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8326000602738434113
 CanvasRenderer:
@@ -246,7 +246,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8326000602738434139}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
@@ -265,5 +265,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1e71bcf8f31e25419db8a5fcb65201e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputField: {fileID: 8326000602738434119}
   contentSize: {fileID: 8326000602738434116}
-  offset: {x: 20, y: 20}
+  scaleText: 0.9

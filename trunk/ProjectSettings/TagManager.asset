@@ -4,7 +4,11 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Panel
+  - panel_common
+  - panel_origin
+  - rootpanel_attribute
+  - rootpanel_sentence
+  - rootpanel_result
   layers:
   - Default
   - TransparentFX

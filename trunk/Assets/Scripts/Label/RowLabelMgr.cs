@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class RowLabelMgr : MonoBehaviour
 {
-    // prefabs
-    public string prefInputLabelPath = "Prefabs/label_input";
-    public string prefLinkLabelPath = "Prefabs/label_link";
     GameObject prefInputLabel;
     GameObject prefLinkLabel;
 
@@ -24,6 +21,11 @@ public class RowLabelMgr : MonoBehaviour
         return lLabels.Count;
     }
 
+    public List<Label> GetLabels()
+    {
+        return lLabels;
+    }
+
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
@@ -39,8 +41,8 @@ public class RowLabelMgr : MonoBehaviour
         contParent = labelCont;
 
         // load prefabs
-        prefInputLabel = Resources.Load<GameObject>(prefInputLabelPath);
-        prefLinkLabel = Resources.Load<GameObject>(prefLinkLabelPath);
+        prefInputLabel = Resources.Load<GameObject>(DataConfig.prefInputLabelPath);
+        prefLinkLabel = Resources.Load<GameObject>(DataConfig.prefLinkLabelPath);
 
         // add template first row
         for (int i = 0; i < transform.childCount; i++)

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class CanvasMgr : Singleton<CanvasMgr>
 {
-    private Vector2 refreshCanvasDt = new Vector2(0, 1.0f);
+    private Vector2 refreshCanvasDt = new Vector2(0, 0.5f);
 
     public List<RootPanelMgr> lRootPanel = new List<RootPanelMgr>();
 

@@ -56,41 +56,7 @@ public class CursorMgr : MonoBehaviour
             // mouse up
             else if (Input.GetMouseButtonUp(0))
             {
-                ActiveTitle(false);
-
-                // catch event
-                // event [1]: from panel to panel
-                GameObject touchedObj = GetTouchedUIElement(0);
-                if (touchedObj)
-                {
-                    // drop on panel -> [1]
-                    Panel compPanel = touchedObj.GetComponent<Panel>();
-                    if (compPanel)
-                    {
-                        if (dragingElement is Panel)
-                            OnDragPanelToPanel(compPanel);
-                    }
-                    // drop on text -> [1]
-                    Text compText = touchedObj.GetComponent<Text>();
-                    Label compLabel = null;
-                    if (compText)
-                    {
-                        compLabel = compText.transform.parent.GetComponent<Label>();
-                        if (compLabel)
-                        {
-                            OnDragPanelToPanel(compLabel.GetParent().GetParent());
-                        }
-                    }
-                    // drop on Label -> [1]
-                    compLabel = touchedObj.GetComponent<Label>();
-                    if (compLabel)
-                    {
-                        OnDragPanelToPanel(compLabel.GetParent().GetParent());
-                    }
-                }
-
-                // hide draging title & clear draging obj
-                dragingElement = null;
+                OnMouseUp();
             }
         }
     }
@@ -99,12 +65,8 @@ public class CursorMgr : MonoBehaviour
     ///Returns 'true' if we touched or hovering on Unity UI element.
     public GameObject GetTouchedUIElement(int catchLayerId = 0)
     {
-        PointerEventData eventData = new PointerEventData(EventSystem.current);
-        eventData.position = Input.mousePosition;
-
-        // cast all obj 
-        List<RaycastResult> ray = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, ray);
+        // get ray cast all objs
+        var ray = GetRayCastResultByMousePos();
 
         //for (int index = 0; index < raysastResults.Count; index++)
         if (ray.Count > 0)
@@ -122,6 +84,69 @@ public class CursorMgr : MonoBehaviour
     }
 
     // ========================================= PRIVATE FUNCS =========================================
+    private void OnMouseUp()
+    {
+        ActiveTitle(false);
+
+        // catch event
+        // event [1]: from panel to panel
+        GameObject touchedObj = GetTouchedUIElement(0);
+        if (touchedObj)
+        {
+            GameObject cacheObj = null;
+            if (IsTouchUIElement(out cacheObj, "rootpanel_attribute", "rootpanel_sentence"))
+            {
+                cacheObj = null;
+                if (IsTouchUIElement(out cacheObj, "panel_common"))
+                {
+                    OnDragPanelToPanel(cacheObj.GetComponent<CommonPanel>());
+                }
+            }
+            else if (IsTouchUIElement(out cacheObj, "rootpanel_result"))
+            {
+                if (cacheObj.GetComponent<ResultPanel>() && dragingElement is CommonPanel)
+                    cacheObj.GetComponent<ResultPanel>().ShowResult(dragingElement as CommonPanel);
+            }
+        }
+
+        // hide draging title & clear draging obj
+        dragingElement = null;
+    }
+
+    private bool IsTouchUIElement(out GameObject obj, params string[] tags)
+    {
+        obj = null;
+
+        // get ray cast all objs
+        var ray = GetRayCastResultByMousePos();
+
+        for (int i = 0; i < ray.Count; i++)
+        {
+            string touchedTag = ray[i].gameObject.tag;
+            foreach(string tag in tags)
+            {
+                if (touchedTag == tag)
+                {
+                    obj = ray[i].gameObject;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private List<RaycastResult> GetRayCastResultByMousePos()
+    {
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = Input.mousePosition;
+
+        // cast all obj 
+        List<RaycastResult> ray = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, ray);
+
+        return ray;
+    }
+
     private void ActiveTitle(bool isActive)
     {
         dragingTitle.gameObject.SetActive(isActive);

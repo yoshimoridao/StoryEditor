@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RootPanelMgr : MonoBehaviour
+public class RootPanelMgr : Singleton<RootPanelMgr>
 {
+    public Label titlePanel;
+
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-
+        instance = this;
     }
 
     void Update()
@@ -18,6 +20,9 @@ public class RootPanelMgr : MonoBehaviour
     // ========================================= PUBLIC FUNCS =========================================
     public virtual void Init()
     {
+        instance = this;
 
+        // init title
+        titlePanel.Init();
     }
 }

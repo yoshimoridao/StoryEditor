@@ -6,6 +6,12 @@ public class LinkLabel : Label
 {
     CommonPanel referPanel;
 
+    // ========================================= GET/ SET =========================================
+    public CommonPanel GetReferPanel()
+    {
+        return referPanel;
+    }
+
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {

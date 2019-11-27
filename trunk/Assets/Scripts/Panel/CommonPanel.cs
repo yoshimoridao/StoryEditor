@@ -5,16 +5,29 @@ using UnityEngine.UI;
 
 public class CommonPanel : Panel
 {
-    public string prefRow = "Prefabs/row_label";
-
     public Label titleLabel;
 
     RootPanelMgr parentPanel;
     GameObject prefRowLabel;
-    
+
     List<RowLabelMgr> lLabelRows = new List<RowLabelMgr>();
     bool isRefactorRows = false;
     float panelZoneW;
+
+    // ========================================= GET/ SET =========================================
+    public Label GetTitleLabel()
+    {
+        return titleLabel;
+    }
+    public List<Label> GetLabels()
+    {
+        List<Label> labels = new List<Label>();
+        for (int i = 0; i < lLabelRows.Count; i++)
+        {
+            labels.AddRange(lLabelRows[i].GetLabels());
+        }
+        return labels;
+    }
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
@@ -32,7 +45,7 @@ public class CommonPanel : Panel
         base.Init();
 
         // load prefab
-        prefRowLabel = Resources.Load<GameObject>(prefRow);
+        prefRowLabel = Resources.Load<GameObject>(DataConfig.prefRow);
         // store parent
         parentPanel = rootPanel;
 
