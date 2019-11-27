@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class RowLabelMgr : MonoBehaviour
 {
-    public string prefLabelPath = "Prefabs/label";
+    // prefabs
+    public string prefInputLabelPath = "Prefabs/input_label";
+    public string prefLinkLabelPath = "Prefabs/link_label";
+    GameObject prefInputLabel;
+    GameObject prefLinkLabel;
 
-    GameObject prefLabel;
     PanelMgr contParent;
-    List<LabelMgr> lLabels = new List<LabelMgr>();
+    List<Label> lLabels = new List<Label>();
 
     // ========================================= GET/ SET FUNCS =========================================
-    public void SetParent(PanelMgr labelCont)
+    public PanelMgr GetParent()
     {
-        contParent = labelCont;
+        return contParent;
     }
 
     public int ChildCount()
@@ -34,7 +37,10 @@ public class RowLabelMgr : MonoBehaviour
     public void Init(PanelMgr labelCont)
     {
         contParent = labelCont;
-        prefLabel = Resources.Load<GameObject>(prefLabelPath);
+
+        // load prefabs
+        prefInputLabel = Resources.Load<GameObject>(prefInputLabelPath);
+        prefLinkLabel = Resources.Load<GameObject>(prefLinkLabelPath);
 
         // add template first row
         for (int i = 0; i < transform.childCount; i++)
@@ -42,12 +48,12 @@ public class RowLabelMgr : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void AddLabel()
+    public void AddInputLabel()
     {
-        if (prefLabel)
+        if (prefInputLabel)
         {
             // gen new label
-            LabelMgr label = Instantiate(prefLabel, transform).GetComponent<LabelMgr>();
+            InputLabel label = Instantiate(prefInputLabel, transform).GetComponent<InputLabel>();
             label.Init(this);
             lLabels.Add(label);
 
@@ -55,18 +61,29 @@ public class RowLabelMgr : MonoBehaviour
             CanvasMgr.Instance.RefreshCanvas();
         }
     }
+    public void AddLinkLabel(PanelMgr referPanel)
+    {
+        if (prefInputLabel)
+        {
+            // gen new label
+            LinkLabel label = Instantiate(prefLinkLabel, transform).GetComponent<LinkLabel>();
+            label.Init(this, referPanel);
+            lLabels.Add(label);
 
-    public void AddLabelAsFirst(LabelMgr label)
+            // refresh canvas
+            CanvasMgr.Instance.RefreshCanvas();
+        }
+    }
+
+    public void AddLabelAsFirst(Label label)
     {
         // set parent for label object  (transform)
         label.SetParent(this, true);
-        //label.transform.parent = transform;
-        //label.transform.SetAsFirstSibling();
 
         // add new label at first index (in storage)
         if (lLabels.Count > 0)
         {
-            LabelMgr temp = lLabels[0];
+            Label temp = lLabels[0];
             lLabels[0] = label;
             lLabels.Add(temp);
         }
@@ -76,20 +93,21 @@ public class RowLabelMgr : MonoBehaviour
         }
     }
 
-    public LabelMgr RetrieveLastLabel()
+    public Label RetrieveLastLabel()
     {
         if (lLabels.Count == 0)
             return null;
 
         int lastId = lLabels.Count - 1;
 
-        LabelMgr lastLabel = lLabels[lastId];
+        Label lastLabel = lLabels[lastId];
         lastLabel.SetParent(null);  // remove from parent
         lLabels.RemoveAt(lastId);   // remove in storage
 
         return lastLabel;
     }
 
+    // ========== INPUT LABEL ==========
     public void OnChildLabelEditDone()
     {
         // call event to parent

@@ -7,7 +7,7 @@ public class PanelMgr : DragingElement
 {
     public string prefRow = "Prefabs/row_label";
     public Transform transLabelCont;
-    public LabelMgr titleLabel;
+    public Label titleLabel;
 
     RootPanelMgr parentPanel;
     RectTransform rt;
@@ -57,7 +57,7 @@ public class PanelMgr : DragingElement
             titleLabel.Init();
     }
 
-    public void AddLabel()
+    public void AddInputLabel()
     {
         // add new row if empty
         if (lLabelRows.Count == 0)
@@ -69,7 +69,27 @@ public class PanelMgr : DragingElement
             RowLabelMgr rowLabel = lLabelRows[lLabelRows.Count - 1];
             if (rowLabel)
             {
-                rowLabel.AddLabel();
+                rowLabel.AddInputLabel();           // add input panel
+
+                RefactorLabelRows();
+                CanvasMgr.Instance.RefreshCanvas();
+            }
+        }
+    }
+
+    public void AddLinkLabel(PanelMgr referPanel)
+    {
+        // add new row if empty
+        if (lLabelRows.Count == 0)
+            AddLabelRow();
+
+        if (lLabelRows.Count > 0)
+        {
+            // append label to last row
+            RowLabelMgr rowLabel = lLabelRows[lLabelRows.Count - 1];
+            if (rowLabel)
+            {
+                rowLabel.AddLinkLabel(referPanel);     // add linking panel
 
                 RefactorLabelRows();
                 CanvasMgr.Instance.RefreshCanvas();
@@ -83,7 +103,7 @@ public class PanelMgr : DragingElement
     }
 
     // ========================================= OVERRIDE FUNCS =========================================
-    public override LabelMgr GetTitleObj()
+    public override Label GetTitleObj()
     {
         return titleLabel;
     }
@@ -124,7 +144,7 @@ public class PanelMgr : DragingElement
 
                     if (row.ChildCount() > 1)
                     {
-                        LabelMgr lastLabel = row.RetrieveLastLabel();
+                        Label lastLabel = row.RetrieveLastLabel();
 
                         // add label as first element of next row
                         RowLabelMgr nextRow = null;

@@ -3,15 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LabelMgr : MonoBehaviour
+public class Label : MonoBehaviour
 {
-    public ContentSizeFitter contentSize;
-    public Vector2 offset = new Vector2(5, 5);    // pixel
-
     // prop
-    RectTransform rt;
-    RowLabelMgr rowParent;
-    bool isChangeVal = false;
+    protected RectTransform rt;
+    protected RowLabelMgr rowParent;
 
     // ========================================= GET/ SET FUNCS =========================================
     public void SetParent(RowLabelMgr rowLabel, bool isAsFirstElement = false)
@@ -32,10 +28,18 @@ public class LabelMgr : MonoBehaviour
             rowParent = null;
         }
     }
+    public RowLabelMgr GetParent()
+    {
+        return rowParent;
+    }
 
-    public Text GetText()
+    public Text GetTextObj()
     {
         return GetComponentInChildren<Text>();
+    }
+    public void SetText(string val)
+    {
+        GetComponentInChildren<Text>().text = val;
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -58,33 +62,5 @@ public class LabelMgr : MonoBehaviour
     {
         rowParent = rowLabel;
         rt = GetComponent<RectTransform>();
-    }
-
-    public void OnEditDone()
-    {
-        if (!isChangeVal)
-            return;
-
-        isChangeVal = false;
-        contentSize.enabled = false;
-        rt.sizeDelta = new Vector2(rt.sizeDelta.x + offset.x, rt.sizeDelta.y + offset.y);
-
-        CanvasMgr.Instance.RefreshCanvas();
-
-        // call event to parent
-        if (rowParent)
-            rowParent.OnChildLabelEditDone();
-    }
-
-    public void OnChangeValue()
-    {
-        if (!contentSize)
-            return;
-
-        isChangeVal = true;
-        contentSize.enabled = false;
-        contentSize.enabled = true;
-
-        CanvasMgr.Instance.RefreshCanvas();
     }
 }

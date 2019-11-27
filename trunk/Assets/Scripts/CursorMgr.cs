@@ -22,81 +22,126 @@ public class CursorMgr : MonoBehaviour
 
     void Start()
     {
-        
+
     }
-    
+
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        // mouse down
+        if (Input.GetMouseButtonDown(0) && dragingElement == null)
         {
-            // get draging element
-            if (dragingElement == null)
+            GameObject touchedObj = GetTouchedUIElement();
+            // if touched obj is draging element
+            if (touchedObj && touchedObj.GetComponent<DragingElement>())
             {
-                dragingElement = GetTouchedUIElement();
-
+                dragingElement = touchedObj.GetComponent<DragingElement>();
                 // active draging title
                 if (dragingElement)
                     ActiveTitle(true);
+
+                // catch mouse position
+                rt.position = Input.mousePosition;
             }
-
-            // catch mouse position
-            Vector2 mousePos = Input.mousePosition;
-            rt.position = mousePos;
         }
-        else if (Input.GetMouseButton(0) && dragingElement)
-        {
-            // catch mouse position
-            Vector2 mousePos = Input.mousePosition;
-            rt.position = mousePos;
-        }
-        else if (dragingElement)
-        {
-            dragingElement = null;
 
-            // hide draging title
-            ActiveTitle(false);
+        // in case draging an element
+        if (dragingElement)
+        {
+            // mouse hold
+            if (Input.GetMouseButton(0))
+            {
+                // catch mouse position
+                rt.position = Input.mousePosition;
+            }
+            // mouse up
+            else if (Input.GetMouseButtonUp(0))
+            {
+                ActiveTitle(false);
+
+                // catch event
+                // event [1]: from panel to panel
+                GameObject touchedObj = GetTouchedUIElement(0);
+                if (touchedObj)
+                {
+                    // drop on panel -> [1]
+                    PanelMgr compPanel = touchedObj.GetComponent<PanelMgr>();
+                    if (compPanel)
+                    {
+                        if (dragingElement is PanelMgr)
+                            OnDragPanelToPanel(compPanel);
+                    }
+                    // drop on text -> [1]
+                    Text compText = touchedObj.GetComponent<Text>();
+                    Label compLabel = null;
+                    if (compText)
+                    {
+                        compLabel = compText.transform.parent.GetComponent<Label>();
+                        if (compLabel)
+                        {
+                            OnDragPanelToPanel(compLabel.GetParent().GetParent());
+                        }
+                    }
+                    // drop on Label -> [1]
+                    compLabel = touchedObj.GetComponent<Label>();
+                    if (compLabel)
+                    {
+                        OnDragPanelToPanel(compLabel.GetParent().GetParent());
+                    }
+                }
+
+                // hide draging title & clear draging obj
+                dragingElement = null;
+            }
         }
     }
 
     // ========================================= PUBLIC FUNCS =========================================
     ///Returns 'true' if we touched or hovering on Unity UI element.
-    public DragingElement GetTouchedUIElement()
+    public GameObject GetTouchedUIElement(int catchLayerId = 0)
     {
         PointerEventData eventData = new PointerEventData(EventSystem.current);
         eventData.position = Input.mousePosition;
 
         // cast all obj 
-        List<RaycastResult> raysastResults = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, raysastResults);
+        List<RaycastResult> ray = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, ray);
 
         //for (int index = 0; index < raysastResults.Count; index++)
+        if (ray.Count > 0)
         {
             //RaycastResult curRaysastResult = raysastResults[index];
-            RaycastResult curRaysastResult = raysastResults[0];
-            if (curRaysastResult.gameObject)
+            RaycastResult rayResult = ray[catchLayerId];
+            if (rayResult.gameObject)
             {
-                GameObject castObj = curRaysastResult.gameObject;
-                if (castObj.GetComponent<DragingElement>())
-                    return castObj.GetComponent<DragingElement>();
+                GameObject castObj = rayResult.gameObject;
+                return castObj;
             }
         }
 
         return null;
     }
 
+    // ========================================= PRIVATE FUNCS =========================================
     private void ActiveTitle(bool isActive)
     {
         dragingTitle.gameObject.SetActive(isActive);
         if (isActive && dragingElement)
         {
-            LabelMgr label = dragingElement.GetTitleObj();
+            Label label = dragingElement.GetTitleObj();
 
             // clone text & font size
-            dragingTitle.text = label.GetText().text;
-            dragingTitle.GetComponentInChildren<Text>().fontSize = label.GetText().fontSize;
+            dragingTitle.text = label.GetTextObj().text;
+            dragingTitle.GetComponentInChildren<Text>().fontSize = label.GetTextObj().fontSize;
 
             // clone size delta
             (dragingTitle.transform as RectTransform).sizeDelta = (label.transform as RectTransform).sizeDelta;
         }
+    }
+
+    // === drag event ===
+    private void OnDragPanelToPanel(PanelMgr dropPanel)
+    {
+        if (dropPanel && dragingElement is PanelMgr && dropPanel != dragingElement)
+            dropPanel.AddLinkLabel(dragingElement as PanelMgr);
     }
 }
