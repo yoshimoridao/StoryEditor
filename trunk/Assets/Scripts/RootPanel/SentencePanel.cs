@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttributePanel : RootPanelMgr
+public class SentencePanel : RootPanelMgr
 {
     public string prefPanelPath = "Prefabs/Panel";
     public Transform transPanelCont;
@@ -19,7 +19,7 @@ public class AttributePanel : RootPanelMgr
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        
+
     }
 
     void Update()

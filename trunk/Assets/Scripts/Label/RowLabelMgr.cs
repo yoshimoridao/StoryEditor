@@ -5,16 +5,16 @@ using UnityEngine;
 public class RowLabelMgr : MonoBehaviour
 {
     // prefabs
-    public string prefInputLabelPath = "Prefabs/input_label";
-    public string prefLinkLabelPath = "Prefabs/link_label";
+    public string prefInputLabelPath = "Prefabs/label_input";
+    public string prefLinkLabelPath = "Prefabs/label_link";
     GameObject prefInputLabel;
     GameObject prefLinkLabel;
 
-    PanelMgr contParent;
+    CommonPanel contParent;
     List<Label> lLabels = new List<Label>();
 
     // ========================================= GET/ SET FUNCS =========================================
-    public PanelMgr GetParent()
+    public Panel GetParent()
     {
         return contParent;
     }
@@ -34,7 +34,7 @@ public class RowLabelMgr : MonoBehaviour
 
     }
 
-    public void Init(PanelMgr labelCont)
+    public void Init(CommonPanel labelCont)
     {
         contParent = labelCont;
 
@@ -61,7 +61,7 @@ public class RowLabelMgr : MonoBehaviour
             CanvasMgr.Instance.RefreshCanvas();
         }
     }
-    public void AddLinkLabel(PanelMgr referPanel)
+    public void AddLinkLabel(CommonPanel referPanel)
     {
         if (prefInputLabel)
         {
@@ -112,6 +112,6 @@ public class RowLabelMgr : MonoBehaviour
     {
         // call event to parent
         if (contParent)
-            contParent.RefactorLabelRows();
+            (contParent as CommonPanel).RefactorLabelRows();
     }
 }

@@ -3,28 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PanelMgr : DragingElement
+public class CommonPanel : Panel
 {
     public string prefRow = "Prefabs/row_label";
-    public Transform transLabelCont;
+
     public Label titleLabel;
 
     RootPanelMgr parentPanel;
-    RectTransform rt;
     GameObject prefRowLabel;
-
-    [SerializeField]
+    
     List<RowLabelMgr> lLabelRows = new List<RowLabelMgr>();
     bool isRefactorRows = false;
-    [SerializeField]
     float panelZoneW;
 
     // ========================================= UNITY FUNCS =========================================
-    private void Awake()
-    {
-        rt = GetComponent<RectTransform>();
-    }
-
     void Start()
     {
     }
@@ -37,16 +29,12 @@ public class PanelMgr : DragingElement
     // ========================================= PUBLIC FUNCS =========================================
     public void Init(RootPanelMgr rootPanel)
     {
+        base.Init();
+
         // load prefab
         prefRowLabel = Resources.Load<GameObject>(prefRow);
         // store parent
         parentPanel = rootPanel;
-
-        // clear all child rows
-        for (int i = 0; i < transLabelCont.childCount; i++)
-        {
-            Destroy(transLabelCont.GetChild(i).gameObject);
-        }
 
         // calculate panel's zone
         RectOffset rootPadding = parentPanel.GetComponent<VerticalLayoutGroup>().padding;
@@ -77,7 +65,7 @@ public class PanelMgr : DragingElement
         }
     }
 
-    public void AddLinkLabel(PanelMgr referPanel)
+    public void AddLinkLabel(CommonPanel referPanel)
     {
         // add new row if empty
         if (lLabelRows.Count == 0)

@@ -7,7 +7,7 @@ public class CanvasMgr : Singleton<CanvasMgr>
 {
     private Vector2 refreshCanvasDt = new Vector2(0, 1.0f);
 
-    public RootPanelMgr attributePanel;
+    public List<RootPanelMgr> lRootPanel = new List<RootPanelMgr>();
 
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
@@ -17,7 +17,12 @@ public class CanvasMgr : Singleton<CanvasMgr>
 
     void Start()
     {
-        attributePanel.Init();
+        // init root panel
+        for (int i = 0; i < lRootPanel.Count; i++)
+        {
+            RootPanelMgr rootPanel = lRootPanel[i];
+            rootPanel.Init();
+        }
 
         RefreshCanvas();
     }

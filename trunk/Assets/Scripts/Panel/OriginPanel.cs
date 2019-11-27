@@ -1,29 +1,30 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class LinkLabel : Label
+public class OriginPanel : Panel
 {
-    CommonPanel referPanel;
+    public Text titleText;
+    public Text valText;
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-
     }
 
     void Update()
     {
-
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init(RowLabelMgr rowLabel, CommonPanel panel)
+    public void Init()
     {
-        base.Init(rowLabel);
+        base.Init();
+    }
 
-        // store reference panel
-        referPanel = panel;
-        SetText(referPanel.titleLabel.GetTextObj().text);
+    public void AddPanel(OriginPanel panel)
+    {
+
     }
 }

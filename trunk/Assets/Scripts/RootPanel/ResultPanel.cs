@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttributePanel : RootPanelMgr
+public class ResultPanel : RootPanelMgr
 {
-    public string prefPanelPath = "Prefabs/Panel";
+    public string prefOriginPanelPath = "Prefabs/panel_origin";
+    public string prefLabelPath = "Prefabs/label";
+
     public Transform transPanelCont;
+    public OriginPanel sentencePanel;
 
     List<Panel> lPanels = new List<Panel>();
-    GameObject prefPanel;
+    GameObject prefOriginPanel;
+    GameObject prefLabel;
 
     // ========================================= GET/ SET =========================================
     public List<Panel> GetPanels()
@@ -19,7 +23,7 @@ public class AttributePanel : RootPanelMgr
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        
+
     }
 
     void Update()
@@ -32,23 +36,13 @@ public class AttributePanel : RootPanelMgr
         base.Init();
 
         // load prefab
-        prefPanel = Resources.Load<GameObject>(prefPanelPath);
+        prefOriginPanel = Resources.Load<GameObject>(prefOriginPanelPath);
+        prefLabel = Resources.Load<GameObject>(prefLabelPath);
 
         // clear all child
         for (int i = 0; i < transPanelCont.childCount; i++)
         {
             Destroy(transPanelCont.GetChild(i).gameObject);
         }
-    }
-
-    public void AddPanel()
-    {
-        Panel panel = Instantiate(prefPanel, transPanelCont).GetComponent<Panel>();
-        (panel as CommonPanel).Init(this);
-
-        if (panel)
-            lPanels.Add(panel);
-
-        CanvasMgr.Instance.RefreshCanvas();
     }
 }

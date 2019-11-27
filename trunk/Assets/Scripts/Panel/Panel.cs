@@ -1,29 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class LinkLabel : Label
+public class Panel : DragingElement
 {
-    CommonPanel referPanel;
+    public Transform transLabelCont;
+
+    protected RectTransform rt;
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-
     }
 
     void Update()
     {
-
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init(RowLabelMgr rowLabel, CommonPanel panel)
+    public void Init()
     {
-        base.Init(rowLabel);
+        rt = GetComponent<RectTransform>();
 
-        // store reference panel
-        referPanel = panel;
-        SetText(referPanel.titleLabel.GetTextObj().text);
+        // clear all child rows
+        for (int i = 0; i < transLabelCont.childCount; i++)
+        {
+            Destroy(transLabelCont.GetChild(i).gameObject);
+        }
     }
 }

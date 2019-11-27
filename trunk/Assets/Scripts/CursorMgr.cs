@@ -64,10 +64,10 @@ public class CursorMgr : MonoBehaviour
                 if (touchedObj)
                 {
                     // drop on panel -> [1]
-                    PanelMgr compPanel = touchedObj.GetComponent<PanelMgr>();
+                    Panel compPanel = touchedObj.GetComponent<Panel>();
                     if (compPanel)
                     {
-                        if (dragingElement is PanelMgr)
+                        if (dragingElement is Panel)
                             OnDragPanelToPanel(compPanel);
                     }
                     // drop on text -> [1]
@@ -139,9 +139,9 @@ public class CursorMgr : MonoBehaviour
     }
 
     // === drag event ===
-    private void OnDragPanelToPanel(PanelMgr dropPanel)
+    private void OnDragPanelToPanel(Panel dropPanel)
     {
-        if (dropPanel && dragingElement is PanelMgr && dropPanel != dragingElement)
-            dropPanel.AddLinkLabel(dragingElement as PanelMgr);
+        if (dragingElement is CommonPanel && dropPanel && dropPanel != dragingElement)
+            (dropPanel as CommonPanel).AddLinkLabel(dragingElement as CommonPanel);
     }
 }

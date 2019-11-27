@@ -118,7 +118,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5597673473024673156}
+      - m_Target: {fileID: 8935472360488792779}
         m_MethodName: AddInputLabel
         m_Mode: 1
         m_Arguments:
@@ -142,9 +142,9 @@ GameObject:
   - component: {fileID: 5597673473024673159}
   - component: {fileID: 5597673473024673152}
   - component: {fileID: 5597673473024673153}
-  - component: {fileID: 5597673473024673156}
+  - component: {fileID: 8935472360488792779}
   m_Layer: 5
-  m_Name: Panel
+  m_Name: panel
   m_TagString: Panel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -246,7 +246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 1
---- !u!114 &5597673473024673156
+--- !u!114 &8935472360488792779
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -255,14 +255,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5597673473024673178}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9eb2bda5e3463847ab8eebe9710add0, type: 3}
+  m_Script: {fileID: 11500000, guid: 53e4ab29a95474942939e3c89e3e95ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefRow: Prefabs/row_label
   transLabelCont: {fileID: 5597673473371183034}
+  prefRow: Prefabs/row_label
   titleLabel: {fileID: 477431950466056277}
-  lLabelRows: []
-  panelZoneW: 0
 --- !u!1 &5597673473371183035
 GameObject:
   m_ObjectHideFlags: 0
@@ -275,7 +273,7 @@ GameObject:
   - component: {fileID: 5597673473371183012}
   - component: {fileID: 5597673473371183013}
   m_Layer: 5
-  m_Name: LabelCont
+  m_Name: labelcont
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -351,7 +349,7 @@ GameObject:
   - component: {fileID: 5597673473549419010}
   - component: {fileID: 5597673473549419022}
   m_Layer: 5
-  m_Name: UpperZone
+  m_Name: top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -529,7 +527,7 @@ PrefabInstance:
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 35
+      value: 52.375
       objectReference: {fileID: 0}
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
