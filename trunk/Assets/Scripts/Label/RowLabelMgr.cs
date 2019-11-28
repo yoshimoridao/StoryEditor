@@ -7,13 +7,16 @@ public class RowLabelMgr : MonoBehaviour
     GameObject prefInputLabel;
     GameObject prefLinkLabel;
 
-    CommonPanel contParent;
+    [SerializeField]
+    CommonPanel contParent = null;
     List<Label> lLabels = new List<Label>();
 
     // ========================================= GET/ SET FUNCS =========================================
     public Panel GetParent()
     {
-        return contParent;
+        if (contParent)
+            return contParent;
+        return null;
     }
 
     public int ChildCount()

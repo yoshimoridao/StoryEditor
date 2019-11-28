@@ -6,6 +6,9 @@ using UnityEngine.UI;
 public class InputLabel : Label
 {
     bool isChangeVal = false;
+    [SerializeField]
+    bool isTitleLabel = false;
+    string oldKey = "";
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
@@ -22,6 +25,8 @@ public class InputLabel : Label
     public void Init(RowLabelMgr rowLabel)
     {
         base.Init(rowLabel);
+
+        oldKey = GetText();
     }
 
     public void OnEditDone()
@@ -40,6 +45,13 @@ public class InputLabel : Label
         // call event to parent
         if (rowParent)
             rowParent.OnChildLabelEditDone();
+
+        // modified key in storage
+        if (isTitleLabel)
+            DataMgr.Instance.ReplaceKey(oldKey, GetText());
+
+        // update old key
+        oldKey = GetText();
     }
 
     public void OnChangeValue()

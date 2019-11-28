@@ -5,6 +5,7 @@ using UnityEngine;
 public class LinkLabel : Label
 {
     CommonPanel referPanel;
+    string referralKey = "";
 
     // ========================================= GET/ SET =========================================
     public CommonPanel GetReferPanel()
@@ -20,7 +21,15 @@ public class LinkLabel : Label
 
     void Update()
     {
-
+        if (referralKey.Length > 0)
+        {
+            string referralVal = referPanel.titleLabel.GetText();
+            if (referralVal.Length > 0 && referralKey != referralVal)
+            {
+                referralKey = referralVal;
+                SetText(referralVal);
+            }
+        }
     }
 
     // ========================================= PUBLIC FUNCS =========================================
@@ -30,6 +39,8 @@ public class LinkLabel : Label
 
         // store reference panel
         referPanel = panel;
-        SetText(referPanel.titleLabel.GetTextObject().text);
+        
+        referralKey = referPanel.titleLabel.GetText();
+        SetText(referralKey);
     }
 }
