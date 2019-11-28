@@ -10,11 +10,11 @@ public class Panel : DragingElement
     protected RectTransform rt;
 
     // ========================================= UNITY FUNCS =========================================
-    void Start()
+    public void Start()
     {
     }
 
-    void Update()
+    public void Update()
     {
     }
 

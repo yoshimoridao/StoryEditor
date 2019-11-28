@@ -32,27 +32,35 @@ public class Label : MonoBehaviour
             rowParent = null;
         }
     }
+
     public RowLabelMgr GetParent()
     {
         return rowParent;
     }
 
-    public Text GetTextObj()
+    public Text GetTextObject()
     {
         return GetComponentInChildren<Text>();
     }
-    public void SetText(string val)
+
+    public string GetText()
     {
-        inputField.text = val;
+        return inputField.text;
     }
+
     public void SetText(Text t)
     {
         inputField.text = t.text;
         GetComponentInChildren<Text>().fontSize = t.fontSize;
     }
 
+    public void SetText(string val)
+    {
+        inputField.text = val;
+    }
+
     // ========================================= UNITY FUNCS =========================================
-    void Start()
+    public void Start()
     {
         
     }
@@ -66,7 +74,7 @@ public class Label : MonoBehaviour
     {
         rt = GetComponent<RectTransform>();
 
-        GetTextObj().transform.localScale = Vector3.one * scaleText;
+        GetTextObject().transform.localScale = Vector3.one * scaleText;
     }
 
     public void Init(RowLabelMgr rowLabel)
@@ -74,6 +82,6 @@ public class Label : MonoBehaviour
         rowParent = rowLabel;
         rt = GetComponent<RectTransform>();
 
-        GetTextObj().transform.localScale = Vector3.one * scaleText;
+        GetTextObject().transform.localScale = Vector3.one * scaleText;
     }
 }

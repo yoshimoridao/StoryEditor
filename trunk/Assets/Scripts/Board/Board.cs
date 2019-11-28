@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RootPanelMgr : Singleton<RootPanelMgr>
+public class Board : Singleton<Board>
 {
     public Label titlePanel;
 

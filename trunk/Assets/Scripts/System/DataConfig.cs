@@ -10,4 +10,9 @@ public class DataConfig
     public static string prefLabelPath         = "Prefabs/label";
     public static string prefInputLabelPath    = "Prefabs/label_input";
     public static string prefLinkLabelPath     = "Prefabs/label_link";
+
+    public static string defaultPanelTitle = "???";
+    public static string defaultPanelVar = "---";
+
+    public static string saveFilePath = "Assets/Resources/Data/story.txt";
 }

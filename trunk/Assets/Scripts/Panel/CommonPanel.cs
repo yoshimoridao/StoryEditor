@@ -6,8 +6,9 @@ using UnityEngine.UI;
 public class CommonPanel : Panel
 {
     public Label titleLabel;
+    public Button addBtn;
 
-    RootPanelMgr parentPanel;
+    Board board;
     GameObject prefRowLabel;
 
     List<RowLabelMgr> lLabelRows = new List<RowLabelMgr>();
@@ -15,10 +16,16 @@ public class CommonPanel : Panel
     float panelZoneW;
 
     // ========================================= GET/ SET =========================================
+    public Board GetBoard()
+    {
+        return board;
+    }
+
     public Label GetTitleLabel()
     {
         return titleLabel;
     }
+
     public List<Label> GetLabels()
     {
         List<Label> labels = new List<Label>();
@@ -30,32 +37,43 @@ public class CommonPanel : Panel
     }
 
     // ========================================= UNITY FUNCS =========================================
-    void Start()
+    public void Start()
     {
     }
 
-    void Update()
+    public void Update()
     {
+        base.Update();
+
         RefractorLabelRow();
+
+        // checking user change title -> to activate add btn
+        if (!IsAddBtnActive() && titleLabel.GetText() != DataConfig.defaultPanelTitle)
+        {
+            ActiveAddBtn(true);
+        }
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init(RootPanelMgr rootPanel)
+    public void Init(Board board)
     {
         base.Init();
 
         // load prefab
         prefRowLabel = Resources.Load<GameObject>(DataConfig.prefRow);
         // store parent
-        parentPanel = rootPanel;
+        this.board = board;
 
         // calculate panel's zone
-        RectOffset rootPadding = parentPanel.GetComponent<VerticalLayoutGroup>().padding;
-        panelZoneW = (parentPanel.transform as RectTransform).sizeDelta.x - (rootPadding.left + rootPadding.right);
+        RectOffset rootPadding = this.board.GetComponent<VerticalLayoutGroup>().padding;
+        panelZoneW = (this.board.transform as RectTransform).sizeDelta.x - (rootPadding.left + rootPadding.right);
 
         // init title
         if (titleLabel)
             titleLabel.Init();
+
+        // default disable add btn -> (to force user change title text)
+        ActiveAddBtn(false);
     }
 
     public void AddInputLabel()
@@ -70,9 +88,10 @@ public class CommonPanel : Panel
             RowLabelMgr rowLabel = lLabelRows[lLabelRows.Count - 1];
             if (rowLabel)
             {
-                rowLabel.AddInputLabel();           // add input panel
+                // add input panel
+                rowLabel.AddInputLabel();
 
-                RefactorLabelRows();
+                OnChildLabelEditDone();
                 CanvasMgr.Instance.RefreshCanvas();
             }
         }
@@ -92,15 +111,17 @@ public class CommonPanel : Panel
             {
                 rowLabel.AddLinkLabel(referPanel);     // add linking panel
 
-                RefactorLabelRows();
+                OnChildLabelEditDone();
                 CanvasMgr.Instance.RefreshCanvas();
             }
         }
     }
 
-    public void RefactorLabelRows()
+    public void OnChildLabelEditDone()
     {
         isRefactorRows = true;
+
+        DataMgr.Instance.SaveData(this);
     }
 
     // ========================================= OVERRIDE FUNCS =========================================
@@ -110,6 +131,31 @@ public class CommonPanel : Panel
     }
 
     // ========================================= PRIVATE FUNCS =========================================
+    private RowLabelMgr AddLabelRow()
+    {
+        if (prefRowLabel)
+        {
+            RowLabelMgr rowLabel = Instantiate(prefRowLabel, transLabelCont).GetComponent<RowLabelMgr>();
+            rowLabel.Init(this);
+
+            // store label cont
+            lLabelRows.Add(rowLabel);
+            return rowLabel;
+        }
+
+        return null;
+    }
+
+    private void ActiveAddBtn(bool isActive)
+    {
+        addBtn.interactable = isActive;
+    }
+
+    private bool IsAddBtnActive()
+    {
+        return addBtn.interactable;
+    }
+
     private void RefractorLabelRow()
     {
         if (!CanvasMgr.Instance.IsRefreshCanvas())
@@ -158,20 +204,5 @@ public class CommonPanel : Panel
                 }
             }
         }
-    }
-
-    private RowLabelMgr AddLabelRow()
-    {
-        if (prefRowLabel)
-        {
-            RowLabelMgr rowLabel = Instantiate(prefRowLabel, transLabelCont).GetComponent<RowLabelMgr>();
-            rowLabel.Init(this);
-
-            // store label cont
-            lLabelRows.Add(rowLabel);
-            return rowLabel;
-        }
-
-        return null;
     }
 }

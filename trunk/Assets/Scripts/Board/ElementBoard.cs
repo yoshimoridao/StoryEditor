@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttributePanel : RootPanelMgr
+public class ElementBoard : Board
 {
     public Transform transPanelCont;
 

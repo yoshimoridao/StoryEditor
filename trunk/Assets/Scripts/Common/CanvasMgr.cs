@@ -7,7 +7,7 @@ public class CanvasMgr : Singleton<CanvasMgr>
 {
     private Vector2 refreshCanvasDt = new Vector2(0, 0.5f);
 
-    public List<RootPanelMgr> lRootPanel = new List<RootPanelMgr>();
+    public List<Board> lRootPanel = new List<Board>();
 
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
@@ -17,10 +17,13 @@ public class CanvasMgr : Singleton<CanvasMgr>
 
     void Start()
     {
+        // init data
+        DataMgr.Instance.Init();
+
         // init root panel
         for (int i = 0; i < lRootPanel.Count; i++)
         {
-            RootPanelMgr rootPanel = lRootPanel[i];
+            Board rootPanel = lRootPanel[i];
             rootPanel.Init();
         }
 

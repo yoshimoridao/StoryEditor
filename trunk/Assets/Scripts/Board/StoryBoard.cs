@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SentencePanel : RootPanelMgr
+public class StoryBoard : Board
 {
     public Transform transPanelCont;
 

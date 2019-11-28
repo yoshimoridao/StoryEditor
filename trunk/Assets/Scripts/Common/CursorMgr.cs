@@ -104,8 +104,8 @@ public class CursorMgr : MonoBehaviour
             }
             else if (IsTouchUIElement(out cacheObj, "rootpanel_result"))
             {
-                if (cacheObj.GetComponent<ResultPanel>() && dragingElement is CommonPanel)
-                    cacheObj.GetComponent<ResultPanel>().ShowResult(dragingElement as CommonPanel);
+                if (cacheObj.GetComponent<OriginBoard>() && dragingElement is CommonPanel)
+                    cacheObj.GetComponent<OriginBoard>().ShowResult(dragingElement as CommonPanel);
             }
         }
 
@@ -155,8 +155,8 @@ public class CursorMgr : MonoBehaviour
             Label label = dragingElement.GetTitleObj();
 
             // clone text & font size
-            dragingTitle.text = label.GetTextObj().text;
-            dragingTitle.GetComponentInChildren<Text>().fontSize = label.GetTextObj().fontSize;
+            dragingTitle.text = label.GetTextObject().text;
+            dragingTitle.GetComponentInChildren<Text>().fontSize = label.GetTextObject().fontSize;
 
             // clone size delta
             (dragingTitle.transform as RectTransform).sizeDelta = (label.transform as RectTransform).sizeDelta;

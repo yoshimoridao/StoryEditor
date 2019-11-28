@@ -30,6 +30,6 @@ public class LinkLabel : Label
 
         // store reference panel
         referPanel = panel;
-        SetText(referPanel.titleLabel.GetTextObj().text);
+        SetText(referPanel.titleLabel.GetTextObject().text);
     }
 }

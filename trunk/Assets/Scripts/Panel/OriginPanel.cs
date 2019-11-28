@@ -40,7 +40,7 @@ public class OriginPanel : Panel
         {
             Label genLabel = Instantiate(prefLabel, transLabelCont).GetComponent<Label>();
             genLabel.Init();
-            genLabel.SetText(label.GetTextObj());
+            genLabel.SetText(label.GetTextObject());
         }
     }
 
@@ -53,7 +53,7 @@ public class OriginPanel : Panel
             OriginPanel genPanel = Instantiate(prefOriginPanel, transLabelCont).GetComponent<OriginPanel>();
             genPanel.Init();
             // change title
-            genPanel.SetTitle(panel.GetTitleLabel().GetTextObj().text);
+            genPanel.SetTitle(panel.GetTitleLabel().GetTextObject().text);
 
             return genPanel;
         }

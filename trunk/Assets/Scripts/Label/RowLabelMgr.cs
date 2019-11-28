@@ -114,6 +114,6 @@ public class RowLabelMgr : MonoBehaviour
     {
         // call event to parent
         if (contParent)
-            (contParent as CommonPanel).RefactorLabelRows();
+            (contParent as CommonPanel).OnChildLabelEditDone();
     }
 }

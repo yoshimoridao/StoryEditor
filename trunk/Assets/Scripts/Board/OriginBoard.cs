@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ResultPanel : RootPanelMgr
+public class OriginBoard : Board
 {
     public Transform transPanelCont;
     public OriginPanel sentencePanel;
@@ -47,7 +47,7 @@ public class ResultPanel : RootPanelMgr
     public void ShowResult(CommonPanel panel)
     {
         // show title
-        string valText = panel.GetTitleObj().GetTextObj().text;
+        string valText = panel.GetTitleObj().GetTextObject().text;
         sentencePanel.SetValue(valText);
 
         // show result
@@ -61,7 +61,7 @@ public class ResultPanel : RootPanelMgr
                 // create simple label
                 Label genLabel = Instantiate(prefLabel, transPanelCont).GetComponent<Label>();
                 genLabel.Init();
-                genLabel.SetText(label.GetTextObj());
+                genLabel.SetText(label.GetTextObject());
             }
             else if (label is LinkLabel)
             {
@@ -70,7 +70,7 @@ public class ResultPanel : RootPanelMgr
                 genPanel.Init();
                 // change title for this panel
                 CommonPanel referPanel = (label as LinkLabel).GetReferPanel();
-                genPanel.SetTitle(referPanel.GetTitleLabel().GetTextObj().text);
+                genPanel.SetTitle(referPanel.GetTitleLabel().GetTextObject().text);
 
                 // add child labels for genereted panel
                 ShowResult(genPanel, label as LinkLabel);

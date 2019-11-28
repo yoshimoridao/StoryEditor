@@ -30,6 +30,8 @@ public class InputLabel : Label
             return;
 
         isChangeVal = false;
+
+        // to refresh size of content
         contentSize.enabled = false;
         contentSize.enabled = true;
 
@@ -47,6 +49,7 @@ public class InputLabel : Label
 
         isChangeVal = true;
 
+        // to refresh size of content
         contentSize.enabled = false;
         contentSize.enabled = true;
 
