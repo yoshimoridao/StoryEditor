@@ -9,16 +9,23 @@ public class DataMgr : Singleton<DataMgr>
     public enum DataType { Alias, Element, Story, Count, Null, Linking };
 
     [System.Serializable]
-    public class DataStorage
+    public class DataElement
     {
         [SerializeField]
-        public List<string> lAlias = new List<string>();
-        [SerializeField]
         public List<string> lElements = new List<string>();
-        [SerializeField]
-        public List<string> lStories = new List<string>();
-        [SerializeField]
-        public List<string> lLinking = new List<string>();
+    }
+
+    [System.Serializable]
+    public class DataStorage
+    {
+        public string origin = "#stories#";
+
+        public DataStorage() {}
+
+        public void ChangeStory(string key)
+        {
+            origin = origin.Replace("#stories#", "#" + key + "#");
+        }
     }
 
     Dictionary<string, string> dicAlias = new Dictionary<string, string>();
@@ -145,9 +152,14 @@ public class DataMgr : Singleton<DataMgr>
     }
 
     // ========================================= UNITY FUNCS =========================================
-    void Start()
+    private void Awake()
     {
         instance = this;
+    }
+
+    void Start()
+    {
+
     }
 
     void Update()
@@ -158,7 +170,8 @@ public class DataMgr : Singleton<DataMgr>
     public void Init()
     {
         instance = this;
-        LoadSaveFile();
+
+        //LoadSaveFile();
     }
 
     public void SaveData(CommonPanel panel)
@@ -220,52 +233,90 @@ public class DataMgr : Singleton<DataMgr>
     }
 
     // ========================================= PRIVATE FUNCS =========================================
+    //private void ExportSaveFile()
+    //{
+    //    dataStorage.lAlias = new List<string>();
+    //    foreach (var val in dicAlias)
+    //    {
+    //        dataStorage.lAlias.Add(val.Key + ":" + val.Value);
+    //    }
+
+    //    dataStorage.lElements = new List<string>();
+    //    foreach (var val in dicElements)
+    //    {
+    //        dataStorage.lElements.Add(val.Key + ":" + val.Value);
+    //    }
+
+    //    dataStorage.lStories = new List<string>();
+    //    foreach (var valPair in dicStories)
+    //    {
+    //        dataStorage.lStories.Add(valPair.Key + ":" + valPair.Value);
+    //    }
+
+    //    dataStorage.lLinking = new List<string>();
+    //    foreach (var valPair in dicLinking)
+    //    {
+    //        dataStorage.lLinking.Add(valPair.Key + ":" + valPair.Value);
+    //    }
+
+    //    string content = JsonUtility.ToJson(dataStorage);
+    //    Debug.Log("Save = " + content);
+        
+    //    // create file if not exist
+    //    if (!File.Exists(DataConfig.saveFilePath))
+    //        File.CreateText(DataConfig.saveFilePath);
+    //    // write new content
+    //    File.WriteAllText(DataConfig.saveFilePath, content);
+    //}
+
+    //private void LoadSaveFile()
+    //{
+    //    // create file save if not exist
+    //    if (!File.Exists(DataConfig.saveFilePath))
+    //        File.CreateText(DataConfig.saveFilePath);
+
+    //    string content = File.ReadAllText(DataConfig.saveFilePath);
+    //    Debug.Log("Load Save File = " + content);
+    //    dataStorage = JsonUtility.FromJson<DataStorage>(content);
+    //}
+
     private void ExportSaveFile()
     {
-        dataStorage.lAlias = new List<string>();
-        foreach (var val in dicAlias)
+        DataStorage originData = new DataStorage();
+        // default test case 0
+        if (dicStories.Count > 0)
         {
-            dataStorage.lAlias.Add(val.Key + ":" + val.Value);
+            List<string> keys = new List<string>(dicStories.Keys);
+            originData.ChangeStory(keys[0]);
         }
 
-        dataStorage.lElements = new List<string>();
-        foreach (var val in dicElements)
-        {
-            dataStorage.lElements.Add(val.Key + ":" + val.Value);
-        }
+        string strOrigin = JsonUtility.ToJson(originData);
+        if (dicStories.Count > 0)
+            AddElementJson(ref strOrigin, dicStories);
+        if (dicElements.Count > 0)
+            AddElementJson(ref strOrigin, dicElements);
 
-        dataStorage.lStories = new List<string>();
-        foreach (var valPair in dicStories)
-        {
-            dataStorage.lStories.Add(valPair.Key + ":" + valPair.Value);
-        }
+        Debug.Log("Save = " + strOrigin);
 
-        dataStorage.lLinking = new List<string>();
-        foreach (var valPair in dicLinking)
-        {
-            dataStorage.lLinking.Add(valPair.Key + ":" + valPair.Value);
-        }
-
-        string content = JsonUtility.ToJson(dataStorage);
-        Debug.Log("Save = " + content);
-        
         // create file if not exist
         if (!File.Exists(DataConfig.saveFilePath))
             File.CreateText(DataConfig.saveFilePath);
         // write new content
-        File.WriteAllText(DataConfig.saveFilePath, content);
-        
+        File.WriteAllText(DataConfig.saveFilePath, strOrigin);
     }
-
-    private void LoadSaveFile()
+    private void AddElementJson(ref string strJson, Dictionary<string, string> dic)
     {
-        // create file save if not exist
-        if (!File.Exists(DataConfig.saveFilePath))
-            File.CreateText(DataConfig.saveFilePath);
-
-        string content = File.ReadAllText(DataConfig.saveFilePath);
-        Debug.Log("Load Save File = " + content);
-        dataStorage = JsonUtility.FromJson<DataStorage>(content);
+        List<string> keys = new List<string>(dic.Keys);
+        string output = "";
+        for (int i = 0; i < keys.Count; i++)
+        {
+            string key = keys[i];
+            List<string> a = new List<string>(dic[key].Split(','));
+            DataElement data = new DataElement();
+            data.lElements = a;
+            output += JsonUtility.ToJson(data).Replace("lElements", key).Replace("{", ",").Replace("}", "");
+        }
+        strJson = strJson.Substring(0, strJson.Length - 1) + output + "}";
     }
 
     private void ReplaceValInLinkingDic(string oldKey, string newKey)
