@@ -5,10 +5,13 @@ using UnityEngine.UI;
 
 public class InputLabel : Label
 {
-    bool isChangeVal = false;
-    [SerializeField]
-    bool isTitleLabel = false;
-    string oldKey = "";
+    bool isModifyingText = false;
+
+    // ========================================= GET/ SET =========================================
+    public bool IsModifyText()
+    {
+        return isModifyingText;
+    }
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
@@ -25,33 +28,22 @@ public class InputLabel : Label
     public void Init(RowLabelMgr rowLabel)
     {
         base.Init(rowLabel);
-
-        oldKey = GetText();
     }
 
     public void OnEditDone()
     {
-        if (!isChangeVal)
+        if (!isModifyingText)
             return;
 
-        isChangeVal = false;
+        isModifyingText = false;
 
         // to refresh size of content
         contentSize.enabled = false;
         contentSize.enabled = true;
 
-        CanvasMgr.Instance.RefreshCanvas();
-
-        // call event to parent
+        // Label is component or row
         if (rowParent)
             rowParent.OnChildLabelEditDone();
-
-        // modified key in storage
-        if (isTitleLabel)
-            DataMgr.Instance.ReplaceKey(oldKey, GetText());
-
-        // update old key
-        oldKey = GetText();
     }
 
     public void OnChangeValue()
@@ -59,7 +51,7 @@ public class InputLabel : Label
         if (!contentSize)
             return;
 
-        isChangeVal = true;
+        isModifyingText = true;
 
         // to refresh size of content
         contentSize.enabled = false;

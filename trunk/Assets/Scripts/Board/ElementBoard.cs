@@ -6,8 +6,10 @@ public class ElementBoard : Board
 {
     public Transform transPanelCont;
 
+    string defaultNameNewPanel = "element";
     List<Panel> lPanels = new List<Panel>();
     GameObject prefPanel;
+    int panelCounter = 0;
 
     // ========================================= GET/ SET =========================================
     public List<Panel> GetPanels()
@@ -44,11 +46,14 @@ public class ElementBoard : Board
     public void AddPanel()
     {
         Panel panel = Instantiate(prefPanel, transPanelCont).GetComponent<Panel>();
-        (panel as CommonPanel).Init(this);
 
         if (panel)
-            lPanels.Add(panel);
+        {
+            (panel as CommonPanel).Init(this, defaultNameNewPanel + "_" + panelCounter);
+            panelCounter++;
 
-        CanvasMgr.Instance.RefreshCanvas();
+            lPanels.Add(panel);
+            CanvasMgr.Instance.RefreshCanvas();
+        }
     }
 }

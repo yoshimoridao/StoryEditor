@@ -6,7 +6,7 @@ using UnityEngine.UI;
 [System.Serializable]
 public class CommonPanel : Panel
 {
-    public Label titleLabel;
+    public InputLabel titleLabel;
     public Button addBtn;
 
     Board board;
@@ -15,6 +15,7 @@ public class CommonPanel : Panel
     List<RowLabelMgr> lLabelRows = new List<RowLabelMgr>();
     bool isRefactorRows = false;
     float panelZoneW;
+    string panelKey;
 
     // ========================================= GET/ SET =========================================
     public Board GetBoard()
@@ -48,15 +49,22 @@ public class CommonPanel : Panel
 
         RefractorLabelRow();
 
-        // checking user change title -> to activate add btn
-        if (!IsAddBtnActive() && titleLabel.GetText() != DataConfig.defaultPanelTitle)
+        // in case changing title text
+        if (panelKey != titleLabel.GetText() && !titleLabel.IsModifyText())
         {
-            ActiveAddBtn(true);
+            // activate add button for the first time rename
+            if (!IsAddBtnActive())
+                ActiveAddBtn(true);
+            
+            // update key in storage
+            DataMgr.Instance.ReplaceKey(panelKey, titleLabel.GetText());
+            // update new key
+            panelKey = titleLabel.GetText();
         }
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init(Board board)
+    public void Init(Board board, string key)
     {
         base.Init();
 
@@ -70,11 +78,18 @@ public class CommonPanel : Panel
         panelZoneW = (this.board.transform as RectTransform).sizeDelta.x - (rootPadding.left + rootPadding.right);
 
         // init title
+        panelKey = key;
         if (titleLabel)
+        {
             titleLabel.Init();
+            titleLabel.SetText(panelKey);
+        }
 
         // default disable add btn -> (to force user change title text)
         ActiveAddBtn(false);
+
+        // save data in case just created
+        DataMgr.Instance.SaveData(this);
     }
 
     public void AddInputLabel()
@@ -122,6 +137,7 @@ public class CommonPanel : Panel
     {
         isRefactorRows = true;
 
+        // save in case having modified in child element
         DataMgr.Instance.SaveData(this);
     }
 

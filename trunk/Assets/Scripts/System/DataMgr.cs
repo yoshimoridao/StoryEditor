@@ -6,7 +6,7 @@ using UnityEngine;
 [System.Serializable]
 public class DataMgr : Singleton<DataMgr>
 {
-    public enum DataType { Alias, Element, Story, Count, Null, Linking };
+    public enum DataType { Alias, Element, Story, Count, Linking, Unknow };
 
     [System.Serializable]
     public class DataElement
@@ -40,7 +40,7 @@ public class DataMgr : Singleton<DataMgr>
     // ========================================= GET/ SET =========================================
     public string GetVal(string key, out DataType type)
     {
-        type = DataType.Null;
+        type = DataType.Unknow;
         for (int i = (int)DataType.Alias; i < (int)DataType.Count; i++)
         {
             type = (DataType)i;
@@ -51,31 +51,25 @@ public class DataMgr : Singleton<DataMgr>
         return "";
     }
 
-    public void AddVal(DataType type, string key, string val)
+    public bool AddVal(DataType type, string key, string val, bool isReplaceIfHave = true)
     {
-        if (IsNewKeyAvailable(key))
+        // add new val in dic
+        var dic = GetDic(type);
+        if (!dic.ContainsKey(key))
         {
-            // add new val in dic
-            var dic = GetDic(type);
             dic.Add(key, val);
-
-            Debug.Log("Save val vs key = " + key + ", val = " + val + ", type = " + type.ToString());
+            return true;
         }
-        else
-        {
-            ReplaceVal(type, key, val);
-
-            Debug.Log("Replace val vs key = " + key + ", val = " + val + ", type = " + type.ToString());
-        }
+        return false;
     }
 
-    public void ReplaceKey(string oldKey, string newKey)
+    public bool ReplaceKey(string oldKey, string newKey)
     {
         // check this key is available
         if (!IsNewKeyAvailable(newKey))
         {
             Debug.Log("new key is not available");
-            return;
+            return false;
         }
 
         // check the key in all of dics
@@ -96,18 +90,23 @@ public class DataMgr : Singleton<DataMgr>
         ReplaceValInLinkingDic(oldKey, newKey);
         // export text file
         ExportSaveFile();
+
+        return true;
     }
 
-    public void ReplaceVal(DataType type, string key, string newVal)
+    public bool ReplaceVal(DataType type, string key, string newVal)
     {
         var dic = GetDic(type);
         if (dic.ContainsKey(key))
         {
             dic[key] = newVal;
+            return true;
         }
+
+        return false;
     }
 
-    public void ReplaceVal(string key, string newVal)
+    public bool ReplaceVal(string key, string newVal)
     {
         for (int i = (int)DataType.Alias; i < (int)DataType.Count; i++)
         {
@@ -115,9 +114,11 @@ public class DataMgr : Singleton<DataMgr>
             if (dic.ContainsKey(key))
             {
                 dic[key] = newVal;
-                return;
+                return true;
             }
         }
+
+        return false;
     }
 
     public bool IsNewKeyAvailable(string key)
@@ -178,7 +179,6 @@ public class DataMgr : Singleton<DataMgr>
     {
         // determine panel is in which board (element or story)
         bool isElementBoard = panel.GetBoard() is ElementBoard;
-
         List<Label> labels = panel.GetLabels();
         // get key
         string key = panel.GetTitleLabel().GetText();
@@ -227,8 +227,14 @@ public class DataMgr : Singleton<DataMgr>
 
         // save val
         DataType type = isElementBoard ? DataType.Element : DataType.Story;
-        AddVal(type, key, val);
 
+        // add key to storage
+        bool isAddSuccess = AddVal(type, key, val);
+        // replace val of this key in storage
+        if (!isAddSuccess)
+            ReplaceVal(type, key, val);
+
+        // export file text
         ExportSaveFile();
     }
 
@@ -329,7 +335,7 @@ public class DataMgr : Singleton<DataMgr>
             string[] linkKey = val.Split(',');
             for (int i = 0; i < linkKey.Length; i++)
             {
-                DataType type = DataType.Null;
+                DataType type = DataType.Unknow;
                 string v = GetVal(linkKey[i], out type);
                 // replace new linking key (for alias, elements, story)
                 v = v.Replace("#" + oldKey + "#", "#" + newKey + "#");
