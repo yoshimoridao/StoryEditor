@@ -73,7 +73,7 @@ public class OriginBoard : Board
                 genPanel.SetTitle(referPanel.GetTitleLabel().GetTextObject().text);
 
                 // add child labels for genereted panel
-                ShowResult(genPanel, label as LinkLabel);
+                AddChildPanel(genPanel, label as LinkLabel);
             }
         }
 
@@ -81,11 +81,33 @@ public class OriginBoard : Board
     }
 
     // ========================================= PRIVATE FUNCS =========================================
-    private void ShowResult(OriginPanel originPanel, LinkLabel linkLabel)
+    private void AddChildPanel(OriginPanel originPanel, LinkLabel linkLabel)
     {
         CommonPanel comPanel = linkLabel.GetReferPanel();
 
+        // foreach all of labels
         List<Label> labels = comPanel.GetLabels();
+        // in case in which lowest/ pure referral element (this mean the element(panel) have no another link label)
+        bool isPureElement = true;
+        foreach (Label child in labels)
+        {
+            if (child is LinkLabel)
+            {
+                isPureElement = false;
+                break;
+            }
+        }
+
+        // process for pure element -> pick random val
+        if (isPureElement)
+        {
+            int rdId = Random.Range(0, labels.Count);
+            if (rdId < labels.Count)
+                originPanel.AddLabel(labels[rdId]);
+            return;
+        }
+
+        // process for un-pure element
         for (int i = 0; i < labels.Count; i++)
         {
             Label label = labels[i];
@@ -103,7 +125,7 @@ public class OriginBoard : Board
                 OriginPanel genPanel = originPanel.AddOriginPanel(referPanel);
 
                 // loop add all labels of the generated panel
-                ShowResult(genPanel, label as LinkLabel);
+                AddChildPanel(genPanel, label as LinkLabel);
             }
         }
     }
