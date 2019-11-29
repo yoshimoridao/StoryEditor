@@ -24,6 +24,8 @@ public class DataMgr : Singleton<DataMgr>
 
         public void ChangeStory(string key)
         {
+            // add prefix to detect
+            key = DataConfig.prefixOutPutStory + key;
             origin = origin.Replace("#stories#", "#" + key + "#");
         }
     }
@@ -160,7 +162,6 @@ public class DataMgr : Singleton<DataMgr>
 
     void Start()
     {
-
     }
 
     void Update()
@@ -298,7 +299,7 @@ public class DataMgr : Singleton<DataMgr>
 
         string strOrigin = JsonUtility.ToJson(originData);
         if (dicStories.Count > 0)
-            AddElementJson(ref strOrigin, dicStories);
+            AddElementJson(ref strOrigin, dicStories, true);
         if (dicElements.Count > 0)
             AddElementJson(ref strOrigin, dicElements);
 
@@ -310,7 +311,7 @@ public class DataMgr : Singleton<DataMgr>
         // write new content
         File.WriteAllText(DataConfig.saveFilePath, strOrigin);
     }
-    private void AddElementJson(ref string strJson, Dictionary<string, string> dic)
+    private void AddElementJson(ref string strJson, Dictionary<string, string> dic, bool isStory = false)
     {
         List<string> keys = new List<string>(dic.Keys);
         string output = "";
@@ -320,7 +321,10 @@ public class DataMgr : Singleton<DataMgr>
             List<string> a = new List<string>(dic[key].Split(','));
             DataElement data = new DataElement();
             data.lElements = a;
-            output += JsonUtility.ToJson(data).Replace("lElements", key).Replace("{", ",").Replace("}", "");
+
+            // add prefix for story
+            string outputKey = isStory ? DataConfig.prefixOutPutStory + key : key;
+            output += JsonUtility.ToJson(data).Replace("lElements", outputKey).Replace("{", ",").Replace("}", "");
         }
         strJson = strJson.Substring(0, strJson.Length - 1) + output + "}";
     }

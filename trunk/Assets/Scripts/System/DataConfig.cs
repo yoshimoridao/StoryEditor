@@ -14,5 +14,7 @@ public class DataConfig
     public static string defaultPanelTitle = "???";
     public static string defaultPanelVar = "---";
 
+    public static string prefixOutPutStory = "s_";
+
     public static string saveFilePath = "Assets/Resources/Data/story.txt";
 }
