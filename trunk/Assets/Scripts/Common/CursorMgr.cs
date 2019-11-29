@@ -28,21 +28,7 @@ public class CursorMgr : MonoBehaviour
     void Update()
     {
         // mouse down
-        if (Input.GetMouseButtonDown(0) && dragingElement == null)
-        {
-            GameObject touchedObj = GetTouchedUIElement();
-            // if touched obj is draging element
-            if (touchedObj && touchedObj.GetComponent<DragingElement>())
-            {
-                dragingElement = touchedObj.GetComponent<DragingElement>();
-                // active draging title
-                if (dragingElement)
-                    ActiveTitle(true);
-
-                // catch mouse position
-                rt.position = Input.mousePosition;
-            }
-        }
+        UpdateMouseDown();
 
         // in case draging an element
         if (dragingElement)
@@ -84,6 +70,36 @@ public class CursorMgr : MonoBehaviour
     }
 
     // ========================================= PRIVATE FUNCS =========================================
+    private void UpdateMouseDown()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (dragingElement == null)
+            {
+                GameObject touchedObj = GetTouchedUIElement();
+                // if touched obj is draging element
+                if (touchedObj && touchedObj.GetComponent<DragingElement>())
+                {
+                    dragingElement = touchedObj.GetComponent<DragingElement>();
+                    // active draging title
+                    if (dragingElement)
+                        ActiveTitle(true);
+
+                    // catch mouse position
+                    rt.position = Input.mousePosition;
+                }
+            }
+
+            // Turn off color bar if user touched out of it
+            if (ColorBar.Instance.IsActive())
+            {
+                GameObject touchedObj = GetTouchedUIElement();
+                if (touchedObj.tag != "color_bar" && touchedObj.tag != "color_bar_btn")
+                    ColorBar.Instance.SetActiveGameObject(false);
+            }
+        }
+    }
+
     private void OnMouseUp()
     {
         ActiveTitle(false);

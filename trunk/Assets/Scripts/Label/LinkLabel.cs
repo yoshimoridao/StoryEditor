@@ -16,19 +16,28 @@ public class LinkLabel : Label
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-
+        base.Start();
     }
 
     void Update()
     {
+        base.Update();
+
+        // update text following referral panel
         if (referralKey.Length > 0)
         {
-            string referralVal = referPanel.titleLabel.GetText();
-            if (referralVal.Length > 0 && referralKey != referralVal)
+            string referralTitle = referPanel.titleLabel.GetText();
+
+            if (referralTitle.Length > 0 && referralKey != referralTitle)
             {
-                referralKey = referralVal;
-                SetText(referralVal);
+                referralKey = referralTitle;
+                SetText(referralTitle);
             }
+        }
+        // update color following color of referral panel
+        if (referPanel && GetColor() != referPanel.GetColor())
+        {
+            SetColor(referPanel.GetColor());
         }
     }
 
@@ -40,7 +49,10 @@ public class LinkLabel : Label
         // store reference panel
         referPanel = panel;
         
+        // set title
         referralKey = referPanel.titleLabel.GetText();
         SetText(referralKey);
+        // set color
+        SetColor(referPanel.GetColor());
     }
 }

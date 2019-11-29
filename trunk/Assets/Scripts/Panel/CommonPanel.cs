@@ -8,6 +8,7 @@ public class CommonPanel : Panel
 {
     public InputLabel titleLabel;
     public Button addBtn;
+    public Button colorBtn;
 
     Board board;
     GameObject prefRowLabel;
@@ -38,9 +39,17 @@ public class CommonPanel : Panel
         return labels;
     }
 
+    public Button GetColorBtn()
+    {
+        if (colorBtn)
+            return colorBtn;
+        return null;
+    }
+
     // ========================================= UNITY FUNCS =========================================
     public void Start()
     {
+        base.Start();
     }
 
     public void Update()
@@ -55,7 +64,7 @@ public class CommonPanel : Panel
             // activate add button for the first time rename
             if (!IsAddBtnActive())
                 ActiveAddBtn(true);
-            
+
             // update key in storage
             DataMgr.Instance.ReplaceKey(panelKey, titleLabel.GetText());
             // update new key
@@ -139,6 +148,23 @@ public class CommonPanel : Panel
 
         // save in case having modified in child element
         DataMgr.Instance.SaveData(this);
+    }
+
+    public void SetActiveColorButton(bool isActive)
+    {
+        if (colorBtn)
+        {
+            colorBtn.interactable = isActive;
+        }
+    }
+
+    public void OnColorButtonPressed()
+    {
+        // de-active color button
+        SetActiveColorButton(false);
+
+        // show color bar
+        ColorBar.Instance.SetReferPanel(this);
     }
 
     // ========================================= OVERRIDE FUNCS =========================================

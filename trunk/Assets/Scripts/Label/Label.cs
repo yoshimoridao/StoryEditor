@@ -12,6 +12,7 @@ public class Label : MonoBehaviour
     // prop
     protected RectTransform rt;
     protected RowLabelMgr rowParent;
+    protected Image image;
 
     // ========================================= GET/ SET FUNCS =========================================
     public void SetParent(RowLabelMgr rowLabel, bool isAsFirstElement = false)
@@ -59,10 +60,22 @@ public class Label : MonoBehaviour
         inputField.text = val;
     }
 
+    public Color GetColor()
+    {
+        return image.color;
+    }
+
+    public void SetColor(Color color)
+    {
+        image.color = color;
+    }
     // ========================================= UNITY FUNCS =========================================
     public void Start()
     {
-        
+        if (rt == null)
+            rt = GetComponent<RectTransform>();
+        if (image == null)
+            image = GetComponent<Image>();
     }
 
     public void Update()
@@ -72,13 +85,21 @@ public class Label : MonoBehaviour
     // ========================================= PUBLIC FUNCS =========================================
     public void Init()
     {
-        rt = GetComponent<RectTransform>();
+        if (rt == null)
+            rt = GetComponent<RectTransform>();
+        if (image == null)
+            image = GetComponent<Image>();
 
         GetTextObject().transform.localScale = Vector3.one * scaleText;
     }
 
     public void Init(RowLabelMgr rowLabel)
     {
+        if (rt == null)
+            rt = GetComponent<RectTransform>();
+        if (image == null)
+            image = GetComponent<Image>();
+
         rowParent = rowLabel;
         rt = GetComponent<RectTransform>();
 

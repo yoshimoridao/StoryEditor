@@ -71,6 +71,7 @@ public class OriginBoard : Board
                 // change title for this panel
                 CommonPanel referPanel = (label as LinkLabel).GetReferPanel();
                 genPanel.SetTitle(referPanel.GetTitleLabel().GetTextObject().text);
+                genPanel.SetColor(referPanel.GetColor());
 
                 // add child labels for genereted panel
                 AddChildPanel(genPanel, label as LinkLabel);
@@ -123,7 +124,6 @@ public class OriginBoard : Board
                 CommonPanel referPanel = (label as LinkLabel).GetReferPanel();
 
                 OriginPanel genPanel = originPanel.AddOriginPanel(referPanel);
-
                 // loop add all labels of the generated panel
                 AddChildPanel(genPanel, label as LinkLabel);
             }

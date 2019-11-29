@@ -9,6 +9,8 @@ TagManager:
   - rootpanel_attribute
   - rootpanel_sentence
   - rootpanel_result
+  - color_bar
+  - color_bar_btn
   layers:
   - Default
   - TransparentFX

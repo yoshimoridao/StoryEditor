@@ -20,10 +20,12 @@ public class OriginPanel : Panel
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
+        base.Start();
     }
 
     void Update()
     {
+        base.Update();
     }
 
     // ========================================= PUBLIC FUNCS =========================================
@@ -54,6 +56,7 @@ public class OriginPanel : Panel
             genPanel.Init();
             // change title
             genPanel.SetTitle(panel.GetTitleLabel().GetTextObject().text);
+            genPanel.SetColor(panel.GetColor());
 
             return genPanel;
         }
