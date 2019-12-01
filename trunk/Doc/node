@@ -1,0 +1,20 @@
+origin:
+{"origin":"#s_s1#","s_s1":["1 #e1# 2"],"s_s2":["#e3# #e2#"],"e1":["a","b","c"],"e2":["e","f"],"e3":["#e2#","#e1#"]}
+
+I. split 1. "]," 2. "]}
+{"origin":"#s_s1#","s_s1":["1 #e1# 2 <> s_s2":["#e3# #e2# <> e1":["a","b","c <> e2":["e","f <> e3":["#e2#","#e1# <>
+
+II.1. vs origin part
+{"origin":"#s_s1#","s_s1":["1 #e1# 2 
+	then split #"," 	then result: {"origin":"#s_s1 <> s_s1":["1 #e1# 2 
+		then add {" & "]} 	then result: s_s1":{["1 #e1# 2"]} 
+			then use JsonUtilize: convert to obj
+
+2. vs other part (example)
+s_s2":["#e3# #e2#
+	then add {" & "]} 	then result: {"s_s2":["#e3# #e2#"]} 
+		then use JsonUtilize: convert to obj
+
+III. Store in dictionary
+remove prefix "s_" for story element
+store in dictionary<string, List<string>> = <s_s2, lElements.value>
