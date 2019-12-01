@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Board : Singleton<Board>
+public class Board : MonoBehaviour
 {
+    public enum BoardType { Element, Story, Origin };
+    public BoardType boardType;
     public Label titlePanel;
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        instance = this;
+        
     }
 
     void Update()
@@ -20,9 +22,7 @@ public class Board : Singleton<Board>
     // ========================================= PUBLIC FUNCS =========================================
     public virtual void Init()
     {
-        instance = this;
-
         // init title
-        titlePanel.Init();
+        titlePanel.Init(titlePanel.GetText());
     }
 }

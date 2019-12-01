@@ -6,7 +6,7 @@ using UnityEngine;
 [System.Serializable]
 public class DataMgr : Singleton<DataMgr>
 {
-    public enum DataType { Alias, Element, Story, Count, Linking, Unknow };
+    public enum DataType { Alias, Element, Story, Count, Linking };
 
     [System.Serializable]
     public class DataElement
@@ -20,7 +20,7 @@ public class DataMgr : Singleton<DataMgr>
     {
         public string origin = "#stories#";
 
-        public DataStorage() {}
+        public DataStorage() { }
 
         public void ChangeStory(string key)
         {
@@ -30,30 +30,25 @@ public class DataMgr : Singleton<DataMgr>
         }
     }
 
-    Dictionary<string, string> dicAlias = new Dictionary<string, string>();
-    Dictionary<string, string> dicElements = new Dictionary<string, string>();
-    Dictionary<string, string> dicStories = new Dictionary<string, string>();
+    Dictionary<string, List<string>> dicAlias = new Dictionary<string, List<string>>();
+    Dictionary<string, List<string>> dicElements = new Dictionary<string, List<string>>();
+    Dictionary<string, List<string>> dicStories = new Dictionary<string, List<string>>();
 
     // format -> 1:2,3,4 (these key (2,3,4) link to key 1)
-    Dictionary<string, string> dicLinking = new Dictionary<string, string>();
+    Dictionary<string, List<string>> dicLinking = new Dictionary<string, List<string>>();
     [SerializeField]
     DataStorage dataStorage = new DataStorage();
 
     // ========================================= GET/ SET =========================================
-    public string GetVal(string key, out DataType type)
+    public List<string> GetVal(DataType type, string key)
     {
-        type = DataType.Unknow;
-        for (int i = (int)DataType.Alias; i < (int)DataType.Count; i++)
-        {
-            type = (DataType)i;
-            var dic = GetDic(type);
-            if (dic.ContainsKey(key))
-                return dic[key];
-        }
-        return "";
+        var dic = GetDic(type);
+        if (dic.ContainsKey(key))
+            return dic[key];
+        return null;
     }
 
-    public bool AddVal(DataType type, string key, string val, bool isReplaceIfHave = true)
+    public bool AddVal(DataType type, string key, List<string> val)
     {
         // add new val in dic
         var dic = GetDic(type);
@@ -65,77 +60,49 @@ public class DataMgr : Singleton<DataMgr>
         return false;
     }
 
-    public bool ReplaceKey(string oldKey, string newKey)
+    public bool ReplaceKey(DataType type, string oldKey, string newKey)
     {
-        // check this key is available
-        if (!IsNewKeyAvailable(newKey))
+        // check new key available
+        if (type == DataType.Element || type == DataType.Story)
         {
-            Debug.Log("new key is not available");
-            return false;
+            if (GetDic(DataType.Element).ContainsKey(newKey) || GetDic(DataType.Story).ContainsKey(newKey))
+                return false;
         }
 
-        // check the key in all of dics
-        for (int i = (int)DataType.Alias; i < (int)DataType.Count; i++)
-        {
-            var dic = GetDic((DataType)i);
-
-            // override key
-            if (dic.ContainsKey(oldKey))
-            {
-                dic.Add(newKey, dic[oldKey]);
-                dic.Remove(oldKey);
-                break;
-            }
-        }
-
-        // replace old key by new key in linking dictionary
-        ReplaceValInLinkingDic(oldKey, newKey);
-        // export text file
-        ExportSaveFile();
-
-        return true;
-    }
-
-    public bool ReplaceVal(DataType type, string key, string newVal)
-    {
         var dic = GetDic(type);
-        if (dic.ContainsKey(key))
+        if (dic.ContainsKey(oldKey))
         {
-            dic[key] = newVal;
+            dic.Add(newKey, new List<string>(dic[oldKey]));
+            dic.Remove(oldKey);
+
+            // also replace old key by new key in [linking dictionary]
+            ReplaceLinkingKey(oldKey, newKey);
+            // export text file
+            Export();
             return true;
         }
 
         return false;
     }
 
-    public bool ReplaceVal(string key, string newVal)
+    public bool ReplaceVal(DataType type, string key, List<string> vals)
     {
-        for (int i = (int)DataType.Alias; i < (int)DataType.Count; i++)
+        var dic = GetDic(type);
+        if (dic.ContainsKey(key))
         {
-            var dic = GetDic((DataType)i);
-            if (dic.ContainsKey(key))
-            {
-                dic[key] = newVal;
-                return true;
-            }
+            dic[key] = vals;
+
+            // export text file
+            Export();
+            return true;
         }
 
         return false;
     }
 
-    public bool IsNewKeyAvailable(string key)
+    private Dictionary<string, List<string>> GetDic(DataType type)
     {
-        for (int i = (int)DataType.Alias; i < (int)DataType.Count; i++)
-        {
-            if (GetDic((DataType)i).ContainsKey(key))
-                return false;
-        }
-        return true;
-    }
-
-    private Dictionary<string, string> GetDic(DataType type)
-    {
-        Dictionary<string, string> dic = new Dictionary<string, string>();
+        Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
         switch (type)
         {
             case DataType.Alias:
@@ -171,123 +138,143 @@ public class DataMgr : Singleton<DataMgr>
     // ========================================= PUBLIC FUNCS =========================================
     public void Init()
     {
-        instance = this;
-
-        //LoadSaveFile();
+        Load();
     }
 
-    public void SaveData(CommonPanel panel)
+    public void InitElement()
+    {
+        List<string> keys = new List<string>(dicElements.Keys);
+        for (int i = 0; i < keys.Count; i++)
+        {
+            string panelTitle = keys[i];
+            CommonPanel panel = (CanvasMgr.Instance.GetBoard<ElementBoard>() as ElementBoard).AddPanel(panelTitle) as CommonPanel;
+
+            if (panel)
+            {
+                List<string> panelVars = dicElements[panelTitle];
+                for (int j = 0; j < panelVars.Count; j++)
+                {
+                    string var = panelVars[j];
+                    if (var.Contains("#"))
+                    {
+                        //panel.AddLinkLabel();
+                        Debug.Log("link");
+                    }
+                    else
+                    {
+                        panel.AddInputLabel(var);
+                    }
+                }
+            }
+        }
+    }
+
+    public void Save(CommonPanel panel)
     {
         // determine panel is in which board (element or story)
         bool isElementBoard = panel.GetBoard() is ElementBoard;
         List<Label> labels = panel.GetLabels();
-        // get key
-        string key = panel.GetTitleLabel().GetText();
+        // save val
+        DataType type = isElementBoard ? DataType.Element : DataType.Story;
 
-        string val = "";
+        // get key of panel
+        string key = panel.GetTitleLabel().GetText();
+        key = (type == DataType.Story) ? DataConfig.prefixOutPutStory + key : key;
+
+        // get all text of label of panel
+        List<string> labelVars = new List<string>();
         for (int i = 0; i < labels.Count; i++)
         {
             Label label = labels[i];
+            string labelText = "";
             // element of Element Board
             if (isElementBoard)
             {
-                if (i > 0)
-                    val += ",";
                 if (label is LinkLabel)
                 {
-                    string linkingKey = label.GetText();
-                    val += "#" + linkingKey + "#";
-
+                    labelText = "#" + label.GetText() + "#";
                     // store the connection
-                    AddValForLinkingType(linkingKey, key);
+                    AddLinkingVal(labelText, key);
                 }
                 else
                 {
-                    val += label.GetText();
+                    labelText = label.GetText();
                 }
             }
             // element of Story Board
             else
             {
-                if (i > 0)
-                    val += " ";
                 if (label is LinkLabel)
                 {
-                    string linkingKey = label.GetText();
-                    val += "#" + linkingKey + "#";
-
+                    labelText = "#" + label.GetText() + "#";
                     // store the connection
-                    AddValForLinkingType(linkingKey, key);
+                    AddLinkingVal(labelText, key);
                 }
                 else
                 {
-                    val += label.GetText();
+                    labelText = label.GetText();
                 }
             }
+
+            labelVars.Add(labelText);
         }
 
-        // save val
-        DataType type = isElementBoard ? DataType.Element : DataType.Story;
-
-        // add key to storage
-        bool isAddSuccess = AddVal(type, key, val);
-        // replace val of this key in storage
-        if (!isAddSuccess)
-            ReplaceVal(type, key, val);
-
+        if (!AddVal(type, key, labelVars))
+            ReplaceVal(type, key, labelVars);
         // export file text
-        ExportSaveFile();
+        Export();
     }
 
     // ========================================= PRIVATE FUNCS =========================================
-    //private void ExportSaveFile()
-    //{
-    //    dataStorage.lAlias = new List<string>();
-    //    foreach (var val in dicAlias)
-    //    {
-    //        dataStorage.lAlias.Add(val.Key + ":" + val.Value);
-    //    }
+    private void Load()
+    {
+        // create file save if not exist
+        if (!File.Exists(DataConfig.saveFilePath))
+            File.CreateText(DataConfig.saveFilePath);
 
-    //    dataStorage.lElements = new List<string>();
-    //    foreach (var val in dicElements)
-    //    {
-    //        dataStorage.lElements.Add(val.Key + ":" + val.Value);
-    //    }
+        string content = File.ReadAllText(DataConfig.saveFilePath);
+        Debug.Log("Load Save File = " + content);
+        if (content.Length > 0)
+        {
+            // I.plit 1. "]," 2. "]}
+            string[] splitString = { "\"],\"", "\"]}" };
+            string[] result = content.Split(splitString, System.StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < result.Length; i++)
+            {
+                string str = result[i];
+                // origin part
+                if (i == 0)
+                {
+                    string[] splitOrgPart = { "#\",\"" };
+                    string[] rOrgPart = str.Split(splitOrgPart, System.StringSplitOptions.RemoveEmptyEntries);
+                    if (rOrgPart.Length >= 1)
+                        str = rOrgPart[1];
+                }
+                // get key of this part
+                string key = str.Split('\"')[0];
+                // convert to DataElement format ->  add 1. {" 2. "]} -> replace "key" = "lElements"
+                str = "{\"" + str + "\"]}";
+                str = str.Replace(key, "lElements");
+                DataElement elementObj = JsonUtility.FromJson<DataElement>(str);
+                // add to dictionary
+                if (elementObj != null)
+                {
+                    // add to Story dic
+                    if (key.Contains(DataConfig.prefixOutPutStory))
+                    {
+                        dicStories.Add(key, elementObj.lElements);
+                    }
+                    // add to Elements dic
+                    else
+                    {
+                        dicElements.Add(key, elementObj.lElements);
+                    }
+                }
+            }
+        }
+    }
 
-    //    dataStorage.lStories = new List<string>();
-    //    foreach (var valPair in dicStories)
-    //    {
-    //        dataStorage.lStories.Add(valPair.Key + ":" + valPair.Value);
-    //    }
-
-    //    dataStorage.lLinking = new List<string>();
-    //    foreach (var valPair in dicLinking)
-    //    {
-    //        dataStorage.lLinking.Add(valPair.Key + ":" + valPair.Value);
-    //    }
-
-    //    string content = JsonUtility.ToJson(dataStorage);
-    //    Debug.Log("Save = " + content);
-        
-    //    // create file if not exist
-    //    if (!File.Exists(DataConfig.saveFilePath))
-    //        File.CreateText(DataConfig.saveFilePath);
-    //    // write new content
-    //    File.WriteAllText(DataConfig.saveFilePath, content);
-    //}
-
-    //private void LoadSaveFile()
-    //{
-    //    // create file save if not exist
-    //    if (!File.Exists(DataConfig.saveFilePath))
-    //        File.CreateText(DataConfig.saveFilePath);
-
-    //    string content = File.ReadAllText(DataConfig.saveFilePath);
-    //    Debug.Log("Load Save File = " + content);
-    //    dataStorage = JsonUtility.FromJson<DataStorage>(content);
-    //}
-
-    private void ExportSaveFile()
+    private void Export()
     {
         DataStorage originData = new DataStorage();
         // default test case 0
@@ -311,91 +298,68 @@ public class DataMgr : Singleton<DataMgr>
         // write new content
         File.WriteAllText(DataConfig.saveFilePath, strOrigin);
     }
-    private void AddElementJson(ref string strJson, Dictionary<string, string> dic, bool isStory = false)
+
+    private void AddElementJson(ref string strJson, Dictionary<string, List<string>> dic, bool isStory = false)
     {
         List<string> keys = new List<string>(dic.Keys);
         string output = "";
         for (int i = 0; i < keys.Count; i++)
         {
             string key = keys[i];
-            List<string> a = new List<string>(dic[key].Split(','));
             DataElement data = new DataElement();
-            data.lElements = a;
+            data.lElements = new List<string>(dic[key]);
 
-            // add prefix for story
-            string outputKey = isStory ? DataConfig.prefixOutPutStory + key : key;
-            output += JsonUtility.ToJson(data).Replace("lElements", outputKey).Replace("{", ",").Replace("}", "");
+            output += JsonUtility.ToJson(data).Replace("lElements", key).Replace("{", ",").Replace("}", "");
         }
         strJson = strJson.Substring(0, strJson.Length - 1) + output + "}";
     }
 
-    private void ReplaceValInLinkingDic(string oldKey, string newKey)
+    private void AddLinkingVal(string key, string val)
+    {
+        if (dicLinking.ContainsKey(key))
+        {
+            List<string> vals = dicLinking[key];
+            // append in case didn't have
+            if (!vals.Contains(val))
+            {
+                vals.Add(val);
+                dicLinking[key] = vals;
+            }
+        }
+        else
+        {
+            List<string> vals = new List<string>();
+            vals.Add(val);
+            dicLinking.Add(key, vals);
+        }
+    }
+
+    private void ReplaceLinkingKey(string oldKey, string newKey)
     {
         // replace this key & replace all #oldkey# in (alias, elements, story)
         if (dicLinking.ContainsKey(oldKey))
         {
-            string val = dicLinking[oldKey];
             // replace key linked to another keys
-            string[] linkKey = val.Split(',');
-            for (int i = 0; i < linkKey.Length; i++)
+            List<string> linkKeys = dicLinking[oldKey];
+            for (int i = 0; i < linkKeys.Count; i++)
             {
-                DataType type = DataType.Unknow;
-                string v = GetVal(linkKey[i], out type);
+                string key = linkKeys[i];
+                DataType type = DataType.Element;
+                if (key.Contains(DataConfig.prefixOutPutStory))
+                    type = DataType.Story;
+                List<string> vals = GetVal(type, key);
                 // replace new linking key (for alias, elements, story)
-                v = v.Replace("#" + oldKey + "#", "#" + newKey + "#");
+                for (int j = 0; j < vals.Count; j++)
+                {
+                    vals[j] = vals[j].Replace("#" + oldKey + "#", "#" + newKey + "#");
+                }
                 // replace val in storage
-                ReplaceVal(type, linkKey[i], v);
+                ReplaceVal(type, key, vals);
             }
 
             // replace old key in another key
-            List<string> keys = new List<string>(dicLinking.Keys);
-            for (int i = 0; i < keys.Count; i++)
-            {
-                string key = keys[i];
-
-                // replace old key = new key
-                string[] a = dicLinking[key].Split(',');
-                string tempVal = "";
-                for (int j = 0; j < a.Length; j++)
-                {
-                    if (j > 0)
-                        tempVal += ',';
-                    if (a[j] == oldKey)
-                        tempVal += newKey;
-                    else
-                        tempVal += a[j];
-                }
-
-                dicLinking[key] = tempVal;
-            }
-
-            // replace key
-            dicLinking.Add(newKey, val);
+            dicLinking.Add(newKey, new List<string>(dicLinking[oldKey]));
             dicLinking.Remove(oldKey);
-        }
-    }
-
-    private void AddValForLinkingType(string key, string val)
-    {
-        if (dicLinking.ContainsKey(key))
-        {
-            string[] a = dicLinking[key].Split(',');
-            bool isAlreadyHave = false;
-            for (int i = 0; i < a.Length; i++)
-            {
-                if (a[i] == val)
-                {
-                    isAlreadyHave = true;
-                    break;
-                }
-            }
-            // append in case didn't have
-            if (!isAlreadyHave)
-                dicLinking[key] += "," + val;
-        }
-        else
-        {
-            dicLinking.Add(key, val);
         }
     }
 }

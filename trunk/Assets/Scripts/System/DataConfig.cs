@@ -11,8 +11,7 @@ public class DataConfig
     public static string prefInputLabelPath    = "Prefabs/label_input";
     public static string prefLinkLabelPath     = "Prefabs/label_link";
 
-    public static string defaultPanelTitle = "???";
-    public static string defaultPanelVar = "---";
+    public static string defaultLabelVar = "---";
 
     public static string prefixOutPutStory = "s_";
 

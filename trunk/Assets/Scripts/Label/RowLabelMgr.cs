@@ -53,13 +53,13 @@ public class RowLabelMgr : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void AddInputLabel()
+    public void AddInputLabel(string labelName = "")
     {
         if (prefInputLabel)
         {
             // gen new label
             InputLabel label = Instantiate(prefInputLabel, transform).GetComponent<InputLabel>();
-            label.Init(this);
+            label.Init(this, labelName);
             lLabels.Add(label);
 
             // refresh canvas

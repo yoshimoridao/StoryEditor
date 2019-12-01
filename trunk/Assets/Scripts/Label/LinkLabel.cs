@@ -49,9 +49,10 @@ public class LinkLabel : Label
         // store reference panel
         referPanel = panel;
         
-        // set title
+        // set title equal to the one of reference label
         referralKey = referPanel.titleLabel.GetText();
         SetText(referralKey);
+
         // set color
         SetColor(referPanel.GetColor());
     }

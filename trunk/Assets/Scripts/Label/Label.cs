@@ -83,17 +83,22 @@ public class Label : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init()
+    public void Init(string name = "")
     {
         if (rt == null)
             rt = GetComponent<RectTransform>();
         if (image == null)
             image = GetComponent<Image>();
 
+        // set text of label
+        if (name.Length == 0)
+            name = DataConfig.defaultLabelVar;
+        SetText(name);
+
         GetTextObject().transform.localScale = Vector3.one * scaleText;
     }
 
-    public void Init(RowLabelMgr rowLabel)
+    public void Init(RowLabelMgr rowLabel, string name = "")
     {
         if (rt == null)
             rt = GetComponent<RectTransform>();
@@ -101,7 +106,11 @@ public class Label : MonoBehaviour
             image = GetComponent<Image>();
 
         rowParent = rowLabel;
-        rt = GetComponent<RectTransform>();
+
+        // set text of label
+        if (name.Length == 0)
+            name = DataConfig.defaultLabelVar;
+        SetText(name);
 
         GetTextObject().transform.localScale = Vector3.one * scaleText;
     }

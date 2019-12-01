@@ -9,6 +9,15 @@ public class CanvasMgr : Singleton<CanvasMgr>
 
     public List<Board> lRootPanel = new List<Board>();
 
+    // ========================================= GET/ SET =========================================
+    public Board GetBoard<T>()
+    {
+        for (int i = 0; i < lRootPanel.Count; i++)
+            if (lRootPanel[i] is T)
+                return lRootPanel[i];
+        return null;
+    }
+
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
     {
@@ -26,6 +35,8 @@ public class CanvasMgr : Singleton<CanvasMgr>
             Board rootPanel = lRootPanel[i];
             rootPanel.Init();
         }
+
+        DataMgr.Instance.InitElement();
 
         RefreshCanvas();
     }

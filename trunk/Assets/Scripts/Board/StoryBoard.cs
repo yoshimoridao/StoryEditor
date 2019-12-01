@@ -20,7 +20,7 @@ public class StoryBoard : Board
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        instance = this;
+        
     }
 
     void Update()
@@ -31,7 +31,6 @@ public class StoryBoard : Board
     public override void Init()
     {
         base.Init();
-        instance = this;
 
         // load prefab
         prefPanel = Resources.Load<GameObject>(DataConfig.prefPanelPath);
@@ -43,13 +42,16 @@ public class StoryBoard : Board
         }
     }
 
-    public void AddPanel()
+    public void AddPanel(string name = "")
     {
         Panel panel = Instantiate(prefPanel, transPanelCont).GetComponent<Panel>();
 
         if (panel)
         {
-            (panel as CommonPanel).Init(this, defaultNewPanelName + "_" + panelCounter);
+            if (name.Length == 0)
+                name = defaultNewPanelName + "_" + panelCounter;
+
+            (panel as CommonPanel).Init(this, name);
             panelCounter++;
 
             lPanels.Add(panel);

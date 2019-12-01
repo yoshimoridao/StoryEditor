@@ -6,7 +6,7 @@ public class ElementBoard : Board
 {
     public Transform transPanelCont;
 
-    string defaultNameNewPanel = "element";
+    string defaultNewPanelName = "element";
     List<Panel> lPanels = new List<Panel>();
     GameObject prefPanel;
     int panelCounter = 0;
@@ -20,7 +20,7 @@ public class ElementBoard : Board
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        instance = this;
+
     }
 
     void Update()
@@ -31,7 +31,6 @@ public class ElementBoard : Board
     public override void Init()
     {
         base.Init();
-        instance = this;
 
         // load prefab
         prefPanel = Resources.Load<GameObject>(DataConfig.prefPanelPath);
@@ -43,17 +42,29 @@ public class ElementBoard : Board
         }
     }
 
-    public void AddPanel()
+    public Panel AddPanel(string name = "")
     {
         Panel panel = Instantiate(prefPanel, transPanelCont).GetComponent<Panel>();
 
         if (panel)
         {
-            (panel as CommonPanel).Init(this, defaultNameNewPanel + "_" + panelCounter);
+            if (name.Length == 0)
+                name = defaultNewPanelName + "_" + panelCounter;
+
+            (panel as CommonPanel).Init(this, name);
             panelCounter++;
 
             lPanels.Add(panel);
             CanvasMgr.Instance.RefreshCanvas();
+
+            return panel;
         }
+
+        return null;
+    }
+
+    public void AddPanel()
+    {
+
     }
 }

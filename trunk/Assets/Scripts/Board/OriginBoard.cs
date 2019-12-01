@@ -20,7 +20,7 @@ public class OriginBoard : Board
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        instance = this;
+        
     }
 
     void Update()
@@ -31,7 +31,6 @@ public class OriginBoard : Board
     public override void Init()
     {
         base.Init();
-        instance = this;
 
         // load prefab
         prefOriginPanel = Resources.Load<GameObject>(DataConfig.prefOriginPanelPath);

@@ -8,7 +8,7 @@ public class InputLabel : Label
     bool isModifyingText = false;
 
     // ========================================= GET/ SET =========================================
-    public bool IsModifyText()
+    public bool IsModifyingText()
     {
         return isModifyingText;
     }
@@ -25,9 +25,9 @@ public class InputLabel : Label
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init(RowLabelMgr rowLabel)
+    public void Init(RowLabelMgr rowLabel, string name = "")
     {
-        base.Init(rowLabel);
+        base.Init(rowLabel, name);
     }
 
     public void OnEditDone()

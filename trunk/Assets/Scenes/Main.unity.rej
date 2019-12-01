@@ -1,0 +1,10 @@
+diff a/trunk/Assets/Scenes/Main.unity b/trunk/Assets/Scenes/Main.unity	(rejected hunks)
+@@ -849,7 +849,7 @@
+     - target: {fileID: 5597673473371183034, guid: 6406eeb89933f8241ba0e42623d891f6,
+         type: 3}
+       propertyPath: m_AnchoredPosition.x
+-      value: 72.955
++      value: 0
+       objectReference: {fileID: 0}
+     - target: {fileID: 5597673473371183034, guid: 6406eeb89933f8241ba0e42623d891f6,
+         type: 3}

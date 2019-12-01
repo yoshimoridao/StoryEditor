@@ -14,9 +14,9 @@ public class CommonPanel : Panel
     GameObject prefRowLabel;
 
     List<RowLabelMgr> lLabelRows = new List<RowLabelMgr>();
-    bool isRefactorRows = false;
+    bool isRefreshLabelRow = false;
     float panelZoneW;
-    string panelKey;
+    string title;
 
     // ========================================= GET/ SET =========================================
     public Board GetBoard()
@@ -39,6 +39,11 @@ public class CommonPanel : Panel
         return labels;
     }
 
+    public string GetTitle()
+    {
+        return title;
+    }
+
     public Button GetColorBtn()
     {
         if (colorBtn)
@@ -56,19 +61,20 @@ public class CommonPanel : Panel
     {
         base.Update();
 
-        RefractorLabelRow();
+        RefreshLabelRow();
 
         // in case changing title text
-        if (panelKey != titleLabel.GetText() && !titleLabel.IsModifyText())
+        if (title != titleLabel.GetText() && !titleLabel.IsModifyingText())
         {
             // activate add button for the first time rename
             if (!IsAddBtnActive())
                 ActiveAddBtn(true);
-
+            string newTitle = titleLabel.GetText();
             // update key in storage
-            DataMgr.Instance.ReplaceKey(panelKey, titleLabel.GetText());
+            DataMgr.DataType dataType = board.boardType == Board.BoardType.Story ? DataMgr.DataType.Story : DataMgr.DataType.Element;
+            DataMgr.Instance.ReplaceKey(dataType, title, newTitle);
             // update new key
-            panelKey = titleLabel.GetText();
+            title = newTitle;
         }
     }
 
@@ -87,21 +93,21 @@ public class CommonPanel : Panel
         panelZoneW = (this.board.transform as RectTransform).sizeDelta.x - (rootPadding.left + rootPadding.right);
 
         // init title
-        panelKey = key;
+        title = key;
         if (titleLabel)
         {
             titleLabel.Init();
-            titleLabel.SetText(panelKey);
+            titleLabel.SetText(title);
         }
 
         // default disable add btn -> (to force user change title text)
         ActiveAddBtn(false);
 
         // save data in case just created
-        DataMgr.Instance.SaveData(this);
+        DataMgr.Instance.Save(this);
     }
 
-    public void AddInputLabel()
+    public void AddInputLabel(string labelTitle = "")
     {
         // add new row if empty
         if (lLabelRows.Count == 0)
@@ -114,7 +120,7 @@ public class CommonPanel : Panel
             if (rowLabel)
             {
                 // add input panel
-                rowLabel.AddInputLabel();
+                rowLabel.AddInputLabel(labelTitle);
 
                 OnChildLabelEditDone();
                 CanvasMgr.Instance.RefreshCanvas();
@@ -144,10 +150,10 @@ public class CommonPanel : Panel
 
     public void OnChildLabelEditDone()
     {
-        isRefactorRows = true;
+        isRefreshLabelRow = true;
 
         // save in case having modified in child element
-        DataMgr.Instance.SaveData(this);
+        DataMgr.Instance.Save(this);
     }
 
     public void SetActiveColorButton(bool isActive)
@@ -199,15 +205,15 @@ public class CommonPanel : Panel
         return addBtn.interactable;
     }
 
-    private void RefractorLabelRow()
+    private void RefreshLabelRow()
     {
         if (!CanvasMgr.Instance.IsRefreshCanvas())
         {
-            if (isRefactorRows)
-                isRefactorRows = false;
+            if (isRefreshLabelRow)
+                isRefreshLabelRow = false;
             return;
         }
-        if (!isRefactorRows)
+        if (!isRefreshLabelRow)
             return;
 
         for (int i = 0; i < lLabelRows.Count; i++)
