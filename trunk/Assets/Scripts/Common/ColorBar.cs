@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class ColorBar : Singleton<ColorBar>
 {
+    [System.Serializable]
+    public enum ColorType { WHITE, BLACK, RED, CYAN, GREEN, BLUE, ORANGE, PURPLE }
     Panel referralPanel = null;
     RectTransform rt;
 
@@ -47,12 +49,12 @@ public class ColorBar : Singleton<ColorBar>
         SetActiveGameObject(true);
     }
 
-    public void OnTouchColorButton(Image imgColor)
+    public void OnTouchColorButton(ColorBtn colorBtn)
     {
         if (referralPanel)
         {
             (referralPanel as CommonPanel).SetActiveColorButton(true);
-            referralPanel.SetColor(imgColor.color);
+            referralPanel.SetColor(colorBtn.type);
         }
 
         // de-active color bar
@@ -77,5 +79,31 @@ public class ColorBar : Singleton<ColorBar>
         }
 
         gameObject.SetActive(isActive);
+    }
+
+    public Color GetColor(ColorType colorType)
+    {
+        switch (colorType)
+        {
+            case ColorType.WHITE:
+                return Color.white;
+            case ColorType.BLACK:
+                return Color.black;
+            case ColorType.RED:
+                return Color.red;
+            case ColorType.CYAN:
+                return Color.cyan;
+            case ColorType.GREEN:
+                return Color.green;
+            case ColorType.BLUE:
+                return Color.blue;
+            case ColorType.ORANGE:
+                return new Color(1, 0.5f, 0.0f, 1.0f);
+            case ColorType.PURPLE:
+                return new Color(1, 0.0f, 1, 1.0f);
+            default:
+                break;
+        }
+        return Color.white;
     }
 }

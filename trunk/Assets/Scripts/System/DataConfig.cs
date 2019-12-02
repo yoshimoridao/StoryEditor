@@ -15,5 +15,8 @@ public class DataConfig
 
     public static string prefixOutPutStory = "s_";
 
-    public static string saveFilePath = "Assets/Resources/Data/story.txt";
+    public static string storySaveFilePath = "Assets/Resources/Data/story_data.txt";
+    public static string indexSaveFilePath = "Assets/Resources/Data/index_data.txt";
+    public static string storyDataSaveKey = "save_story_data";
+    public static string indexDataSaveKey = "save_index_data";
 }

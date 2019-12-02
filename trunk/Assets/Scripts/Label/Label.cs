@@ -11,32 +11,33 @@ public class Label : MonoBehaviour
 
     // prop
     protected RectTransform rt;
-    protected RowLabelMgr rowParent;
     protected Image image;
+    protected Panel panelParent;
+    protected ColorBar.ColorType colorType = ColorBar.ColorType.WHITE;
 
     // ========================================= GET/ SET FUNCS =========================================
-    public void SetParent(RowLabelMgr rowLabel, bool isAsFirstElement = false)
+    public void SetParent(Panel panel, bool isAsFirstElement = false)
     {
         // set transform parent
-        if (rowLabel)
+        if (panel)
         {
-            transform.parent = rowLabel.transform;
+            transform.parent = panel.transform;
             if (isAsFirstElement)
                 transform.SetAsFirstSibling();
 
             // store parent
-            rowParent = rowLabel;
+            panelParent = panel;
         }
         else
         {
             transform.parent = null;
-            rowParent = null;
+            panelParent = null;
         }
     }
 
-    public RowLabelMgr GetParent()
+    public Panel GetParent()
     {
-        return rowParent;
+        return panelParent;
     }
 
     public Text GetTextObject()
@@ -60,14 +61,18 @@ public class Label : MonoBehaviour
         inputField.text = val;
     }
 
-    public Color GetColor()
+    public ColorBar.ColorType GetColorType()
     {
-        return image.color;
+        return colorType;
     }
 
-    public void SetColor(Color color)
+    public void SetColor(ColorBar.ColorType type)
     {
-        image.color = color;
+        if (image)
+        {
+            colorType = type;
+            image.color = ColorBar.Instance.GetColor(type);
+        }
     }
     // ========================================= UNITY FUNCS =========================================
     public void Start()
@@ -98,14 +103,14 @@ public class Label : MonoBehaviour
         GetTextObject().transform.localScale = Vector3.one * scaleText;
     }
 
-    public void Init(RowLabelMgr rowLabel, string name = "")
+    public void Init(Panel panel, string name = "")
     {
         if (rt == null)
             rt = GetComponent<RectTransform>();
         if (image == null)
             image = GetComponent<Image>();
 
-        rowParent = rowLabel;
+        panelParent = panel;
 
         // set text of label
         if (name.Length == 0)

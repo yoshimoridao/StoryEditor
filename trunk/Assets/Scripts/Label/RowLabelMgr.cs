@@ -59,7 +59,7 @@ public class RowLabelMgr : MonoBehaviour
         {
             // gen new label
             InputLabel label = Instantiate(prefInputLabel, transform).GetComponent<InputLabel>();
-            label.Init(this, labelName);
+            label.Init(GetParent(), labelName);
             lLabels.Add(label);
 
             // refresh canvas
@@ -72,7 +72,20 @@ public class RowLabelMgr : MonoBehaviour
         {
             // gen new label
             LinkLabel label = Instantiate(prefLinkLabel, transform).GetComponent<LinkLabel>();
-            label.Init(this, referPanel);
+            label.Init(GetParent(), referPanel);
+            lLabels.Add(label);
+
+            // refresh canvas
+            CanvasMgr.Instance.RefreshCanvas();
+        }
+    }
+    public void AddLinkLabel(string referPanelKey)
+    {
+        if (prefInputLabel)
+        {
+            // gen new label
+            LinkLabel label = Instantiate(prefLinkLabel, transform).GetComponent<LinkLabel>();
+            label.Init(GetParent(), referPanelKey);
             lLabels.Add(label);
 
             // refresh canvas
@@ -83,7 +96,7 @@ public class RowLabelMgr : MonoBehaviour
     public void AddLabelAsFirst(Label label)
     {
         // set parent for label object  (transform)
-        label.SetParent(this, true);
+        label.SetParent(GetParent(), true);
 
         // add new label at first index (in storage)
         if (lLabels.Count > 0)

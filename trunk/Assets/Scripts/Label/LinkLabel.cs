@@ -24,36 +24,61 @@ public class LinkLabel : Label
         base.Update();
 
         // update text following referral panel
-        if (referralKey.Length > 0)
+        if (referPanel)
         {
-            string referralTitle = referPanel.titleLabel.GetText();
-
-            if (referralTitle.Length > 0 && referralKey != referralTitle)
+            if (referralKey.Length > 0)
             {
-                referralKey = referralTitle;
-                SetText(referralTitle);
+                string referralTitle = referPanel.titleLabel.GetText();
+
+                if (referralTitle.Length > 0 && referralKey != referralTitle)
+                {
+                    referralKey = referralTitle;
+                    SetText(referralTitle);
+                }
+            }
+            // update color following color of referral panel
+            if (GetColorType() != referPanel.GetColorType())
+            {
+                SetColor(referPanel.GetColorType());
             }
         }
-        // update color following color of referral panel
-        if (referPanel && GetColor() != referPanel.GetColor())
+        // finding refer panel
+        else
         {
-            SetColor(referPanel.GetColor());
+            Panel panel = (CanvasMgr.Instance.GetBoard<ElementBoard>() as ElementBoard).GetPanel(referralKey);
+            if (panel == null)
+                panel = (CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard).GetPanel(referralKey);
+
+            if (panel)
+                referPanel = panel as CommonPanel;
         }
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init(RowLabelMgr rowLabel, CommonPanel panel)
+    public void Init(Panel parent, CommonPanel panel)
     {
-        base.Init(rowLabel);
+        base.Init(parent);
 
         // store reference panel
         referPanel = panel;
-        
+
         // set title equal to the one of reference label
         referralKey = referPanel.titleLabel.GetText();
         SetText(referralKey);
 
         // set color
-        SetColor(referPanel.GetColor());
+        SetColor(referPanel.GetColorType());
+    }
+
+    public void Init(Panel parent, string panelKey)
+    {
+        base.Init(parent);
+
+        // store reference panel
+        referPanel = null;
+
+        // set title equal to the one of reference label
+        referralKey = panelKey;
+        SetText(referralKey);
     }
 }

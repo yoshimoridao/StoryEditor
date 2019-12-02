@@ -31,9 +31,9 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 2835689705175449986}
-  - {fileID: 1751812015807621599}
-  - {fileID: 4344739978012575577}
+  - {fileID: 6111808745721733507}
+  - {fileID: 7765413916159560158}
+  - {fileID: 5746725697062791000}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -101,6 +101,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65f4f263edf851f45b8c43fedf90c308, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  contParent: {fileID: 0}
 --- !u!1001 &5746725697062790915
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -146,7 +147,7 @@ PrefabInstance:
     - target: {fileID: 8326000602738434138, guid: 4b0b14bf228c606449cd96a22945ae62,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 48
       objectReference: {fileID: 0}
     - target: {fileID: 8326000601356777561, guid: 4b0b14bf228c606449cd96a22945ae62,
         type: 3}
@@ -270,7 +271,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b0b14bf228c606449cd96a22945ae62, type: 3}
---- !u!224 &4344739978012575577 stripped
+--- !u!224 &5746725697062791000 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8326000602738434138, guid: 4b0b14bf228c606449cd96a22945ae62,
     type: 3}
@@ -425,7 +426,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b0b14bf228c606449cd96a22945ae62, type: 3}
---- !u!224 &2835689705175449986 stripped
+--- !u!224 &6111808745721733507 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8326000602738434138, guid: 4b0b14bf228c606449cd96a22945ae62,
     type: 3}
@@ -476,7 +477,7 @@ PrefabInstance:
     - target: {fileID: 8326000602738434138, guid: 4b0b14bf228c606449cd96a22945ae62,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 24
       objectReference: {fileID: 0}
     - target: {fileID: 8326000601356777561, guid: 4b0b14bf228c606449cd96a22945ae62,
         type: 3}
@@ -600,7 +601,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b0b14bf228c606449cd96a22945ae62, type: 3}
---- !u!224 &1751812015807621599 stripped
+--- !u!224 &7765413916159560158 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8326000602738434138, guid: 4b0b14bf228c606449cd96a22945ae62,
     type: 3}

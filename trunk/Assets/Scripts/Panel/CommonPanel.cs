@@ -29,6 +29,11 @@ public class CommonPanel : Panel
         return titleLabel;
     }
 
+    public string GetTitle()
+    {
+        return title;
+    }
+
     public List<Label> GetLabels()
     {
         List<Label> labels = new List<Label>();
@@ -37,11 +42,6 @@ public class CommonPanel : Panel
             labels.AddRange(lLabelRows[i].GetLabels());
         }
         return labels;
-    }
-
-    public string GetTitle()
-    {
-        return title;
     }
 
     public Button GetColorBtn()
@@ -64,7 +64,7 @@ public class CommonPanel : Panel
         RefreshLabelRow();
 
         // in case changing title text
-        if (title != titleLabel.GetText() && !titleLabel.IsModifyingText())
+        if (title != titleLabel.GetText() && !titleLabel.IsModifyingText() && board)
         {
             // activate add button for the first time rename
             if (!IsAddBtnActive())
@@ -72,7 +72,7 @@ public class CommonPanel : Panel
             string newTitle = titleLabel.GetText();
             // update key in storage
             DataMgr.DataType dataType = board.boardType == Board.BoardType.Story ? DataMgr.DataType.Story : DataMgr.DataType.Element;
-            DataMgr.Instance.ReplaceKey(dataType, title, newTitle);
+            DataMgr.Instance.ReplaceDataInfoKey(dataType, title, newTitle);
             // update new key
             title = newTitle;
         }
@@ -96,15 +96,18 @@ public class CommonPanel : Panel
         title = key;
         if (titleLabel)
         {
-            titleLabel.Init();
-            titleLabel.SetText(title);
+            titleLabel.Init(title);
         }
 
         // default disable add btn -> (to force user change title text)
-        ActiveAddBtn(false);
+        //ActiveAddBtn(false);
 
-        // save data in case just created
-        DataMgr.Instance.Save(this);
+        // load index data (color, index,...)
+        DataMgr.DataIndex dataIndex = DataMgr.Instance.GetDataIndex(title);
+        if (dataIndex != null)
+        {
+            SetColor((ColorBar.ColorType)dataIndex.colorId);
+        }
     }
 
     public void AddInputLabel(string labelTitle = "")
@@ -148,12 +151,32 @@ public class CommonPanel : Panel
         }
     }
 
+    public void AddLinkLabel(string referPanelKey)
+    {
+        // add new row if empty
+        if (lLabelRows.Count == 0)
+            AddLabelRow();
+
+        if (lLabelRows.Count > 0)
+        {
+            // append label to last row
+            RowLabelMgr rowLabel = lLabelRows[lLabelRows.Count - 1];
+            if (rowLabel)
+            {
+                rowLabel.AddLinkLabel(referPanelKey);     // add linking panel
+
+                OnChildLabelEditDone();
+                CanvasMgr.Instance.RefreshCanvas();
+            }
+        }
+    }
+
     public void OnChildLabelEditDone()
     {
         isRefreshLabelRow = true;
 
         // save in case having modified in child element
-        DataMgr.Instance.Save(this);
+        DataMgr.Instance.SaveDataInfo(this);
     }
 
     public void SetActiveColorButton(bool isActive)

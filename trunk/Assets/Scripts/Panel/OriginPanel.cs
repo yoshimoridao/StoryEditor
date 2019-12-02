@@ -56,7 +56,7 @@ public class OriginPanel : Panel
             genPanel.Init();
             // change title
             genPanel.SetTitle(panel.GetTitleLabel().GetTextObject().text);
-            genPanel.SetColor(panel.GetColor());
+            genPanel.SetColor(panel.GetColorType());
 
             return genPanel;
         }

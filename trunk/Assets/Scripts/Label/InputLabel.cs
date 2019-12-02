@@ -25,9 +25,9 @@ public class InputLabel : Label
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init(RowLabelMgr rowLabel, string name = "")
+    public void Init(Panel panel, string name = "")
     {
-        base.Init(rowLabel, name);
+        base.Init(panel, name);
     }
 
     public void OnEditDone()
@@ -42,8 +42,8 @@ public class InputLabel : Label
         contentSize.enabled = true;
 
         // Label is component or row
-        if (rowParent)
-            rowParent.OnChildLabelEditDone();
+        if (panelParent)
+            (panelParent as CommonPanel).OnChildLabelEditDone();
     }
 
     public void OnChangeValue()

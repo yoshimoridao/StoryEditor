@@ -3,23 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[System.Serializable]
 public class Panel : DragingElement
 {
     public Transform transLabelCont;
 
     protected RectTransform rt;
     protected Image image;
+    protected ColorBar.ColorType colorType = ColorBar.ColorType.WHITE;
 
     // ========================================= UNITY FUNCS =========================================
-    public void SetColor(Color color)
+    public void SetColor(ColorBar.ColorType type)
     {
         if (image)
-            image.color = color;
+        {
+            colorType = type;
+            image.color = ColorBar.Instance.GetColor(colorType);
+
+            // save index info (color)
+            if (this is CommonPanel)
+                DataMgr.Instance.SaveIndexData(this as CommonPanel);
+        }
     }
 
-    public Color GetColor()
+    public ColorBar.ColorType GetColorType()
     {
-        return image.color;
+        return colorType;
     }
 
     // ========================================= UNITY FUNCS =========================================

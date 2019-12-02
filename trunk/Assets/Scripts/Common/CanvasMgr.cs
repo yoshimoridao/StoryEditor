@@ -36,7 +36,7 @@ public class CanvasMgr : Singleton<CanvasMgr>
             rootPanel.Init();
         }
 
-        DataMgr.Instance.InitElement();
+        DataMgr.Instance.InitElements();
 
         RefreshCanvas();
     }

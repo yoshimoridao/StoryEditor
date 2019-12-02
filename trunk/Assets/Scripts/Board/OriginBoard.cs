@@ -50,7 +50,6 @@ public class OriginBoard : Board
         sentencePanel.SetValue(valText);
 
         // show result
-        
         List<Label> labels = panel.GetLabels();
         for (int i = 0; i < labels.Count; i++)
         {
@@ -70,7 +69,7 @@ public class OriginBoard : Board
                 // change title for this panel
                 CommonPanel referPanel = (label as LinkLabel).GetReferPanel();
                 genPanel.SetTitle(referPanel.GetTitleLabel().GetTextObject().text);
-                genPanel.SetColor(referPanel.GetColor());
+                genPanel.SetColor(referPanel.GetColorType());
 
                 // add child labels for genereted panel
                 AddChildPanel(genPanel, label as LinkLabel);
@@ -87,45 +86,21 @@ public class OriginBoard : Board
 
         // foreach all of labels
         List<Label> labels = comPanel.GetLabels();
-        // in case in which lowest/ pure referral element (this mean the element(panel) have no another link label)
-        bool isPureElement = true;
-        foreach (Label child in labels)
+        Label label = labels[Random.Range(0, labels.Count)];
+
+        // add normal label
+        if (label is InputLabel)
         {
-            if (child is LinkLabel)
-            {
-                isPureElement = false;
-                break;
-            }
+            originPanel.AddLabel(label);
         }
-
-        // process for pure element -> pick random val
-        if (isPureElement)
+        // add origin panel (for linking label)
+        else if (label is LinkLabel)
         {
-            int rdId = Random.Range(0, labels.Count);
-            if (rdId < labels.Count)
-                originPanel.AddLabel(labels[rdId]);
-            return;
-        }
+            CommonPanel referPanel = (label as LinkLabel).GetReferPanel();
 
-        // process for un-pure element
-        for (int i = 0; i < labels.Count; i++)
-        {
-            Label label = labels[i];
-
-            // add normal label
-            if (label is InputLabel)
-            {
-                originPanel.AddLabel(label);
-            }
-            // add origin panel (for linking label)
-            else if (label is LinkLabel)
-            {
-                CommonPanel referPanel = (label as LinkLabel).GetReferPanel();
-
-                OriginPanel genPanel = originPanel.AddOriginPanel(referPanel);
-                // loop add all labels of the generated panel
-                AddChildPanel(genPanel, label as LinkLabel);
-            }
+            OriginPanel genPanel = originPanel.AddOriginPanel(referPanel);
+            // loop add all labels of the generated panel
+            AddChildPanel(genPanel, label as LinkLabel);
         }
     }
 }

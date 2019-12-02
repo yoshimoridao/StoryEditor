@@ -7,11 +7,25 @@ public class StoryBoard : Board
     public Transform transPanelCont;
 
     string defaultNewPanelName = "story";
+    [SerializeField]
     List<Panel> lPanels = new List<Panel>();
     GameObject prefPanel;
     int panelCounter = 0;
 
     // ========================================= GET/ SET =========================================
+    public Panel GetPanel(string key)
+    {
+        for (int i = 0; i < lPanels.Count; i++)
+        {
+            CommonPanel panel = lPanels[i] as CommonPanel;
+            if (panel.GetTitle() == key)
+            {
+                return panel;
+            }
+        }
+        return null;
+    }
+
     public List<Panel> GetPanels()
     {
         return lPanels;
@@ -20,7 +34,6 @@ public class StoryBoard : Board
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        
     }
 
     void Update()
@@ -42,7 +55,7 @@ public class StoryBoard : Board
         }
     }
 
-    public void AddPanel(string name = "")
+    public Panel AddPanel(string name = "")
     {
         Panel panel = Instantiate(prefPanel, transPanelCont).GetComponent<Panel>();
 
@@ -52,10 +65,22 @@ public class StoryBoard : Board
                 name = defaultNewPanelName + "_" + panelCounter;
 
             (panel as CommonPanel).Init(this, name);
+            // save data in case just created
+            DataMgr.Instance.SaveDataInfo(panel as CommonPanel);
+
             panelCounter++;
 
             lPanels.Add(panel);
             CanvasMgr.Instance.RefreshCanvas();
+
+            return panel;
         }
+
+        return null;
+    }
+
+    public void OnAddBtnPressed()
+    {
+        AddPanel();
     }
 }
