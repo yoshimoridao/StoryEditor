@@ -10,6 +10,7 @@ public class OriginBoard : Board
     List<Panel> lPanels = new List<Panel>();
     GameObject prefOriginPanel;
     GameObject prefLabel;
+    string resultText = "";
 
     // ========================================= GET/ SET =========================================
     public List<Panel> GetPanels()
@@ -45,6 +46,7 @@ public class OriginBoard : Board
 
     public void ShowResult(CommonPanel panel)
     {
+        resultText = "";
         // show title
         string valText = panel.GetTitleObj().GetTextObject().text;
         sentencePanel.SetValue(valText);
@@ -60,6 +62,10 @@ public class OriginBoard : Board
                 Label genLabel = Instantiate(prefLabel, transPanelCont).GetComponent<Label>();
                 genLabel.Init();
                 genLabel.SetText(label.GetTextObject());
+
+                if (resultText.Length > 0)
+                    resultText += " ";
+                resultText += label.GetText();
             }
             else if (label is LinkLabel)
             {
@@ -77,6 +83,8 @@ public class OriginBoard : Board
         }
 
         CanvasMgr.Instance.RefreshCanvas();
+
+        (CanvasMgr.Instance.GetBoard<ResultBoard>() as ResultBoard).ShowResult(resultText);
     }
 
     // ========================================= PRIVATE FUNCS =========================================
@@ -92,6 +100,10 @@ public class OriginBoard : Board
         if (label is InputLabel)
         {
             originPanel.AddLabel(label);
+
+            if (resultText.Length > 0)
+                resultText += " ";
+            resultText += label.GetText();
         }
         // add origin panel (for linking label)
         else if (label is LinkLabel)

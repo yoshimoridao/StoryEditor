@@ -1,1 +1,1 @@
-{"dataIndexes":[{"key":"e1","colorId":7},{"key":"abc","colorId":6},{"key":"de","colorId":4},{"key":"s1","colorId":0}]}
+{"dataIndexes":[{"key":"e1","colorId":0},{"key":"e2","colorId":0},{"key":"s1","colorId":0},{"key":"e3","colorId":0},{"key":"e4","colorId":0}]}

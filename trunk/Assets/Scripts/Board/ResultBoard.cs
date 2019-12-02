@@ -1,13 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class Board : MonoBehaviour
+public class ResultBoard : Board
 {
-    public enum BoardType { Element, Story, Origin, Result };
-    public BoardType boardType;
-    public Label titlePanel;
-
+    public Text resultText;
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
@@ -16,13 +14,20 @@ public class Board : MonoBehaviour
 
     void Update()
     {
-
+        
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public virtual void Init()
+    public override void Init()
     {
-        // init title
-        titlePanel.Init(titlePanel.GetText());
+        base.Init();
+    }
+
+    public void ShowResult(string text)
+    {
+        if (resultText)
+        {
+            resultText.text = text;
+        }
     }
 }
