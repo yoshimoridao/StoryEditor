@@ -18,3 +18,9 @@ s_s2":["#e3# #e2#
 III. Store in dictionary
 remove prefix "s_" for story element
 store in dictionary<string, List<string>> = <s_s2, lElements.value>
+
+
+bug:
+match element key
+pending:
+destroy link label and reference

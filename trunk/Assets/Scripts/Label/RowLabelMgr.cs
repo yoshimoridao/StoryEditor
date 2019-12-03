@@ -36,7 +36,16 @@ public class RowLabelMgr : MonoBehaviour
 
     void Update()
     {
-
+        // remove label null (in case label was self destroy)
+        for (int i = 0; i < lLabels.Count; i++)
+        {
+            Label label = lLabels[i];
+            if (label == null)
+            {
+                lLabels.RemoveAt(i);
+                i--;
+            }
+        }
     }
 
     public void Init(CommonPanel labelCont)
@@ -96,7 +105,7 @@ public class RowLabelMgr : MonoBehaviour
     public void AddLabelAsFirst(Label label)
     {
         // set parent for label object  (transform)
-        label.SetParent(GetParent(), true);
+        //label.SetParent(GetParent(), true);
 
         // add new label at first index (in storage)
         if (lLabels.Count > 0)
@@ -119,17 +128,17 @@ public class RowLabelMgr : MonoBehaviour
         int lastId = lLabels.Count - 1;
 
         Label lastLabel = lLabels[lastId];
-        lastLabel.SetParent(null);  // remove from parent
+        //lastLabel.SetParent(null);  // remove from parent
         lLabels.RemoveAt(lastId);   // remove in storage
 
         return lastLabel;
     }
 
     // ========== INPUT LABEL ==========
-    public void OnChildLabelEditDone()
-    {
-        // call event to parent
-        if (contParent)
-            (contParent as CommonPanel).OnChildLabelEditDone();
-    }
+    //public void OnChildLabelEditDone()
+    //{
+    //    // call event to parent
+    //    if (contParent)
+    //        (contParent as CommonPanel).OnChildLabelEditDone();
+    //}
 }

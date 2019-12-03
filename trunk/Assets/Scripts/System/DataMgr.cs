@@ -504,7 +504,7 @@ public class DataMgr : Singleton<DataMgr>
             {
                 string[] splitOrgPart = { "#\",\"" };
                 string[] orgParts = str.Split(splitOrgPart, System.StringSplitOptions.RemoveEmptyEntries);
-                if (orgParts.Length >= 1)
+                if (orgParts.Length > 1)
                     str = orgParts[1];
             }
             // get key of this part

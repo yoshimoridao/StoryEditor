@@ -276,6 +276,8 @@ public class CommonPanel : Panel
                         else
                             nextRow = lLabelRows[i + 1];
                         nextRow.AddLabelAsFirst(lastLabel);
+
+                        lastLabel.transform.parent = nextRow.transform;
                     }
                 }
             }
