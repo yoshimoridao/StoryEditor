@@ -13,10 +13,13 @@ public class OriginPanel : Panel
     {
         valText.text = val;
     }
-    public void SetTitle(string val)
+
+    public override void SetTitle(string val)
     {
+        base.SetTitle(val);
         titleText.text = val;
     }
+
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {

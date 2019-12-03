@@ -27,11 +27,123 @@ public class DataMgr : Singleton<DataMgr>
             colorId = (int)type;
         }
     }
+
     [System.Serializable]
     public class DataIndexer
     {
         [SerializeField]
         public List<DataIndex> dataIndexes = new List<DataIndex>();
+
+        public DataIndexer() { }
+
+        public DataIndex GetIndex(string key)
+        {
+            int findId = dataIndexes.FindIndex(x => x.key == key);
+            if (findId != -1 && findId < dataIndexes.Count)
+                return dataIndexes[findId];
+
+            return null;
+        }
+
+        public void AddIndex(DataIndex data)
+        {
+            dataIndexes.Add(data);
+
+            // export save file
+            Save();
+        }
+
+        public void ReplaceIndex(DataIndex data)
+        {
+            int findId = dataIndexes.FindIndex(x => x.key == data.key);
+            if (findId != -1 && findId < dataIndexes.Count)
+                dataIndexes[findId] = data;
+
+            // export save file
+            Save();
+        }
+
+        public void ReplaceIndexKey(string oldKey, string newKey)
+        {
+            // replace already indexer
+            int findId = dataIndexes.FindIndex(x => x.key == oldKey);
+            if (findId != -1 && findId < dataIndexes.Count)
+            {
+                dataIndexes[findId].key = newKey;
+            }
+
+            // export save file
+            Save();
+        }
+
+        public void RemoveIndex(string key)
+        {
+            int findId = dataIndexes.FindIndex(x => x.key == key);
+            if (findId != -1 && findId < dataIndexes.Count)
+            {
+                dataIndexes.RemoveAt(findId);
+            }
+
+            // export save file
+            Save();
+        }
+
+        public void Reset()
+        {
+            dataIndexes = new List<DataIndex>();
+
+            // export save file
+            Save();
+        }
+
+        public bool IsContain(string key)
+        {
+            int findId = dataIndexes.FindIndex(x => x.key == key);
+            if (findId != -1 && findId < dataIndexes.Count)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public void Load()
+        {
+            // create file save if not exist
+#if (IN_UNITY_EDITOR)
+            if (!File.Exists(DataConfig.indexSaveFilePath))
+                File.CreateText(DataConfig.indexSaveFilePath);
+#endif
+            // load by Player Pref
+            //if (!PlayerPrefs.HasKey(DataConfig.indexDataSaveKey))
+            //    return;
+            //string content = PlayerPrefs.GetString(DataConfig.indexDataSaveKey);
+
+            string content = File.ReadAllText(DataConfig.indexSaveFilePath);
+
+            Debug.Log("Load Index = " + content);
+            if (content.Length > 0)
+            {
+                DataIndexer newData = JsonUtility.FromJson<DataIndexer>(content);
+                dataIndexes = newData.dataIndexes;
+            }
+        }
+
+        public void Save()
+        {
+            string strOutput = JsonUtility.ToJson(this);
+            Debug.Log("Save Indexer = " + strOutput);
+
+            // create file if not exist
+#if (IN_UNITY_EDITOR)
+            if (!File.Exists(DataConfig.indexSaveFilePath))
+                File.CreateText(DataConfig.indexSaveFilePath);
+            // write new content
+            File.WriteAllText(DataConfig.indexSaveFilePath, strOutput);
+#endif
+
+            // save to playerpref
+            PlayerPrefs.SetString(DataConfig.indexDataSaveKey, strOutput);
+        }
     }
 
     // ===== store element info =====
@@ -73,11 +185,7 @@ public class DataMgr : Singleton<DataMgr>
     // ========================================= GET/ SET =========================================
     public DataIndex GetDataIndex(string key)
     {
-        int findId = dataIndexer.dataIndexes.FindIndex(x => x.key == key);
-        if (findId != -1 && findId < dataIndexer.dataIndexes.Count)
-            return dataIndexer.dataIndexes[findId];
-
-        return null;
+        return dataIndexer.GetIndex(key);
     }
 
     public List<string> GetDataInfo(DataType type, string key)
@@ -102,9 +210,9 @@ public class DataMgr : Singleton<DataMgr>
             case DataType.Story:
                 dic = dicStories;
                 break;
-            //case DataType.Linking:
-            //    dic = dicLinking;
-            //    break;
+                //case DataType.Linking:
+                //    dic = dicLinking;
+                //    break;
         }
         return dic;
     }
@@ -128,7 +236,8 @@ public class DataMgr : Singleton<DataMgr>
     public void Init()
     {
         LoadInfoData();
-        LoadIndexData();
+
+        dataIndexer.Load();
     }
 
     public void InitElements()
@@ -185,24 +294,12 @@ public class DataMgr : Singleton<DataMgr>
                 }
             }
         }
-        
+
         // save index data for all panels (at first)
         if (dataIndexer.dataIndexes.Count == 0)
-            SaveAllIndexData();
+            SaveIndexData();
 
         isInitDone = true;
-    }
-
-    public bool AddDataInfo(DataType type, string key, List<string> val)
-    {
-        // add new val in dic
-        var dic = GetDic(type);
-        if (!dic.ContainsKey(key))
-        {
-            dic.Add(key, val);
-            return true;
-        }
-        return false;
     }
 
     public void SaveDataInfo(CommonPanel panel)
@@ -211,38 +308,32 @@ public class DataMgr : Singleton<DataMgr>
             return;
 
         // determine panel is in which board (element or story)
-        bool isElementBoard = panel.GetBoard() is ElementBoard;
         List<Label> labels = panel.GetLabels();
-
-        // don't save if the panel doesn't have any labels
         if (labels.Count == 0)
             return;
 
         // save val
-        DataType type = isElementBoard ? DataType.Element : DataType.Story;
-
-        // get key of panel
-        string key = panel.GetTitleLabel().GetText();
+        DataType type = panel.GetBoard() is ElementBoard ? DataType.Element : DataType.Story;
 
         // get all text of label of panel
-        List<string> labelVars = new List<string>();
+        List<string> vars = new List<string>();
         for (int i = 0; i < labels.Count; i++)
         {
             Label label = labels[i];
-            string labelText = "";
+            string var = "";
             // element of Element Board
-            if (isElementBoard)
+            if (type == DataType.Element)
             {
                 if (label is LinkLabel)
                 {
                     // store the connection
                     //AddLinkingVal(labelText, key);
 
-                    labelText = "#" + label.GetText() + "#";
+                    var = "#" + label.GetText() + "#";
                 }
                 else
                 {
-                    labelText = label.GetText();
+                    var = label.GetText();
                 }
             }
             // element of Story Board
@@ -253,24 +344,68 @@ public class DataMgr : Singleton<DataMgr>
                     // store the connection
                     //AddLinkingVal(labelText, key);
 
-                    labelText = "#" + label.GetText() + "#";
+                    var = "#" + label.GetText() + "#";
                 }
                 else
                 {
-                    labelText = label.GetText();
+                    var = label.GetText();
                 }
             }
 
-            labelVars.Add(labelText);
+            vars.Add(var);
         }
 
-        if (!AddDataInfo(type, key, labelVars))
-            ReplaceDataInfo(type, key, labelVars);
+        // get key of panel
+        string key = panel.GetTitle();
+        if (IsContainDataInfo(type, key))
+            AddDataInfo(type, key, vars);
+        else
+            ReplaceDataInfo(type, key, vars);
 
-        // save info data
-        SaveDataInfo();
         // save index data
         SaveIndexData(panel);
+    }
+
+    public bool IsContainDataInfo(DataType type, string key)
+    {
+        // add new val in dic
+        var dic = GetDic(type);
+        if (!dic.ContainsKey(key))
+            return true;
+
+        return false;
+    }
+
+    public void AddDataInfo(DataType type, string key, List<string> vals)
+    {
+        // add new val in dic
+        var dic = GetDic(type);
+        dic.Add(key, vals);
+
+        // save info data
+        SaveInfoData();
+    }
+
+    public bool RemoveDataInfo(DataType type, string key)
+    {
+        // add new val in dic
+        var dic = GetDic(type);
+        if (dic.ContainsKey(key))
+        {
+            dic.Remove(key);
+
+            // also removing data index
+            dataIndexer.RemoveIndex(key);
+            // remove this key in another linking
+            RemoveLinkingDataInfo(key);
+
+            // save info data
+            SaveInfoData();
+
+            return true;
+        }
+
+        return false;
     }
 
     public bool ReplaceDataInfoKey(DataType type, string oldKey, string newKey)
@@ -290,13 +425,13 @@ public class DataMgr : Singleton<DataMgr>
 
             // also replace old key by new key in [linking dictionary]
             //ReplaceLinkingKey(type, oldKey, newKey);
-            ReplaceLinkingDataInfoKey(oldKey, newKey);
+            ReplaceLinkingDataInfo(oldKey, newKey);
 
             // export text file
-            SaveDataInfo();
+            SaveInfoData();
 
             // replace key in index data
-            ReplaceIndexDataKey(oldKey, newKey);
+            dataIndexer.ReplaceIndexKey(oldKey, newKey);
             return true;
         }
 
@@ -311,7 +446,8 @@ public class DataMgr : Singleton<DataMgr>
             dic[key] = vals;
 
             // export text file
-            SaveDataInfo();
+            SaveInfoData();
+
             return true;
         }
 
@@ -319,27 +455,21 @@ public class DataMgr : Singleton<DataMgr>
     }
 
     // ===== INDEX DATA =====
-    public void SaveIndexData(CommonPanel panel)
+    public void SaveIndexData(Panel panel)
     {
-        string title = panel.GetTitle();
+        string key = panel.GetTitle();
         ColorBar.ColorType colorType = panel.GetColorType();
 
-        // replace already indexer
-        int findId = dataIndexer.dataIndexes.FindIndex(x => x.key == title);
-        if (findId != -1 && findId < dataIndexer.dataIndexes.Count)
-        {
-            dataIndexer.dataIndexes[findId].key = title;
-            dataIndexer.dataIndexes[findId].colorId = (int)colorType;
-        }
-        // add new indexer
-        else
-        {
-            DataIndex dataIndex = new DataIndex(title, (int)colorType);
-            dataIndexer.dataIndexes.Add(dataIndex);
-        }
+        DataIndex newData = new DataIndex(key, (int)colorType);
 
-        SaveIndexData();
+        // replace already have data
+        if (dataIndexer.IsContain(key))
+            dataIndexer.ReplaceIndex(newData);
+        // add new data
+        else
+            dataIndexer.AddIndex(newData);
     }
+
     // ========================================= PRIVATE FUNCS =========================================
     private void LoadInfoData()
     {
@@ -365,13 +495,13 @@ public class DataMgr : Singleton<DataMgr>
             for (int i = 0; i < result.Length; i++)
             {
                 string str = result[i];
-                // origin part
+                // ignore origin part
                 if (i == 0)
                 {
                     string[] splitOrgPart = { "#\",\"" };
-                    string[] rOrgPart = str.Split(splitOrgPart, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (rOrgPart.Length >= 1)
-                        str = rOrgPart[1];
+                    string[] orgParts = str.Split(splitOrgPart, System.StringSplitOptions.RemoveEmptyEntries);
+                    if (orgParts.Length >= 1)
+                        str = orgParts[1];
                 }
                 // get key of this part
                 string key = str.Split('\"')[0];
@@ -385,9 +515,11 @@ public class DataMgr : Singleton<DataMgr>
                     if (elementObj != null)
                     {
                         // add to Story dic
-                        if (key.Contains(DataConfig.prefixOutPutStory))
+                        if (key.Contains(DataConfig.prefixOutPutStory) && elementObj.lElements.Count > 0)
                         {
-                            dicStories.Add(key.Replace(DataConfig.prefixOutPutStory, ""), elementObj.lElements);
+                            // parse from first element to another
+                            List<string> stories = new List<string>(elementObj.lElements[0].Split(' '));
+                            dicStories.Add(key.Replace(DataConfig.prefixOutPutStory, ""), stories);
                         }
                         // add to Elements dic
                         else
@@ -404,7 +536,7 @@ public class DataMgr : Singleton<DataMgr>
         }
     }
 
-    private void SaveDataInfo()
+    private void SaveInfoData()
     {
         DataStorage originData = new DataStorage();
         // default test case 0
@@ -446,19 +578,26 @@ public class DataMgr : Singleton<DataMgr>
             DataElement data = new DataElement();
             if (isStory)
             {
-                // with Story: merge all vals to one string
                 List<string> vars = dic[key];
-                string outputVar = vars[0];
-                for (int j = 1; j < vars.Count; j++)
-                    outputVar += " " + vars[j];
-
-                data.lElements = new List<string>();
-                data.lElements.Add(outputVar);
+                // with Story: merge all vals to one string
+                if (vars.Count > 0)
+                {
+                    string outputVar = "";
+                    outputVar = vars[0];
+                    for (int j = 1; j < vars.Count; j++)
+                        outputVar += " " + vars[j];
+                    data.lElements = new List<string>();
+                    data.lElements.Add(outputVar);
+                }
             }
             else
             {
                 data.lElements = new List<string>(dic[key]);
             }
+
+            // add null to output is [""] -> fix bug read element wrong
+            if (data.lElements.Count == 0)
+                data.lElements.Add("");
 
             string outputKey = isStory ? DataConfig.prefixOutPutStory + key : key;
             output += JsonUtility.ToJson(data).Replace("lElements", outputKey).Replace("{", ",").Replace("}", "");
@@ -467,65 +606,19 @@ public class DataMgr : Singleton<DataMgr>
     }
 
     // ==== INDEX DATA ====
-    private void LoadIndexData()
+    private void SaveIndexData()
     {
-        // create file save if not exist
-#if (IN_UNITY_EDITOR)
-        if (!File.Exists(DataConfig.indexSaveFilePath))
-            File.CreateText(DataConfig.indexSaveFilePath);
-#endif
-        // load by Player Pref
-        //if (!PlayerPrefs.HasKey(DataConfig.indexDataSaveKey))
-        //    return;
-        //string content = PlayerPrefs.GetString(DataConfig.indexDataSaveKey);
+        // clear indexer
+        dataIndexer.Reset();
 
-        string content = File.ReadAllText(DataConfig.indexSaveFilePath);
-
-        Debug.Log("Load Index = " + content);
-        if (content.Length > 0)
-        {
-            dataIndexer = JsonUtility.FromJson<DataIndexer>(content);
-        }
-    }
-
-    private void SaveAllIndexData()
-    {
         List<Panel> panels = (CanvasMgr.Instance.GetBoard<ElementBoard>() as ElementBoard).GetPanels();
         panels.AddRange((CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard).GetPanels());
+
         for (int i = 0; i < panels.Count; i++)
         {
             Panel panel = panels[i];
             SaveIndexData(panel as CommonPanel);
         }
-    }
-
-    private void SaveIndexData()
-    {
-        string strOutput = JsonUtility.ToJson(dataIndexer);
-        Debug.Log("Save Indexer = " + strOutput);
-
-        // create file if not exist
-#if (IN_UNITY_EDITOR)
-        if (!File.Exists(DataConfig.indexSaveFilePath))
-            File.CreateText(DataConfig.indexSaveFilePath);
-        // write new content
-        File.WriteAllText(DataConfig.indexSaveFilePath, strOutput);
-#endif
-
-        // save to playerpref
-        PlayerPrefs.SetString(DataConfig.indexDataSaveKey, strOutput);
-    }
-
-    private void ReplaceIndexDataKey(string oldKey, string newKey)
-    {
-        // replace already indexer
-        int findId = dataIndexer.dataIndexes.FindIndex(x => x.key == oldKey);
-        if (findId != -1 && findId < dataIndexer.dataIndexes.Count)
-        {
-            dataIndexer.dataIndexes[findId].key = newKey;
-        }
-
-        SaveIndexData();
     }
 
     // ==== INDEX DATA ====
@@ -575,7 +668,7 @@ public class DataMgr : Singleton<DataMgr>
     //    }
     //}
 
-    private void ReplaceLinkingDataInfoKey(string oldKey, string newKey)
+    private void ReplaceLinkingDataInfo(string oldKey, string newKey)
     {
         for (int i = 0; i < 2; i++)
         {
@@ -595,6 +688,35 @@ public class DataMgr : Singleton<DataMgr>
                     vals[k] = vals[k].Replace("#" + oldKey + "#", "#" + newKey + "#");
                 }
                 dic[key] = vals;
+            }
+        }
+    }
+
+    private void RemoveLinkingDataInfo(string key)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
+            if (i == 0)
+                dic = dicElements;
+            else
+                dic = dicStories;
+
+            List<string> keys = new List<string>(dic.Keys);
+            for (int j = 0; j < keys.Count; j++)
+            {
+                string tmpKey = keys[j];
+                List<string> vals = dic[tmpKey];
+                for (int k = 0; k < vals.Count; k++)
+                {
+                    vals[k] = vals[k].Replace("#" + key + "#", "");
+                    if (vals[k].Length == 0)
+                    {
+                        vals.RemoveAt(k);
+                        k--;
+                    }
+                }
+                dic[tmpKey] = vals;
             }
         }
     }

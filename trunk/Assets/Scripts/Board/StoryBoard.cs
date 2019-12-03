@@ -79,6 +79,19 @@ public class StoryBoard : Board
         return null;
     }
 
+    public void RemovePanel(Panel panel)
+    {
+        int panelId = lPanels.FindIndex(x => x.GetTitle() == panel.GetTitle());
+        // remove panel in list panels
+        if (panelId > -1 && panelId < lPanels.Count)
+        {
+            lPanels.RemoveAt(panelId);
+
+            // also remove in data storage
+            DataMgr.Instance.RemoveDataInfo(DataMgr.DataType.Story, panel.GetTitle());
+        }
+    }
+
     public void OnAddBtnPressed()
     {
         AddPanel();

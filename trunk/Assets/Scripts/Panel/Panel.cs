@@ -11,6 +11,18 @@ public class Panel : DragingElement
     protected RectTransform rt;
     protected Image image;
     protected ColorBar.ColorType colorType = ColorBar.ColorType.WHITE;
+    protected string title;
+
+    // ========================================= GET/ SET =========================================
+    public string GetTitle()
+    {
+        return title;
+    }
+
+    public virtual void SetTitle(string val)
+    {
+        title = val;
+    }
 
     // ========================================= UNITY FUNCS =========================================
     public void SetColor(ColorBar.ColorType type)
@@ -57,5 +69,10 @@ public class Panel : DragingElement
         {
             Destroy(transLabelCont.GetChild(i).gameObject);
         }
+    }
+
+    public void SelfDestroy()
+    {
+        Destroy(gameObject);
     }
 }

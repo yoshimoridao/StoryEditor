@@ -16,7 +16,6 @@ public class CommonPanel : Panel
     List<RowLabelMgr> lLabelRows = new List<RowLabelMgr>();
     bool isRefreshLabelRow = false;
     float panelZoneW;
-    string title;
 
     // ========================================= GET/ SET =========================================
     public Board GetBoard()
@@ -27,11 +26,6 @@ public class CommonPanel : Panel
     public Label GetTitleLabel()
     {
         return titleLabel;
-    }
-
-    public string GetTitle()
-    {
-        return title;
     }
 
     public List<Label> GetLabels()
@@ -194,6 +188,16 @@ public class CommonPanel : Panel
 
         // show color bar
         ColorBar.Instance.SetReferPanel(this);
+    }
+
+    public void OnDeleteButtonPressed()
+    {
+        if (board is ElementBoard)
+            (board as ElementBoard).RemovePanel(this);
+        else if (board is StoryBoard)
+            (board as StoryBoard).RemovePanel(this);
+
+        SelfDestroy();
     }
 
     // ========================================= OVERRIDE FUNCS =========================================

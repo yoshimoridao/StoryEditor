@@ -72,12 +72,28 @@ public class ElementBoard : Board
             panelCounter++;
 
             lPanels.Add(panel);
+
             CanvasMgr.Instance.RefreshCanvas();
 
             return panel;
         }
 
         return null;
+    }
+
+    public void RemovePanel(Panel panel)
+    {
+        int panelId = lPanels.FindIndex(x => x.GetTitle() == panel.GetTitle());
+        // remove panel in list panels
+        if (panelId > -1 && panelId < lPanels.Count)
+        {
+            lPanels.RemoveAt(panelId);
+
+            // also remove in data storage
+            DataMgr.Instance.RemoveDataInfo(DataMgr.DataType.Element, panel.GetTitle());
+        }
+
+        CanvasMgr.Instance.RefreshCanvas();
     }
 
     public void OnAddBtnPressed()
