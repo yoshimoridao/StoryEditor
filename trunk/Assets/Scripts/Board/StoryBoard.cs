@@ -79,7 +79,7 @@ public class StoryBoard : Board
         return null;
     }
 
-    public void RemovePanel(Panel panel)
+    public bool RemovePanel(Panel panel)
     {
         int panelId = lPanels.FindIndex(x => x.GetTitle() == panel.GetTitle());
         // remove panel in list panels
@@ -89,11 +89,30 @@ public class StoryBoard : Board
 
             // also remove in data storage
             DataMgr.Instance.RemoveDataInfo(DataMgr.DataType.Story, panel.GetTitle());
+            return true;
         }
+
+        CanvasMgr.Instance.RefreshCanvas();
+        return false;
     }
 
     public void OnAddBtnPressed()
     {
         AddPanel();
+    }
+
+    public void OnDeleteBtnPressed()
+    {
+        // delete all child elements
+        List<Panel> lPanels = GetPanels();
+        for (int i = 0; i < lPanels.Count; i++)
+        {
+            Panel panel = lPanels[i];
+            if (RemovePanel(panel))
+            {
+                panel.SelfDestroy();
+                i--;
+            }
+        }
     }
 }
