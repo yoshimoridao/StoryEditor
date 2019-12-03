@@ -46,6 +46,10 @@ public class OriginBoard : Board
 
     public void ShowResult(CommonPanel panel)
     {
+        // clear old result
+        for (int i = 0; i < transPanelCont.childCount; i++)
+            Destroy(transPanelCont.GetChild(i).gameObject);
+
         resultText = "";
         // show title
         string valText = panel.GetTitleObj().GetTextObject().text;
