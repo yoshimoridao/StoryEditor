@@ -152,6 +152,13 @@ public class DataMgr : Singleton<DataMgr>
     {
         [SerializeField]
         public List<string> lElements = new List<string>();
+
+        public DataElement() { }
+
+        public void RemoveEmptyElements()
+        {
+            lElements.RemoveAll(x => x.Length == 0);
+        }
     }
 
     [System.Serializable]
@@ -271,18 +278,14 @@ public class DataMgr : Singleton<DataMgr>
         keys = new List<string>(dicStories.Keys);
         for (int i = 0; i < keys.Count; i++)
         {
-            string panelTitle = keys[i];
-            CommonPanel panel = (CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard).AddPanel(panelTitle) as CommonPanel;
-
+            string key = keys[i];
+            CommonPanel panel = (CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard).AddPanel(key) as CommonPanel;
             if (panel)
             {
-                if (dicStories[panelTitle].Count == 0)
-                    continue;
-
-                string[] panelVars = dicStories[panelTitle][0].Split(' ');
-                for (int j = 0; j < panelVars.Length; j++)
+                List<string> vars = dicStories[key];
+                for (int j = 0; j < vars.Count; j++)
                 {
-                    string var = panelVars[j];
+                    string var = vars[j];
                     if (var.Contains("#"))
                     {
                         panel.AddLinkLabel(var.Replace("#", ""));
@@ -309,8 +312,8 @@ public class DataMgr : Singleton<DataMgr>
 
         // determine panel is in which board (element or story)
         List<Label> labels = panel.GetLabels();
-        if (labels.Count == 0)
-            return;
+        //if (labels.Count == 0)
+        //    return;
 
         // save val
         DataType type = panel.GetBoard() is ElementBoard ? DataType.Element : DataType.Story;
@@ -487,51 +490,62 @@ public class DataMgr : Singleton<DataMgr>
         string content = File.ReadAllText(DataConfig.storySaveFilePath);
 
         Debug.Log("Load Save File = " + content);
-        if (content.Length > 0)
+        if (content.Length == 0)
+            return;
+
+        // I.plit 1. "]," 2. "]}
+        string[] splitString = { "\"],\"", "\"]}" };
+        string[] result = content.Split(splitString, System.StringSplitOptions.RemoveEmptyEntries);
+        for (int i = 0; i < result.Length; i++)
         {
-            // I.plit 1. "]," 2. "]}
-            string[] splitString = { "\"],\"", "\"]}" };
-            string[] result = content.Split(splitString, System.StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < result.Length; i++)
+            string str = result[i];
+            // ignore origin part
+            if (i == 0)
             {
-                string str = result[i];
-                // ignore origin part
-                if (i == 0)
+                string[] splitOrgPart = { "#\",\"" };
+                string[] orgParts = str.Split(splitOrgPart, System.StringSplitOptions.RemoveEmptyEntries);
+                if (orgParts.Length >= 1)
+                    str = orgParts[1];
+            }
+            // get key of this part
+            string key = str.Split('\"')[0];
+            // convert to DataElement format ->  add 1. {" 2. "]} -> replace "key" = "lElements"
+            str = "{\"" + str + "\"]}";
+            str = str.Replace(key, "lElements");
+            try
+            {
+                DataElement elementObj = JsonUtility.FromJson<DataElement>(str);
+                // add to dictionary
+                if (elementObj == null)
+                    continue;
+
+                // remove all empty element
+                elementObj.RemoveEmptyElements();
+
+                // add to Story dic
+                if (key.Contains(DataConfig.prefixOutPutStory))
                 {
-                    string[] splitOrgPart = { "#\",\"" };
-                    string[] orgParts = str.Split(splitOrgPart, System.StringSplitOptions.RemoveEmptyEntries);
-                    if (orgParts.Length >= 1)
-                        str = orgParts[1];
-                }
-                // get key of this part
-                string key = str.Split('\"')[0];
-                // convert to DataElement format ->  add 1. {" 2. "]} -> replace "key" = "lElements"
-                str = "{\"" + str + "\"]}";
-                str = str.Replace(key, "lElements");
-                try
-                {
-                    DataElement elementObj = JsonUtility.FromJson<DataElement>(str);
-                    // add to dictionary
-                    if (elementObj != null)
+                    key = key.Replace(DataConfig.prefixOutPutStory, "");
+                    // parse from first element to another
+                    if (elementObj.lElements.Count > 0)
                     {
-                        // add to Story dic
-                        if (key.Contains(DataConfig.prefixOutPutStory) && elementObj.lElements.Count > 0)
-                        {
-                            // parse from first element to another
-                            List<string> stories = new List<string>(elementObj.lElements[0].Split(' '));
-                            dicStories.Add(key.Replace(DataConfig.prefixOutPutStory, ""), stories);
-                        }
-                        // add to Elements dic
-                        else
-                        {
-                            dicElements.Add(key, elementObj.lElements);
-                        }
+                        List<string> stories = new List<string>(elementObj.lElements[0].Split(' '));
+                        dicStories.Add(key, stories);
+                    }
+                    else
+                    {
+                        dicStories.Add(key.Replace(DataConfig.prefixOutPutStory, ""), elementObj.lElements);
                     }
                 }
-                catch
+                // add to Elements dic
+                else
                 {
-
+                    dicElements.Add(key, elementObj.lElements);
                 }
+            }
+            catch
+            {
+
             }
         }
     }

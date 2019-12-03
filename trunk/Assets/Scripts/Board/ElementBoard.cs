@@ -64,16 +64,14 @@ public class ElementBoard : Board
         {
             if (name.Length == 0)
                 name = defaultNewPanelName + "_" + panelCounter;
-
             (panel as CommonPanel).Init(this, name);
-            // save data in case just created
-            DataMgr.Instance.SaveDataInfo(panel as CommonPanel);
-
             panelCounter++;
-
             lPanels.Add(panel);
 
             CanvasMgr.Instance.RefreshCanvas();
+
+            // save data in case just created
+            DataMgr.Instance.SaveDataInfo(panel as CommonPanel);
 
             return panel;
         }
