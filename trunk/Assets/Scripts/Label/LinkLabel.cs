@@ -6,6 +6,7 @@ public class LinkLabel : Label
 {
     CommonPanel referPanel;
     string referralKey = "";
+    bool isLinked = false;
 
     // ========================================= GET/ SET =========================================
     public CommonPanel GetReferPanel()
@@ -43,14 +44,20 @@ public class LinkLabel : Label
             }
         }
         // finding refer panel
-        else
+        else if (!isLinked)
         {
+            isLinked = true;
+
             Panel panel = (CanvasMgr.Instance.GetBoard<ElementBoard>() as ElementBoard).GetPanel(referralKey);
             if (panel == null)
                 panel = (CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard).GetPanel(referralKey);
 
             if (panel)
                 referPanel = panel as CommonPanel;
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
 

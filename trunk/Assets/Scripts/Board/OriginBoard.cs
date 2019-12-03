@@ -94,6 +94,9 @@ public class OriginBoard : Board
 
         // foreach all of labels
         List<Label> labels = comPanel.GetLabels();
+        if (labels.Count == 0)
+            return;
+
         Label label = labels[Random.Range(0, labels.Count)];
 
         // add normal label
