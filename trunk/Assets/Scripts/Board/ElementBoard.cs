@@ -8,16 +8,16 @@ public class ElementBoard : Board
 
     string defaultNewPanelName = "element";
     [SerializeField]
-    List<Panel> lPanels = new List<Panel>();
+    List<Panel> panels = new List<Panel>();
     GameObject prefPanel;
     int panelCounter = 0;
 
     // ========================================= GET/ SET =========================================
     public Panel GetPanel(string key)
     {
-        for (int i = 0; i < lPanels.Count; i++)
+        for (int i = 0; i < panels.Count; i++)
         {
-            CommonPanel panel = lPanels[i] as CommonPanel;
+            CommonPanel panel = panels[i] as CommonPanel;
             if (panel.GetTitle() == key)
             {
                 return panel;
@@ -26,15 +26,9 @@ public class ElementBoard : Board
         return null;
     }
 
-    public List<Panel> GetPanels()
-    {
-        return new List<Panel>(lPanels);
-    }
-
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-
     }
 
     void Update()
@@ -47,7 +41,7 @@ public class ElementBoard : Board
         base.Init();
 
         // load prefab
-        prefPanel = Resources.Load<GameObject>(DataConfig.prefPanelPath);
+        prefPanel = Resources.Load<GameObject>(DataDefine.pref_path_Panel);
 
         // clear all child
         for (int i = 0; i < transPanelCont.childCount; i++)
@@ -66,13 +60,12 @@ public class ElementBoard : Board
                 name = defaultNewPanelName + "_" + panelCounter;
             (panel as CommonPanel).Init(this, name);
             panelCounter++;
-            lPanels.Add(panel);
+            panels.Add(panel);
 
             CanvasMgr.Instance.RefreshCanvas();
 
             // save data in case just created
-            DataMgr.Instance.SaveDataInfo(panel as CommonPanel);
-
+            DataMgr.Instance.AddIndex(panel as CommonPanel);
             return panel;
         }
 
@@ -81,38 +74,24 @@ public class ElementBoard : Board
 
     public bool RemovePanel(Panel panel)
     {
-        int panelId = lPanels.FindIndex(x => x.GetTitle() == panel.GetTitle());
+        int panelId = panels.FindIndex(x => x.GetTitle() == panel.GetTitle());
         // remove panel in list panels
-        if (panelId > -1 && panelId < lPanels.Count)
+        if (panelId > -1 && panelId < panels.Count)
         {
-            lPanels.RemoveAt(panelId);
+            panels.RemoveAt(panelId);
 
             // also remove in data storage
-            DataMgr.Instance.RemoveDataInfo(DataMgr.DataType.Element, panel.GetTitle());
+            DataMgr.Instance.RemoveIndex(DataIndexer.DataType.Element, panel.GetTitle());
+
+            CanvasMgr.Instance.RefreshCanvas();
             return true;
         }
 
-        CanvasMgr.Instance.RefreshCanvas();
         return false;
     }
 
     public void OnAddBtnPressed()
     {
         AddPanel();
-    }
-
-    public void OnDeleteBtnPressed()
-    {
-        // delete all child elements
-        List<Panel> lPanels = GetPanels();
-        for (int i = 0; i < lPanels.Count; i++)
-        {
-            Panel panel = lPanels[i];
-            if (RemovePanel(panel))
-            {
-                panel.SelfDestroy();
-                i--;
-            }
-        }
     }
 }

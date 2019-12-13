@@ -19,8 +19,12 @@ III. Store in dictionary
 remove prefix "s_" for story element
 store in dictionary<string, List<string>> = <s_s2, lElements.value>
 
+sentence rule:
+1. separate elements by @ mark
+"s_s1":["1@#e1#@2"]
 
 bug:
 match element key
 pending:
 destroy link label and reference
+create, add, remove link label

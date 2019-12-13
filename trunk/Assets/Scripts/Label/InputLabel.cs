@@ -5,12 +5,15 @@ using UnityEngine.UI;
 
 public class InputLabel : Label
 {
-    bool isModifyingText = false;
+    public bool isTitleLabel = false;
+
+    bool isEditing = false;
+    string oldText = "";
 
     // ========================================= GET/ SET =========================================
-    public bool IsModifyingText()
+    public bool IsEditing()
     {
-        return isModifyingText;
+        return isEditing;
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -25,25 +28,28 @@ public class InputLabel : Label
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init(Panel panel, string name = "")
+    public override void Init(Panel panel, string name = "")
     {
         base.Init(panel, name);
     }
 
     public void OnEditDone()
     {
-        if (!isModifyingText)
+        if (!isEditing)
             return;
 
-        isModifyingText = false;
+        isEditing = false;
 
         // to refresh size of content
         contentSize.enabled = false;
         contentSize.enabled = true;
 
         // Label is component or row
-        if (panelParent)
-            (panelParent as CommonPanel).OnChildLabelEditDone();
+        if (!isTitleLabel)
+        {
+            if (panelParent)
+                (panelParent as CommonPanel).OnChildLabelEditDone(this);
+        }
     }
 
     public void OnChangeValue()
@@ -51,12 +57,17 @@ public class InputLabel : Label
         if (!contentSize)
             return;
 
-        isModifyingText = true;
+        isEditing = true;
 
         // to refresh size of content
         contentSize.enabled = false;
         contentSize.enabled = true;
 
-        CanvasMgr.Instance.RefreshCanvas();
+        // Label is component or row
+        if (!isTitleLabel)
+        {
+            if (panelParent)
+                (panelParent as CommonPanel).OnChildLabelEditing();
+        }
     }
 }

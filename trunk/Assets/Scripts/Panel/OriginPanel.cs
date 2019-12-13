@@ -40,7 +40,7 @@ public class OriginPanel : Panel
     public void AddLabel(Label label)
     {
         // create simple label
-        GameObject prefLabel = Resources.Load<GameObject>(DataConfig.prefLabelPath);
+        GameObject prefLabel = Resources.Load<GameObject>(DataDefine.pref_path_label);
         if (prefLabel)
         {
             Label genLabel = Instantiate(prefLabel, transLabelCont).GetComponent<Label>();
@@ -51,14 +51,14 @@ public class OriginPanel : Panel
 
     public OriginPanel AddOriginPanel(CommonPanel panel)
     {
-        GameObject prefOriginPanel = Resources.Load<GameObject>(DataConfig.prefOriginPanelPath);
+        GameObject prefOriginPanel = Resources.Load<GameObject>(DataDefine.pref_path_originPanel);
         if (prefOriginPanel)
         {
             // add child panel
             OriginPanel genPanel = Instantiate(prefOriginPanel, transLabelCont).GetComponent<OriginPanel>();
             genPanel.Init();
             // change title
-            genPanel.SetTitle(panel.GetTitleLabel().GetTextObject().text);
+            genPanel.SetTitle(panel.GetTitle());
             genPanel.SetColor(panel.GetColorType());
 
             return genPanel;

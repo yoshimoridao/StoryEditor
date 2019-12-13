@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class Panel : DragingElement
+public class Panel : MonoBehaviour
 {
     public Transform transLabelCont;
 
@@ -25,16 +25,12 @@ public class Panel : DragingElement
     }
 
     // ========================================= UNITY FUNCS =========================================
-    public void SetColor(ColorBar.ColorType type)
+    public virtual void SetColor(ColorBar.ColorType type)
     {
         if (image)
         {
             colorType = type;
             image.color = ColorBar.Instance.GetColor(colorType);
-
-            // save index info (color)
-            if (this is CommonPanel)
-                DataMgr.Instance.SaveIndexData(this as CommonPanel);
         }
     }
 
@@ -71,7 +67,7 @@ public class Panel : DragingElement
         }
     }
 
-    public void SelfDestroy()
+    public virtual void SelfDestroy()
     {
         Destroy(gameObject);
     }

@@ -1,1 +1,1 @@
-{"origin":"#stories#"}
+{"origin":["##","##","##","##","##","##","##","##","##","#story_1#"],"story_0":["I'm a legend #element_1#"],"story_1":["Who am I #element_1#"],"element_1":["a","b","c"]}

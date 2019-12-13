@@ -3,34 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Board : MonoBehaviour
+[System.Serializable]
+public class SelectAbleElement : MonoBehaviour
 {
-    public enum BoardType { Element, Story, Origin, Result };
-    public BoardType boardType;
-    public ScrollRect scrollRect;
+    public Image highlightNode;
+
+    bool isSelect = false;
 
     // ========================================= GET/ SET =========================================
+    public bool Select
+    {
+        get { return isSelect; }
+        set
+        {
+            isSelect = value;
+            ActiveHighlight(isSelect);
+        }
+    }
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        
+        Select = false;
     }
 
     void Update()
     {
-
+        
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public virtual void Init()
+    private void ActiveHighlight(bool isActive)
     {
-    }
-
-    // ========================================= ACTIVATE =========================================
-    public void ActiveScrollRect(bool isActive)
-    {
-        if (scrollRect)
-            scrollRect.enabled = isActive;
+        if (highlightNode)
+            highlightNode.gameObject.SetActive(isActive);
     }
 }

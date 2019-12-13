@@ -6,181 +6,62 @@ using UnityEngine;
 [System.Serializable]
 public class DataMgr : Singleton<DataMgr>
 {
-    public enum DataType { Alias, Element, Story, Count, Linking };
-
-    // ===== store index info =====
-    [System.Serializable]
-    public class DataIndex
-    {
-        public string key;
-        public int colorId;
-
-        public DataIndex() { }
-        public DataIndex(string _key, int _colorId)
-        {
-            key = _key;
-            colorId = _colorId;
-        }
-
-        public void SetColorIndex(ColorBar.ColorType type)
-        {
-            colorId = (int)type;
-        }
-    }
-
-    [System.Serializable]
-    public class DataIndexer
-    {
-        [SerializeField]
-        public List<DataIndex> dataIndexes = new List<DataIndex>();
-
-        public DataIndexer() { }
-
-        public DataIndex GetIndex(string key)
-        {
-            int findId = dataIndexes.FindIndex(x => x.key == key);
-            if (findId != -1 && findId < dataIndexes.Count)
-                return dataIndexes[findId];
-
-            return null;
-        }
-
-        public void AddIndex(DataIndex data)
-        {
-            dataIndexes.Add(data);
-
-            // export save file
-            Save();
-        }
-
-        public void ReplaceIndex(DataIndex data)
-        {
-            int findId = dataIndexes.FindIndex(x => x.key == data.key);
-            if (findId != -1 && findId < dataIndexes.Count)
-                dataIndexes[findId] = data;
-
-            // export save file
-            Save();
-        }
-
-        public void ReplaceIndexKey(string oldKey, string newKey)
-        {
-            // replace already indexer
-            int findId = dataIndexes.FindIndex(x => x.key == oldKey);
-            if (findId != -1 && findId < dataIndexes.Count)
-            {
-                dataIndexes[findId].key = newKey;
-            }
-
-            // export save file
-            Save();
-        }
-
-        public void RemoveIndex(string key)
-        {
-            int findId = dataIndexes.FindIndex(x => x.key == key);
-            if (findId != -1 && findId < dataIndexes.Count)
-            {
-                dataIndexes.RemoveAt(findId);
-            }
-
-            // export save file
-            Save();
-        }
-
-        public void Reset()
-        {
-            dataIndexes = new List<DataIndex>();
-
-            // export save file
-            Save();
-        }
-
-        public bool IsContain(string key)
-        {
-            int findId = dataIndexes.FindIndex(x => x.key == key);
-            if (findId != -1 && findId < dataIndexes.Count)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public void Load()
-        {
-            // create file save if not exist
-#if (IN_UNITY_EDITOR)
-            if (!File.Exists(DataConfig.indexSaveFilePath))
-                File.CreateText(DataConfig.indexSaveFilePath);
-#endif
-            // load by Player Pref
-            //if (!PlayerPrefs.HasKey(DataConfig.indexDataSaveKey))
-            //    return;
-            //string content = PlayerPrefs.GetString(DataConfig.indexDataSaveKey);
-
-            string content = File.ReadAllText(DataConfig.indexSaveFilePath);
-
-            Debug.Log("Load Index = " + content);
-            if (content.Length > 0)
-            {
-                DataIndexer newData = JsonUtility.FromJson<DataIndexer>(content);
-                dataIndexes = newData.dataIndexes;
-            }
-        }
-
-        public void Save()
-        {
-            string strOutput = JsonUtility.ToJson(this);
-            Debug.Log("Save Indexer = " + strOutput);
-
-            // create file if not exist
-#if (IN_UNITY_EDITOR)
-            if (!File.Exists(DataConfig.indexSaveFilePath))
-                File.CreateText(DataConfig.indexSaveFilePath);
-            // write new content
-            File.WriteAllText(DataConfig.indexSaveFilePath, strOutput);
-#endif
-
-            // save to playerpref
-            PlayerPrefs.SetString(DataConfig.indexDataSaveKey, strOutput);
-        }
-    }
-
     // ===== store element info =====
     [System.Serializable]
     public class DataElement
     {
         [SerializeField]
-        public List<string> lElements = new List<string>();
+        public List<string> elements = new List<string>();
 
         public DataElement() { }
 
         public void RemoveEmptyElements()
         {
-            lElements.RemoveAll(x => x.Length == 0);
+            elements.RemoveAll(x => x.Length == 0);
         }
     }
 
     [System.Serializable]
     public class DataStorage
     {
-        public string origin = "#stories#";
+        public List<string> origin = new List<string>();
 
         public DataStorage() { }
 
-        public void ChangeStory(string key)
+        public List<string> TestCases
         {
-            // add prefix to detect
-            key = DataConfig.prefixOutPutStory + key;
-            origin = origin.Replace("#stories#", "#" + key + "#");
+            get { return origin; }
+        }
+
+        public void AddTestCase(string key)
+        {
+            if (!origin.Contains(key))
+                origin.Add(key);
+        }
+
+        public void RemoveTestCase(string key)
+        {
+            if (origin.Contains(key))
+                origin.Remove(key);
+        }
+
+        public void ClearTestCases()
+        {
+            origin.Clear();
+        }
+
+        public string ExportTracyFile()
+        {
+            DataStorage clone = new DataStorage();
+            clone.origin = new List<string>(origin);
+            for (int i = 0; i < clone.origin.Count; i++)
+            {
+                clone.origin[i] = "#" + clone.origin[i] + "#";
+            }
+            return JsonUtility.ToJson(clone);
         }
     }
 
-    Dictionary<string, List<string>> dicAlias = new Dictionary<string, List<string>>();
-    Dictionary<string, List<string>> dicElements = new Dictionary<string, List<string>>();
-    Dictionary<string, List<string>> dicStories = new Dictionary<string, List<string>>();
-
-    //// format -> 1:2,3,4 (these key (2,3,4) link to key 1)
     //Dictionary<string, List<string>> dicLinking = new Dictionary<string, List<string>>();
     [HideInInspector]
     [SerializeField]
@@ -190,38 +71,168 @@ public class DataMgr : Singleton<DataMgr>
     bool isInitDone = false;
 
     // ========================================= GET/ SET =========================================
-    public DataIndex GetDataIndex(string key)
+    // === Data storage ===
+    public void ClearTestCases()
     {
-        return dataIndexer.GetIndex(key);
+        dataStorage.ClearTestCases();
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+    public void AddTestCase(string testCase)
+    {
+        if (testCase.Length == 0)
+            return;
+
+        dataStorage.AddTestCase(testCase);
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+    public void RemoveTestCase(string testCase)
+    {
+        dataStorage.RemoveTestCase(testCase);
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+    public List<string> GetTestCases() { return dataStorage.TestCases; }
+
+    public List<DataIndex> GetDataStories() { return dataIndexer.stories; }
+    // === Index ===
+    /// <summary>
+    /// get index data with unknown data type
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public DataIndex GetIndex(string key, out DataIndexer.DataType type) { return dataIndexer.GetIndex(key, out type); }
+
+    /// <summary>
+    /// get index data with specific data type
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public DataIndex GetIndex(DataIndexer.DataType type, string key)
+    {
+        return dataIndexer.GetIndex(type, key);
     }
 
-    public List<string> GetDataInfo(DataType type, string key)
+    public void AddIndex(CommonPanel panel)
     {
-        var dic = GetDic(type);
-        if (dic.ContainsKey(key))
-            return dic[key];
-        return null;
-    }
+        if (!isInitDone)
+            return;
 
-    private Dictionary<string, List<string>> GetDic(DataType type)
-    {
-        Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
-        switch (type)
+        DataIndex dataIndex = new DataIndex(panel);
+        DataIndexer.DataType type = dataIndex.isStoryElement ? DataIndexer.DataType.Story : DataIndexer.DataType.Element;
+
+        if (dataIndexer.IsContain(type, dataIndex.key))
         {
-            case DataType.Alias:
-                dic = dicAlias;
-                break;
-            case DataType.Element:
-                dic = dicElements;
-                break;
-            case DataType.Story:
-                dic = dicStories;
-                break;
-                //case DataType.Linking:
-                //    dic = dicLinking;
-                //    break;
+            // WARNING match key
+
         }
-        return dic;
+        else
+        {
+            dataIndexer.AddIndex(dataIndex);
+        }
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+
+    public void RemoveIndex(DataIndexer.DataType type, string key)
+    {
+        if (!isInitDone)
+            return;
+
+        dataIndexer.RemoveIndex(type, key);
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+
+    public void ReplaceIndexKey(DataIndexer.DataType type, string oldKey, string newKey)
+    {
+        if (!isInitDone)
+            return;
+
+        dataIndexer.ReplaceIndexKey(type, oldKey, newKey);
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+
+    public void SortIndexes(DataIndexer.DataType type, List<Panel> panels)
+    {
+        List<string> panelKeys = new List<string>();
+        foreach (Panel panel in panels)
+        {
+            if (panel)
+                panelKeys.Add(panel.GetTitle());
+        }
+
+        dataIndexer.SortIndexes(type, panelKeys);
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+
+    // === Index's Val ===
+    public void AddElement(DataIndexer.DataType type, string key, Label label)
+    {
+        if (!isInitDone)
+            return;
+
+        dataIndexer.AddElement(type, key, label);
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+
+    public void RemoveElement(DataIndexer.DataType type, string indexKey, int elementIndex)
+    {
+        if (!isInitDone)
+            return;
+
+        dataIndexer.RemoveElement(type, indexKey, elementIndex);
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+
+    public void ReplaceElement(DataIndexer.DataType type, string indexKey, int elementIndex, Label label)
+    {
+        if (!isInitDone)
+            return;
+
+        dataIndexer.ReplaceElement(type, indexKey, elementIndex, label);
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+
+    public void ReplaceElements(CommonPanel panel)
+    {
+        if (!isInitDone)
+            return;
+
+        DataIndexer.DataType type = panel.GetDataType();
+        string indexKey = panel.GetTitle();
+        dataIndexer.ReplaceElements(type, indexKey, panel);
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+
+    public void SetColorIndex(DataIndexer.DataType type, string indexKey, ColorBar.ColorType colorType)
+    {
+        if (!isInitDone)
+            return;
+
+        dataIndexer.SetColorIndex(type, indexKey, colorType);
+
+        // export tracery file
+        ExportTraceryFile();
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -242,496 +253,108 @@ public class DataMgr : Singleton<DataMgr>
     // ========================================= PUBLIC FUNCS =========================================
     public void Init()
     {
-        LoadInfoData();
-
+        // load data indexer first
         dataIndexer.Load();
     }
 
-    public void InitElements()
+    public void CreateElements()
     {
         // create objs for Element Board
-        List<string> keys = new List<string>(dicElements.Keys);
-        for (int i = 0; i < keys.Count; i++)
-        {
-            string panelTitle = keys[i];
-            CommonPanel panel = (CanvasMgr.Instance.GetBoard<ElementBoard>() as ElementBoard).AddPanel(panelTitle) as CommonPanel;
-
-            if (panel)
-            {
-                List<string> panelVars = dicElements[panelTitle];
-                for (int j = 0; j < panelVars.Count; j++)
-                {
-                    string var = panelVars[j];
-                    if (var.Contains("#"))
-                    {
-                        panel.AddLinkLabel(var.Replace("#", ""));
-                    }
-                    else
-                    {
-                        panel.AddInputLabel(var);
-                    }
-                }
-            }
-        }
-
-        // create objs for Story Board
-        keys = new List<string>(dicStories.Keys);
-        for (int i = 0; i < keys.Count; i++)
-        {
-            string key = keys[i];
-            CommonPanel panel = (CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard).AddPanel(key) as CommonPanel;
-            if (panel)
-            {
-                List<string> vars = dicStories[key];
-                for (int j = 0; j < vars.Count; j++)
-                {
-                    string var = vars[j];
-                    if (var.Contains("#"))
-                    {
-                        panel.AddLinkLabel(var.Replace("#", ""));
-                    }
-                    else
-                    {
-                        panel.AddInputLabel(var);
-                    }
-                }
-            }
-        }
-
-        // save index data for all panels (at first)
-        if (dataIndexer.dataIndexes.Count == 0)
-            SaveIndexData();
+        dataIndexer.CreateElements(DataIndexer.DataType.Element);
+        dataIndexer.CreateElements(DataIndexer.DataType.Story);
 
         isInitDone = true;
     }
 
-    public void SaveDataInfo(CommonPanel panel)
+    public void ExportTraceryFile()
     {
-        if (!isInitDone)
-            return;
+        //string output = JsonUtility.ToJson(dataStorage).Replace("}", "");
+        string output = dataStorage.ExportTracyFile().Replace("}", "");
 
-        // determine panel is in which board (element or story)
-        List<Label> labels = panel.GetLabels();
-        //if (labels.Count == 0)
-        //    return;
-
-        // save val
-        DataType type = panel.GetBoard() is ElementBoard ? DataType.Element : DataType.Story;
-
-        // get all text of label of panel
-        List<string> vars = new List<string>();
-        for (int i = 0; i < labels.Count; i++)
+        for (int i = 0; i < 2; i++)
         {
-            Label label = labels[i];
-            string var = "";
-            // element of Element Board
-            if (type == DataType.Element)
+            DataIndexer.DataType dataType = i == 0 ? DataIndexer.DataType.Story : DataIndexer.DataType.Element;
+            List<DataIndex> dataIndexes = dataIndexer.GetDatas(dataType);
+            for (int j = 0; j < dataIndexes.Count; j++)
             {
-                if (label is LinkLabel)
-                {
-                    // store the connection
-                    //AddLinkingVal(labelText, key);
+                DataIndex dataIndex = dataIndexes[j];
 
-                    var = "#" + label.GetText() + "#";
+                DataElement dataElement = new DataElement();
+                // parse for story element
+                if (dataType == DataIndexer.DataType.Story)
+                {
+                    dataElement.elements = new List<string>();
+                    dataElement.elements.Add(MergeAllElements(dataIndex));
                 }
                 else
                 {
-                    var = label.GetText();
+                    // clone elements
+                    dataElement.elements = new List<string>(dataIndex.elements);
                 }
-            }
-            // element of Story Board
-            else
-            {
-                if (label is LinkLabel)
-                {
-                    // store the connection
-                    //AddLinkingVal(labelText, key);
 
-                    var = "#" + label.GetText() + "#";
-                }
-                else
-                {
-                    var = label.GetText();
-                }
-            }
+                // add null to output is [""] -> fix bug read element wrong
+                if (dataElement.elements.Count == 0)
+                    dataElement.elements.Add("");
 
-            vars.Add(var);
-        }
+                string strElement = JsonUtility.ToJson(dataElement);
+                strElement = strElement.Replace("elements", dataIndex.key).Replace("{", ",").Replace("}", "");     // merge string (json format)
 
-        // get key of panel
-        string key = panel.GetTitle();
-        if (IsContainDataInfo(type, key))
-            AddDataInfo(type, key, vars);
-        else
-            ReplaceDataInfo(type, key, vars);
-
-        // save index data
-        SaveIndexData(panel);
-    }
-
-    public bool IsContainDataInfo(DataType type, string key)
-    {
-        // add new val in dic
-        var dic = GetDic(type);
-        if (!dic.ContainsKey(key))
-            return true;
-
-        return false;
-    }
-
-    public void AddDataInfo(DataType type, string key, List<string> vals)
-    {
-        // add new val in dic
-        var dic = GetDic(type);
-        dic.Add(key, vals);
-
-        // save info data
-        SaveInfoData();
-    }
-
-    public bool RemoveDataInfo(DataType type, string key)
-    {
-        // add new val in dic
-        var dic = GetDic(type);
-        if (dic.ContainsKey(key))
-        {
-            dic.Remove(key);
-
-            // also removing data index
-            dataIndexer.RemoveIndex(key);
-            // remove this key in another linking
-            RemoveLinkingDataInfo(key);
-
-            // save info data
-            SaveInfoData();
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public bool ReplaceDataInfoKey(DataType type, string oldKey, string newKey)
-    {
-        // check new key available
-        if (type == DataType.Element || type == DataType.Story)
-        {
-            if (GetDic(DataType.Element).ContainsKey(newKey) || GetDic(DataType.Story).ContainsKey(newKey))
-                return false;
-        }
-
-        var dic = GetDic(type);
-        if (dic.ContainsKey(oldKey))
-        {
-            dic.Add(newKey, new List<string>(dic[oldKey]));
-            dic.Remove(oldKey);
-
-            // also replace old key by new key in [linking dictionary]
-            //ReplaceLinkingKey(type, oldKey, newKey);
-            ReplaceLinkingDataInfo(oldKey, newKey);
-
-            // export text file
-            SaveInfoData();
-
-            // replace key in index data
-            dataIndexer.ReplaceIndexKey(oldKey, newKey);
-            return true;
-        }
-
-        return false;
-    }
-
-    public bool ReplaceDataInfo(DataType type, string key, List<string> vals)
-    {
-        var dic = GetDic(type);
-        if (dic.ContainsKey(key))
-        {
-            dic[key] = vals;
-
-            // export text file
-            SaveInfoData();
-
-            return true;
-        }
-
-        return false;
-    }
-
-    // ===== INDEX DATA =====
-    public void SaveIndexData(Panel panel)
-    {
-        string key = panel.GetTitle();
-        ColorBar.ColorType colorType = panel.GetColorType();
-
-        DataIndex newData = new DataIndex(key, (int)colorType);
-
-        // replace already have data
-        if (dataIndexer.IsContain(key))
-            dataIndexer.ReplaceIndex(newData);
-        // add new data
-        else
-            dataIndexer.AddIndex(newData);
-    }
-
-    // ========================================= PRIVATE FUNCS =========================================
-    private void LoadInfoData()
-    {
-        // create file save if not exist
-#if (IN_UNITY_EDITOR)
-        if (!File.Exists(DataConfig.storySaveFilePath))
-            File.CreateText(DataConfig.storySaveFilePath);
-#endif
-
-        // load by Player Pref
-        //if (!PlayerPrefs.HasKey(DataConfig.storyDataSaveKey))
-        //    return;
-        //string content = PlayerPrefs.GetString(DataConfig.storyDataSaveKey);
-
-        string content = File.ReadAllText(DataConfig.storySaveFilePath);
-
-        Debug.Log("Load Save File = " + content);
-        if (content.Length == 0)
-            return;
-
-        // I.plit 1. "]," 2. "]}
-        string[] splitString = { "\"],\"", "\"]}" };
-        string[] result = content.Split(splitString, System.StringSplitOptions.RemoveEmptyEntries);
-        for (int i = 0; i < result.Length; i++)
-        {
-            string str = result[i];
-            // ignore origin part
-            if (i == 0)
-            {
-                string[] splitOrgPart = { "#\",\"" };
-                string[] orgParts = str.Split(splitOrgPart, System.StringSplitOptions.RemoveEmptyEntries);
-                if (orgParts.Length > 1)
-                    str = orgParts[1];
-            }
-            // get key of this part
-            string key = str.Split('\"')[0];
-            // convert to DataElement format ->  add 1. {" 2. "]} -> replace "key" = "lElements"
-            str = "{\"" + str + "\"]}";
-            str = str.Replace(key, "lElements");
-            try
-            {
-                DataElement elementObj = JsonUtility.FromJson<DataElement>(str);
-                // add to dictionary
-                if (elementObj == null)
-                    continue;
-
-                // remove all empty element
-                elementObj.RemoveEmptyElements();
-
-                // add to Story dic
-                if (key.Contains(DataConfig.prefixOutPutStory))
-                {
-                    key = key.Replace(DataConfig.prefixOutPutStory, "");
-                    // parse from first element to another
-                    if (elementObj.lElements.Count > 0)
-                    {
-                        List<string> stories = new List<string>(elementObj.lElements[0].Split(' '));
-                        dicStories.Add(key, stories);
-                    }
-                    else
-                    {
-                        dicStories.Add(key.Replace(DataConfig.prefixOutPutStory, ""), elementObj.lElements);
-                    }
-                }
-                // add to Elements dic
-                else
-                {
-                    dicElements.Add(key, elementObj.lElements);
-                }
-            }
-            catch
-            {
-
+                output += strElement;
             }
         }
-    }
 
-    private void SaveInfoData()
-    {
-        DataStorage originData = new DataStorage();
-        // default test case 0
-        if (dicStories.Count > 0)
-        {
-            List<string> keys = new List<string>(dicStories.Keys);
-            originData.ChangeStory(keys[0]);
-        }
+        output += "}";
 
-        // root part of out put string for data info
-        string strOrigin = JsonUtility.ToJson(originData);
-        if (dicStories.Count > 0)
-            AddElementJson(ref strOrigin, dicStories, true);
-        if (dicElements.Count > 0)
-            AddElementJson(ref strOrigin, dicElements);
-
-        Debug.Log("Save = " + strOrigin);
+        Debug.Log("Export Tracery File = " + output);
 
         // create file if not exist
 #if (IN_UNITY_EDITOR)
-        if (!File.Exists(DataConfig.storySaveFilePath))
-            File.CreateText(DataConfig.storySaveFilePath);
+        if (!File.Exists(DataDefine.save_path_storyData))
+            File.CreateText(DataDefine.save_path_storyData);
         // write new content
-        File.WriteAllText(DataConfig.storySaveFilePath, strOrigin);
-#endif
-
+        File.WriteAllText(DataDefine.save_path_storyData, output);
+#else
         // save to playerpref
-        PlayerPrefs.SetString(DataConfig.storyDataSaveKey, strOrigin);
+        PlayerPrefs.SetString(DataConfig.save_key_storyData, output);
+#endif
     }
 
-    private void AddElementJson(ref string strOrigin, Dictionary<string, List<string>> dic, bool isStory = false)
+    public string MergeAllElements(DataIndex dataIndex)
     {
-        List<string> keys = new List<string>(dic.Keys);
-        string output = "";
-        for (int i = 0; i < keys.Count; i++)
+        string val = "";
+        if (dataIndex != null)
         {
-            // add prefix for story
-            string key = keys[i];
-            DataElement data = new DataElement();
-            if (isStory)
+            for (int k = 0; k < dataIndex.elements.Count; k++)
             {
-                List<string> vars = dic[key];
-                // with Story: merge all vals to one string
-                if (vars.Count > 0)
-                {
-                    string outputVar = "";
-                    outputVar = vars[0];
-                    for (int j = 1; j < vars.Count; j++)
-                        outputVar += " " + vars[j];
-                    data.lElements = new List<string>();
-                    data.lElements.Add(outputVar);
-                }
+                if (k != 0)
+                    val += " ";
+                val += dataIndex.elements[k];
             }
-            else
-            {
-                data.lElements = new List<string>(dic[key]);
-            }
-
-            // add null to output is [""] -> fix bug read element wrong
-            if (data.lElements.Count == 0)
-                data.lElements.Add("");
-
-            string outputKey = isStory ? DataConfig.prefixOutPutStory + key : key;
-            output += JsonUtility.ToJson(data).Replace("lElements", outputKey).Replace("{", ",").Replace("}", "");
         }
-        strOrigin = strOrigin.Substring(0, strOrigin.Length - 1) + output + "}";
+
+        return val;
     }
 
-    // ==== INDEX DATA ====
-    private void SaveIndexData()
+    // ========================================= PRIVATE FUNCS =========================================
+    public List<string> ParseRetrieveLinkId(string val)
     {
-        // clear indexer
-        dataIndexer.Reset();
+        List<string> tmp = new List<string>();
 
-        List<Panel> panels = (CanvasMgr.Instance.GetBoard<ElementBoard>() as ElementBoard).GetPanels();
-        panels.AddRange((CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard).GetPanels());
-
-        for (int i = 0; i < panels.Count; i++)
+        var parsedVal = val.Split('#');
+        // iterate odd index
+        for (int i = 1; i < parsedVal.Length; i += 2)
         {
-            Panel panel = panels[i];
-            SaveIndexData(panel as CommonPanel);
+            string linkKey = parsedVal[i];
+            tmp.Add(linkKey);
+
+            //DataIndexer.DataType dataType = DataIndexer.DataType.Element;
+
+            //// check this link key exists
+            //DataIndex foundIndex = GetIndex(linkKey, out dataType);
+            //if (foundIndex != null)
+            //    tmp.Add(foundIndex);
         }
-    }
 
-    // ==== INDEX DATA ====
-    //private void AddLinkingVal(string key, string val)
-    //{
-    //    if (dicLinking.ContainsKey(key))
-    //    {
-    //        List<string> vals = dicLinking[key];
-    //        // append in case didn't have
-    //        if (!vals.Contains(val))
-    //        {
-    //            vals.Add(val);
-    //            dicLinking[key] = vals;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        List<string> vals = new List<string>();
-    //        vals.Add(val);
-    //        dicLinking.Add(key, vals);
-    //    }
-    //}
-
-    //private void ReplaceLinkingKey(DataType type, string oldKey, string newKey)
-    //{
-    //    // replace this key & replace all #oldkey# in (alias, elements, story)
-    //    if (dicLinking.ContainsKey(oldKey))
-    //    {
-    //        // replace key linked to another keys
-    //        List<string> linkKeys = dicLinking[oldKey];
-    //        for (int i = 0; i < linkKeys.Count; i++)
-    //        {
-    //            string key = linkKeys[i];
-    //            List<string> vals = GetDataInfo(type, key);
-    //            // replace new linking key (for alias, elements, story)
-    //            for (int j = 0; j < vals.Count; j++)
-    //            {
-    //                vals[j] = vals[j].Replace("#" + oldKey + "#", "#" + newKey + "#");
-    //            }
-    //            // replace val in storage
-    //            ReplaceDataInfo(type, key, vals);
-    //        }
-
-    //        // replace old key in another key
-    //        dicLinking.Add(newKey, new List<string>(dicLinking[oldKey]));
-    //        dicLinking.Remove(oldKey);
-    //    }
-    //}
-
-    private void ReplaceLinkingDataInfo(string oldKey, string newKey)
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
-            if (i == 0)
-                dic = dicElements;
-            else
-                dic = dicStories;
-
-            List<string> keys = new List<string>(dic.Keys);
-            for (int j = 0; j < keys.Count; j++)
-            {
-                string key = keys[j];
-                List<string> vals = dic[key];
-                for (int k = 0; k < vals.Count; k++)
-                {
-                    vals[k] = vals[k].Replace("#" + oldKey + "#", "#" + newKey + "#");
-                }
-                dic[key] = vals;
-            }
-        }
-    }
-
-    private void RemoveLinkingDataInfo(string key)
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
-            if (i == 0)
-                dic = dicElements;
-            else
-                dic = dicStories;
-
-            List<string> keys = new List<string>(dic.Keys);
-            for (int j = 0; j < keys.Count; j++)
-            {
-                string tmpKey = keys[j];
-                List<string> vals = dic[tmpKey];
-                for (int k = 0; k < vals.Count; k++)
-                {
-                    vals[k] = vals[k].Replace("#" + key + "#", "");
-                    if (vals[k].Length == 0)
-                    {
-                        vals.RemoveAt(k);
-                        k--;
-                    }
-                }
-                dic[tmpKey] = vals;
-            }
-        }
+        return tmp;
     }
 }

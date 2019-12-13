@@ -34,8 +34,8 @@ public class OriginBoard : Board
         base.Init();
 
         // load prefab
-        prefOriginPanel = Resources.Load<GameObject>(DataConfig.prefOriginPanelPath);
-        prefLabel = Resources.Load<GameObject>(DataConfig.prefLabelPath);
+        prefOriginPanel = Resources.Load<GameObject>(DataDefine.pref_path_originPanel);
+        prefLabel = Resources.Load<GameObject>(DataDefine.pref_path_label);
 
         // clear all child
         for (int i = 0; i < transPanelCont.childCount; i++)
@@ -78,7 +78,7 @@ public class OriginBoard : Board
                 genPanel.Init();
                 // change title for this panel
                 CommonPanel referPanel = (label as LinkLabel).GetReferPanel();
-                genPanel.SetTitle(referPanel.GetTitleLabel().GetTextObject().text);
+                genPanel.SetTitle(referPanel.GetTitle());
                 genPanel.SetColor(referPanel.GetColorType());
 
                 // add child labels for genereted panel

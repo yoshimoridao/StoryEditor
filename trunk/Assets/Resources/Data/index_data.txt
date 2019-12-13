@@ -1,1 +1,1 @@
-{"dataIndexes":[]}
+{"elements":[{"key":"element_1","elements":["a","b","c"],"colorId":7,"isStoryElement":false}],"stories":[{"key":"story_0","elements":["I'm","a","legend","#element_1#"],"colorId":0,"isStoryElement":true},{"key":"story_1","elements":["Who","am","I","#element_1#"],"colorId":0,"isStoryElement":true}]}

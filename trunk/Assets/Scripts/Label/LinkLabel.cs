@@ -35,6 +35,8 @@ public class LinkLabel : Label
                 {
                     referralKey = referralTitle;
                     SetText(referralTitle);
+
+                    CanvasMgr.Instance.RefreshCanvas();
                 }
             }
             // update color following color of referral panel
@@ -64,28 +66,26 @@ public class LinkLabel : Label
     // ========================================= PUBLIC FUNCS =========================================
     public void Init(Panel parent, CommonPanel panel)
     {
-        base.Init(parent);
+        base.Init(parent, panel.GetTitle());
 
         // store reference panel
         referPanel = panel;
 
         // set title equal to the one of reference label
-        referralKey = referPanel.titleLabel.GetText();
-        SetText(referralKey);
+        referralKey = referPanel.GetTitle();
 
         // set color
         SetColor(referPanel.GetColorType());
     }
 
-    public void Init(Panel parent, string panelKey)
+    public override void Init(Panel parent, string referKey)
     {
-        base.Init(parent);
+        base.Init(parent, referKey);
 
         // store reference panel
         referPanel = null;
 
         // set title equal to the one of reference label
-        referralKey = panelKey;
-        SetText(referralKey);
+        referralKey = referKey;
     }
 }

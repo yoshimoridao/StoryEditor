@@ -68,7 +68,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 0
+  m_Spacing: 5
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -147,7 +147,7 @@ PrefabInstance:
     - target: {fileID: 8326000602738434138, guid: 4b0b14bf228c606449cd96a22945ae62,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 48
+      value: 58
       objectReference: {fileID: 0}
     - target: {fileID: 8326000601356777561, guid: 4b0b14bf228c606449cd96a22945ae62,
         type: 3}
@@ -477,7 +477,7 @@ PrefabInstance:
     - target: {fileID: 8326000602738434138, guid: 4b0b14bf228c606449cd96a22945ae62,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 24
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 8326000601356777561, guid: 4b0b14bf228c606449cd96a22945ae62,
         type: 3}

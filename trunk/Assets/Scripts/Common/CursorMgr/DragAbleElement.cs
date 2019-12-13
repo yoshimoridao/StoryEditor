@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DragingElement : MonoBehaviour
+public class DragAbleElement : MonoBehaviour
 {
+    public Label titleLabel;
+
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
@@ -16,8 +18,11 @@ public class DragingElement : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public virtual Label GetTitleObj()
+    public virtual Label GetLabelObj()
     {
+        if (titleLabel)
+            return titleLabel;
+
         return null;
     }
 }

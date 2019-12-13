@@ -7,11 +7,12 @@ public class Label : MonoBehaviour
 {
     public InputField inputField;
     public ContentSizeFitter contentSize;
-    public float scaleText = 0.8f;
+    public float scaleText = 0.98f;
 
     // prop
     protected RectTransform rt;
     protected Image image;
+    [SerializeField]
     protected Panel panelParent;
     protected ColorBar.ColorType colorType = ColorBar.ColorType.WHITE;
 
@@ -50,15 +51,15 @@ public class Label : MonoBehaviour
         return inputField.text;
     }
 
+    public void SetText(string val)
+    {
+        inputField.text = val;
+    }
+
     public void SetText(Text t)
     {
         inputField.text = t.text;
         GetComponentInChildren<Text>().fontSize = t.fontSize;
-    }
-
-    public void SetText(string val)
-    {
-        inputField.text = val;
     }
 
     public ColorBar.ColorType GetColorType()
@@ -97,13 +98,13 @@ public class Label : MonoBehaviour
 
         // set text of label
         if (name.Length == 0)
-            name = DataConfig.defaultLabelVar;
+            name = DataDefine.defaultLabelVar;
         SetText(name);
 
         GetTextObject().transform.localScale = Vector3.one * scaleText;
     }
 
-    public void Init(Panel panel, string name = "")
+    public virtual void Init(Panel panel, string name = "")
     {
         if (rt == null)
             rt = GetComponent<RectTransform>();
@@ -114,9 +115,17 @@ public class Label : MonoBehaviour
 
         // set text of label
         if (name.Length == 0)
-            name = DataConfig.defaultLabelVar;
+            name = DataDefine.defaultLabelVar;
         SetText(name);
 
         GetTextObject().transform.localScale = Vector3.one * scaleText;
+    }
+
+    public virtual void SelfDestroy()
+    {
+        if (panelParent && panelParent is CommonPanel)
+            (panelParent as CommonPanel).RemoveLabel(this);
+
+        Destroy(gameObject);
     }
 }

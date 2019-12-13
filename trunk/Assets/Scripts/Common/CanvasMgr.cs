@@ -6,15 +6,14 @@ using UnityEngine.UI;
 public class CanvasMgr : Singleton<CanvasMgr>
 {
     private Vector2 refreshCanvasDt = new Vector2(0, 0.5f);
-
-    public List<Board> lRootPanel = new List<Board>();
+    public List<Board> lBoards = new List<Board>();
 
     // ========================================= GET/ SET =========================================
     public Board GetBoard<T>()
     {
-        for (int i = 0; i < lRootPanel.Count; i++)
-            if (lRootPanel[i] is T)
-                return lRootPanel[i];
+        for (int i = 0; i < lBoards.Count; i++)
+            if (lBoards[i] is T)
+                return lBoards[i];
         return null;
     }
 
@@ -29,14 +28,15 @@ public class CanvasMgr : Singleton<CanvasMgr>
         // init data
         DataMgr.Instance.Init();
 
-        // init root panel
-        for (int i = 0; i < lRootPanel.Count; i++)
+        // init boards
+        for (int i = 0; i < lBoards.Count; i++)
         {
-            Board rootPanel = lRootPanel[i];
+            Board rootPanel = lBoards[i];
             rootPanel.Init();
         }
 
-        DataMgr.Instance.InitElements();
+        // init element
+        DataMgr.Instance.CreateElements();
 
         RefreshCanvas();
     }
@@ -49,17 +49,23 @@ public class CanvasMgr : Singleton<CanvasMgr>
             if (refreshCanvasDt.x <= 0)
                 refreshCanvasDt.x = 0;
 
-            var arr = GetComponentsInChildren<VerticalLayoutGroup>();
-            foreach (var layout in arr)
+            var v = GetComponentsInChildren<VerticalLayoutGroup>();
+            foreach (var comp in v)
             {
-                layout.enabled = false;
-                layout.enabled = true;
+                comp.enabled = false;
+                comp.enabled = true;
             }
-            var harr = GetComponentsInChildren<HorizontalLayoutGroup>();
-            foreach (var layout in harr)
+            var h = GetComponentsInChildren<HorizontalLayoutGroup>();
+            foreach (var comp in h)
             {
-                layout.enabled = false;
-                layout.enabled = true;
+                comp.enabled = false;
+                comp.enabled = true;
+            }
+            var c = GetComponentsInChildren<ContentSizeFitter>();
+            foreach (var comp in c)
+            {
+                comp.enabled = false;
+                comp.enabled = true;
             }
         }
     }
@@ -73,5 +79,21 @@ public class CanvasMgr : Singleton<CanvasMgr>
     public void RefreshCanvas()
     {
         refreshCanvasDt.x = refreshCanvasDt.y;
+    }
+
+    public void DestroyElements()
+    {
+        List<SelectAbleElement> elements = CursorMgr.Instance.GetSelectedObjs();
+        for (int i = 0; i < elements.Count; i++)
+        {
+            SelectAbleElement element = elements[i];
+            if (element && element.GetComponent<CommonPanel>())
+                element.GetComponent<CommonPanel>().SelfDestroy();
+            if (element && element.GetComponent<Label>())
+                element.GetComponent<Label>().SelfDestroy();
+        }
+
+        // clear list
+        elements.Clear();
     }
 }

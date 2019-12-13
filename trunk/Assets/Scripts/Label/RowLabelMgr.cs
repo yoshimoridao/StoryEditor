@@ -9,7 +9,8 @@ public class RowLabelMgr : MonoBehaviour
 
     [SerializeField]
     CommonPanel contParent = null;
-    List<Label> lLabels = new List<Label>();
+    [SerializeField]
+    List<Label> labels = new List<Label>();
 
     // ========================================= GET/ SET FUNCS =========================================
     public Panel GetParent()
@@ -21,12 +22,65 @@ public class RowLabelMgr : MonoBehaviour
 
     public int ChildCount()
     {
-        return lLabels.Count;
+        return labels.Count;
     }
 
     public List<Label> GetLabels()
     {
-        return lLabels;
+        return labels;
+    }
+
+    public Label GetLabel(int index)
+    {
+        if (index < labels.Count)
+            return labels[index];
+        return null;
+    }
+
+    public Label RetrieveLabel(int index)
+    {
+        if (index >= 0 && index < labels.Count)
+        {
+            Label label = labels[index];
+            labels.RemoveAt(index);   // remove in storage
+            return label;
+        }
+
+        return null;
+    }
+
+    public void AddLabel(Label label, int index = -1)
+    {
+        // change parent transform
+        label.transform.parent = transform;
+
+        // add new label at first index (in storage)
+        if (index >= 0 && index < labels.Count)
+        {
+            labels.Insert(index, label);
+            // set sibling index
+            label.transform.SetSiblingIndex(index);
+        }
+        else
+        {
+            labels.Add(label);
+        }
+
+        // refresh canvas
+        CanvasMgr.Instance.RefreshCanvas();
+    }
+
+    public void RefreshLabels()
+    {
+        labels.Clear();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Label label = transform.GetChild(i).GetComponent<Label>();
+            if (label)
+            {
+                labels.Add(label);
+            }
+        }
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -37,12 +91,12 @@ public class RowLabelMgr : MonoBehaviour
     void Update()
     {
         // remove label null (in case label was self destroy)
-        for (int i = 0; i < lLabels.Count; i++)
+        for (int i = 0; i < labels.Count; i++)
         {
-            Label label = lLabels[i];
+            Label label = labels[i];
             if (label == null)
             {
-                lLabels.RemoveAt(i);
+                labels.RemoveAt(i);
                 i--;
             }
         }
@@ -53,8 +107,8 @@ public class RowLabelMgr : MonoBehaviour
         contParent = labelCont;
 
         // load prefabs
-        prefInputLabel = Resources.Load<GameObject>(DataConfig.prefInputLabelPath);
-        prefLinkLabel = Resources.Load<GameObject>(DataConfig.prefLinkLabelPath);
+        prefInputLabel = Resources.Load<GameObject>(DataDefine.pref_path_inputLabel);
+        prefLinkLabel = Resources.Load<GameObject>(DataDefine.pref_path_linkLabel);
 
         // add template first row
         for (int i = 0; i < transform.childCount; i++)
@@ -62,76 +116,77 @@ public class RowLabelMgr : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void AddInputLabel(string labelName = "")
+    public InputLabel AddInputLabel(string labelName = "")
     {
         if (prefInputLabel)
         {
             // gen new label
             InputLabel label = Instantiate(prefInputLabel, transform).GetComponent<InputLabel>();
             label.Init(GetParent(), labelName);
-            lLabels.Add(label);
+            AddLabel(label);
 
-            // refresh canvas
-            CanvasMgr.Instance.RefreshCanvas();
+            return label;
         }
+
+        return null;
     }
-    public void AddLinkLabel(CommonPanel referPanel)
+    public LinkLabel AddLinkLabel(CommonPanel referPanel)
     {
         if (prefInputLabel)
         {
             // gen new label
             LinkLabel label = Instantiate(prefLinkLabel, transform).GetComponent<LinkLabel>();
             label.Init(GetParent(), referPanel);
-            lLabels.Add(label);
+            AddLabel(label);
 
-            // refresh canvas
-            CanvasMgr.Instance.RefreshCanvas();
+            return label;
         }
+
+        return null;
     }
-    public void AddLinkLabel(string referPanelKey)
+    public LinkLabel AddLinkLabel(string referPanelKey)
     {
         if (prefInputLabel)
         {
             // gen new label
             LinkLabel label = Instantiate(prefLinkLabel, transform).GetComponent<LinkLabel>();
             label.Init(GetParent(), referPanelKey);
-            lLabels.Add(label);
+            AddLabel(label);
 
-            // refresh canvas
-            CanvasMgr.Instance.RefreshCanvas();
+            return label;
         }
+
+        return null;
     }
 
-    public void AddLabelAsFirst(Label label)
+    public bool CheckAppendLabel(RowLabelMgr nextRow, float baseWidth)
     {
-        // set parent for label object  (transform)
-        //label.SetParent(GetParent(), true);
+        Label label = nextRow.GetLabel(0);
+        if (label)
+        {
+            float labelW = (label.transform as RectTransform).sizeDelta.x;
+            float rowW = (transform as RectTransform).sizeDelta.x;
+            if (rowW + labelW <= baseWidth)
+            {
+                AddLabel(nextRow.RetrieveLabel(0));
+                return true;
+            }
+        }
 
-        // add new label at first index (in storage)
-        if (lLabels.Count > 0)
-        {
-            Label temp = lLabels[0];
-            lLabels[0] = label;
-            lLabels.Add(temp);
-        }
-        else
-        {
-            lLabels.Add(label);
-        }
+        return false;
     }
 
-    public Label RetrieveLastLabel()
+    public void AddFirstLabel(RowLabelMgr prevRow)
     {
-        if (lLabels.Count == 0)
-            return null;
+        List<Label> labels = prevRow.GetLabels();
+        if (labels.Count == 0)
+            return;
 
-        int lastId = lLabels.Count - 1;
+        // get last label of previous row   
+        Label lastLabel = prevRow.RetrieveLabel(labels.Count - 1);
 
-        Label lastLabel = lLabels[lastId];
-        //lastLabel.SetParent(null);  // remove from parent
-        lLabels.RemoveAt(lastId);   // remove in storage
-
-        return lastLabel;
+        // add to first index
+        AddLabel(lastLabel, 0);
     }
 
     // ========== INPUT LABEL ==========

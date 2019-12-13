@@ -11,6 +11,10 @@ TagManager:
   - rootpanel_result
   - color_bar
   - color_bar_btn
+  - zone_top_board_element
+  - zone_btm_board_element
+  - zone_top_board_story
+  - zone_btm_board_story
   layers:
   - Default
   - TransparentFX
