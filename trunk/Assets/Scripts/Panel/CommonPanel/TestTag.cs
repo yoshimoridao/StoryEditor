@@ -32,8 +32,13 @@ public class TestTag : MonoBehaviour
 
         if (panel)
         {
-            string panelTitle = panel.GetTitle();
+            ResultBoard resultBoard = CanvasMgr.Instance.GetBoard<ResultBoard>() as ResultBoard;
+            // clear all of old test cases (for the first pick-up case)
+            if (resultBoard && resultBoard.IsRandomTestCases && isActive)
+                DataMgr.Instance.ClearTestCases();
+
             // add || remove test case
+            string panelTitle = panel.GetTitle();
             if (isActive)
                 DataMgr.Instance.AddTestCase(panelTitle);
             else
@@ -43,8 +48,7 @@ public class TestTag : MonoBehaviour
             if (img)
                 img.color = isActive ? enableColor : disableColor;
 
-            // change mode test cases for result board
-            ResultBoard resultBoard = CanvasMgr.Instance.GetBoard<ResultBoard>() as ResultBoard;
+            // change mode test cases for result board (random test || specific case)
             if (resultBoard)
                 resultBoard.IsRandomTestCases = DataMgr.Instance.GetTestCases().Count > 0 ? false : true;
         }

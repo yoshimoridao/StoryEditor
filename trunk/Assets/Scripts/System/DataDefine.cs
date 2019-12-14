@@ -11,6 +11,7 @@ public class DataDefine
     public static string pref_path_inputLabel           = "Prefabs/label_input";
     public static string pref_path_linkLabel            = "Prefabs/label_link";
     public static string pref_path_highlight_panel      = "Prefabs/highlight_panel";
+    public static string pref_path_result_row           = "Prefabs/result_row";
 
     public static string defaultLabelVar = "---";
 

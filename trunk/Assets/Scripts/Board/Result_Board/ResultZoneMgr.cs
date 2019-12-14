@@ -5,7 +5,11 @@ using UnityEngine.UI;
 
 public class ResultZoneMgr : MonoBehaviour
 {
+    public Transform transCont;
     public Text resultText;
+
+    private List<GameObject> rows = new List<GameObject>();
+    private GameObject prefResultRow;
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
@@ -19,33 +23,63 @@ public class ResultZoneMgr : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
+    public void Init()
+    {
+        // load prefab
+        prefResultRow = Resources.Load<GameObject>(DataDefine.pref_path_result_row);
+
+        // delete template obj
+        for (int i = 0; i < transCont.childCount; i++)
+            Destroy(transCont.GetChild(i).gameObject);
+    }
+
     public void ShowResult(CommonPanel panel)
     {
 
     }
 
-    // ========================================= PRIVATE FUNCS =========================================
     public void ShowResult()
     {
+        if (!prefResultRow || !transCont)
+            return;
+
         List<string> testCases = DataMgr.Instance.GetTestCases();
 
-        string result = "";
+        // generate new rows
+        if (rows.Count < testCases.Count)
+        {
+            int turn = testCases.Count - rows.Count;
+            for (int i = 0; i < turn; i++)
+                rows.Add(Instantiate(prefResultRow, transCont));
+        }
+        // show using row || hide un-used rows
+        else
+        {
+            for (int i = 0; i < rows.Count; i++)
+                rows[i].SetActive(i < testCases.Count);
+        }
+
         for (int i = 0; i < testCases.Count; i++)
         {
             DataIndexer.DataType dataType;
             DataIndex dataIndex = DataMgr.Instance.GetIndex(testCases[i], out dataType);
+            // get result content of the data index
             string val = ParseDataIndex(dataIndex, dataType);
-            if (val.Length > 0)
+
+            // show result of each row
+            val = "<b>" + dataIndex.key + "</b>" + " = " + val;
+
+            if (i < rows.Count)
             {
-                if (result.Length > 0)
-                    result += "\n";
-                result += "<b>" + dataIndex.key + "</b>" + " = " + val;
+                GameObject row = rows[i];
+                row.GetComponentInChildren<Text>().text = val;
             }
         }
 
-        resultText.text = result;
+        CanvasMgr.Instance.RefreshCanvas();
     }
 
+    // ========================================= PRIVATE FUNCS =========================================
     private string ParseDataIndex(DataIndex dataIndex, DataIndexer.DataType dataType)
     {
         if (dataIndex == null)

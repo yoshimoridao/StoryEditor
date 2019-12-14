@@ -33,6 +33,9 @@ public class ResultBoard : Board
     public override void Init()
     {
         base.Init();
+
+        if (resultZone)
+            resultZone.Init();
     }
 
     public void OnOriginBtnPress()
