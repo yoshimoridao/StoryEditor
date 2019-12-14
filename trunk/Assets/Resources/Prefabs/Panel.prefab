@@ -190,6 +190,7 @@ GameObject:
   - component: {fileID: 1448955157034001094}
   - component: {fileID: 184255500649222548}
   - component: {fileID: 1838452279307427394}
+  - component: {fileID: 3487248273614528819}
   m_Layer: 5
   m_Name: test_tag
   m_TagString: Untagged
@@ -238,7 +239,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.01612854, g: 0, b: 1, a: 1}
+  m_Color: {r: 0.38679248, g: 0.38679248, b: 0.38679248, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -296,8 +297,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8935472360488792779}
-        m_MethodName: OnTestTagPressed
+      - m_Target: {fileID: 3487248273614528819}
+        m_MethodName: OnTestTagPress
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -307,6 +308,21 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &3487248273614528819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2558818997201781559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff752e91d560d294183bb2cea7eea942, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableColor: {r: 0, g: 0, b: 1, a: 1}
+  disableColor: {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 1}
+  panel: {fileID: 8935472360488792779}
 --- !u!1 &5597673472452484925
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,7 +468,7 @@ GameObject:
   - component: {fileID: 4892183773996600794}
   - component: {fileID: 1619915976442640197}
   m_Layer: 5
-  m_Name: panel
+  m_Name: Panel
   m_TagString: panel_common
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

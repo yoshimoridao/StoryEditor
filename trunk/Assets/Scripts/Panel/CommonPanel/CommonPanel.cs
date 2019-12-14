@@ -232,17 +232,6 @@ public class CommonPanel : Panel
         // show color bar
         ColorBar.Instance.SetReferPanel(this);
     }
-
-    public void OnTestTagPressed()
-    {
-        Debug.Log("abc");
-        DataMgr.Instance.AddTestCase(GetTitle());
-
-        // change mode test cases for result board
-        ResultBoard resultBoard = CanvasMgr.Instance.GetBoard<ResultBoard>() as ResultBoard;
-        if (resultBoard)
-            resultBoard.IsRandomTestCases = DataMgr.Instance.GetTestCases().Count > 0 ? false : true;
-    }
     // ========================================= OVERRIDE FUNCS =========================================
     public override void SetColor(ColorBar.ColorType type)
     {

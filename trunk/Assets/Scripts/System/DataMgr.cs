@@ -26,7 +26,10 @@ public class DataMgr : Singleton<DataMgr>
     {
         public List<string> origin = new List<string>();
 
-        public DataStorage() { }
+        public DataStorage()
+        {
+            ClearAllNullVal();
+        }
 
         public List<string> TestCases
         {
@@ -35,6 +38,11 @@ public class DataMgr : Singleton<DataMgr>
 
         public void AddTestCase(string key)
         {
+            if (key.Length == 0)
+                return;
+
+            ClearAllNullVal();
+
             if (!origin.Contains(key))
                 origin.Add(key);
         }
@@ -59,6 +67,19 @@ public class DataMgr : Singleton<DataMgr>
                 clone.origin[i] = "#" + clone.origin[i] + "#";
             }
             return JsonUtility.ToJson(clone);
+        }
+
+        // [*] bug: remove all null value
+        private void ClearAllNullVal()
+        {
+            for (int i = 0; i < origin.Count; i++)
+            {
+                if (origin[i].Length == 0)
+                {
+                    origin.RemoveAt(i);
+                    i--;
+                }
+            }
         }
     }
 
