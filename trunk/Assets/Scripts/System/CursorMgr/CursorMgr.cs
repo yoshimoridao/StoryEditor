@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class CursorMgr : Singleton<CursorMgr>
 {
     public enum SelectBehavior { SINGLE, MULTIPLE };
-    public enum DragBehavior { CONNECT, ARRANGE, SCROLL };
+    public enum DragBehavior { ARRANGE, CONNECT };
 
     public InputField dragingTitle;
     public float thresholdSelectTime = 0.1f;
@@ -37,18 +37,23 @@ public class CursorMgr : Singleton<CursorMgr>
     public SelectBehavior SelectMode
     {
         get { return selectBehavior; }
-        set
-        {
-            selectBehavior = value;
-            // clear old objs if disable mode
-            if (selectBehavior != SelectBehavior.MULTIPLE)
-                ClearAllSelectedObj();
-        }
+        set { selectBehavior = value; }
     }
 
     public List<SelectAbleElement> GetSelectedObjs()
     {
         return selectObjs;
+    }
+
+    public void ClearAllSelectedObjs()
+    {
+        foreach (var element in selectObjs)
+            element.Select = false;
+
+        selectObjs.Clear();
+
+        // refresh button's state of toolbar
+        ToolBarMgr.Instance.RefreshButtonState();
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -59,7 +64,7 @@ public class CursorMgr : Singleton<CursorMgr>
 
         // set default cursor mode
         SelectMode = SelectBehavior.SINGLE;
-        DragMode = DragBehavior.SCROLL;
+        DragMode = DragBehavior.ARRANGE;
 
         // hide title default
         ActiveTitle(false);
@@ -97,24 +102,49 @@ public class CursorMgr : Singleton<CursorMgr>
     }
 
     /// checking cursor's selecting the elements.
-    public bool IsHoverObjs(out GameObject obj, params string[] tags)
+    public bool IsHoverObjs(params string[] tags)
     {
-        obj = null;
+        List<string> checkingTags = new List<string>(tags);
 
         // get ray cast all objs
         var rayCast = GetRayCastResultsByMousePos();
         for (int i = 0; i < rayCast.Count; i++)
         {
             string touchedTag = rayCast[i].gameObject.tag;
-            foreach (string tag in tags)
+            if (checkingTags.Contains(touchedTag))
             {
-                if (touchedTag == tag)
-                {
-                    obj = rayCast[i].gameObject;
-                    return true;
-                }
+                return true;
             }
         }
+        return false;
+    }
+
+    public bool IsHoverObjs(out GameObject obj, string catchingTag, params string[] tags)
+    {
+        obj = null;
+        List<string> checkingTags = new List<string>(tags);
+        checkingTags.Add(catchingTag);
+
+        // get ray cast all objs
+        var rayCast = GetRayCastResultsByMousePos();
+        for (int i = 0; i < rayCast.Count; i++)
+        {
+            string touchedTag = rayCast[i].gameObject.tag;
+            if (checkingTags.Contains(touchedTag))
+            {
+                // store obj match catching tag
+                if (touchedTag == catchingTag)
+                    obj = rayCast[i].gameObject;
+
+                // remove the tag in list checking
+                checkingTags.Remove(touchedTag);
+                // return true if matched all of tags
+                if (checkingTags.Count == 0)
+                    return true;
+            }
+        }
+
+        obj = null;
         return false;
     }
 
@@ -157,18 +187,12 @@ public class CursorMgr : Singleton<CursorMgr>
         }
 
         // Turn off color bar if user touched out of it
-        GameObject catchObj = null;
-        // handle draging from a panel to another panel
-        if (ColorBar.Instance.IsActive() && !IsHoverObjs(out catchObj, DataDefine.tag_colorbar, DataDefine.tag_colorbar_btn))
-            ColorBar.Instance.SetActiveGameObject(false);
+        if (ColorBar.Instance.IsActive() && !IsHoverObjs(DataDefine.tag_colorbar, DataDefine.tag_colorbar_btn))
+            ColorBar.Instance.SetActive(false);
     }
 
     private void UpdateMouseHold()
     {
-        // ignore process with SCROLL behavior
-        if (dragBehavior == DragBehavior.SCROLL)
-            return;
-
         holdDt += Time.deltaTime;
 
         // in case draging an element
@@ -190,7 +214,6 @@ public class CursorMgr : Singleton<CursorMgr>
             {
                 holdDt = 0;
 
-                Debug.Log("start Pos = " + startPos);
                 ActiveDrag(true);
             }
         }
@@ -219,12 +242,12 @@ public class CursorMgr : Singleton<CursorMgr>
                     // de-select obj (which already selected) 
                     if (selectObjs.Count > 0 && selectObjs[0].gameObject == selectObj)
                     {
-                        ClearAllSelectedObj();
+                        ClearAllSelectedObjs();
                     }
                     // re-select another obj
                     else
                     {
-                        ClearAllSelectedObj();
+                        ClearAllSelectedObjs();
                         AddSelectedObj(selectObj.GetComponent<SelectAbleElement>());
                     }
                 }
@@ -233,7 +256,7 @@ public class CursorMgr : Singleton<CursorMgr>
         // non - action
         else if (!IsPressAnyButton())
         {
-            ClearAllSelectedObj();
+            ClearAllSelectedObjs();
         }
 
         startPos = Vector2.zero;
@@ -274,28 +297,26 @@ public class CursorMgr : Singleton<CursorMgr>
             element.Select = false;
             selectObjs.RemoveAt(findId);
         }
-    }
 
-    private void ClearAllSelectedObj()
-    {
-        foreach (var element in selectObjs)
-            element.Select = false;
-
-        selectObjs.Clear();
+        // refresh button's state of toolbar
+        ToolBarMgr.Instance.RefreshButtonState();
     }
 
     // === DRAG HANDLE ===
     private void ProcessDrag()
     {
         // process for Panel
-        if (dragingObj.GetComponent<CommonPanel>())
+        CommonPanel dragPanel = dragingObj.GetComponent<CommonPanel>();
+
+        if (dragPanel)
         {
             GameObject catchObj = null;
-            // handle draging from a panel to another panel
-            if (IsHoverObjs(out catchObj, DataDefine.tag_board_element, DataDefine.tag_board_story) && IsHoverObjs(out catchObj, DataDefine.tag_panel_common))
+
+            // draging from a panel to panel
+            if (IsHoverObjs(DataDefine.tag_board_story, DataDefine.tag_board_element) && IsHoverObjs(out catchObj, DataDefine.tag_panel_common))
             {
                 CommonPanel hoverPanel = catchObj.GetComponent<CommonPanel>();
-                if (hoverPanel && hoverPanel.GetTitle() != dragingObj.GetLabelObj().GetText())
+                if (hoverPanel)
                 {
                     switch (dragBehavior)
                     {
@@ -303,20 +324,48 @@ public class CursorMgr : Singleton<CursorMgr>
                         case DragBehavior.CONNECT:
                             hoverPanel.AddLinkLabel(dragingObj.GetComponent<CommonPanel>());
                             break;
-                            //// for arrange element function
-                            //case DragBehavior.ARRANGE:
-                            //    if (highlightPanel.gameObject.active)
-                            //        highlightPanel.ArrangePanel(hoverPanel);
-                            //    break;
                     }
                 }
             }
+
+            //if (dragPanel.IsStoryElement())
+            //{
+            //}
+            //else
+            //{
+            //    // draging from an element's panel to story's panel
+            //    if (IsHoverObjs(out catchObj, DataDefine.tag_panel_common, DataDefine.tag_board_story))
+            //    {
+            //        CommonPanel hoverPanel = catchObj.GetComponent<CommonPanel>();
+            //        if (hoverPanel && hoverPanel.IsStoryElement())
+            //        {
+            //            switch (dragBehavior)
+            //            {
+            //                // for link function
+            //                case DragBehavior.CONNECT:
+            //                    hoverPanel.AddLinkLabel(dragingObj.GetComponent<CommonPanel>());
+            //                    break;
+            //            }
+            //        }
+            //    }
+            //    //// draging from an element's panel to label's panel
+            //    //if (IsHoverObjs(out catchObj, DataDefine.tag_label_input, DataDefine.tag_board_element))
+            //    //{
+            //    //    InputLabel catchLabel = catchObj.GetComponent<InputLabel>();
+            //    //    if (catchLabel)
+            //    //    {
+            //    //        catchLabel.AddReferPanel(dragPanel);
+            //    //    }
+            //    //}
+            //}
+
+
             // handle draging element to result window
-            else if (IsHoverObjs(out catchObj, DataDefine.tag_board_result))
-            {
-                if (catchObj.GetComponent<OriginBoard>() && dragingObj.GetComponent<CommonPanel>())
-                    catchObj.GetComponent<OriginBoard>().ShowResult(dragingObj.GetComponent<CommonPanel>());
-            }
+            //else if (IsHoverObjs(out catchObj, DataDefine.tag_board_result))
+            //{
+            //    if (catchObj.GetComponent<OriginBoard>() && dragingObj.GetComponent<CommonPanel>())
+            //        catchObj.GetComponent<OriginBoard>().ShowResult(dragingObj.GetComponent<CommonPanel>());
+            //}
         }
         // process for Label
         else if (dragingObj.GetComponent<Label>())
@@ -333,7 +382,7 @@ public class CursorMgr : Singleton<CursorMgr>
         if (isActive)
         {
             // clear all selected objs
-            ClearAllSelectedObj();
+            ClearAllSelectedObjs();
 
             if (dragingObj == null && selectObj && selectObj.GetComponent<DragAbleElement>())
             {

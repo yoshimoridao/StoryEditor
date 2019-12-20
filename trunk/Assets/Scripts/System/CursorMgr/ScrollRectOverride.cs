@@ -8,19 +8,21 @@ public class ScrollRectOverride : ScrollRect
 {
     public override void OnBeginDrag(PointerEventData eventData)
     {
-        if (CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.SCROLL)
-            base.OnBeginDrag(eventData);
+        // remove scrolling panel by mouse
+
+        //if (CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.SCROLL)
+        //    base.OnBeginDrag(eventData);
     }
 
     public override void OnDrag(PointerEventData eventData)
     {
-        if (CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.SCROLL)
-            base.OnDrag(eventData);
+        //if (CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.SCROLL)
+        //    base.OnDrag(eventData);
     }
 
     public override void OnEndDrag(PointerEventData eventData)
     {
-        if (CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.SCROLL)
-            base.OnEndDrag(eventData);
+        //if (CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.SCROLL)
+        //    base.OnEndDrag(eventData);
     }
 }

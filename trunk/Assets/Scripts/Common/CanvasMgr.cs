@@ -96,4 +96,12 @@ public class CanvasMgr : Singleton<CanvasMgr>
         // clear list
         elements.Clear();
     }
+
+    public void OnExitBtnPress()
+    {
+        Application.Quit();
+
+        // Save data
+        DataMgr.Instance.Save();
+    }
 }

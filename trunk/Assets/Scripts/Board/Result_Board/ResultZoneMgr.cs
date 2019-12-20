@@ -7,6 +7,8 @@ public class ResultZoneMgr : MonoBehaviour
 {
     public Transform transCont;
     public Text resultText;
+    public Sprite rdResultImg;
+    public Sprite pickingResultImg;
 
     private List<GameObject> rows = new List<GameObject>();
     private GameObject prefResultRow;
@@ -14,12 +16,12 @@ public class ResultZoneMgr : MonoBehaviour
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        
+
     }
 
     void Update()
     {
-        
+
     }
 
     // ========================================= PUBLIC FUNCS =========================================
@@ -38,12 +40,10 @@ public class ResultZoneMgr : MonoBehaviour
 
     }
 
-    public void ShowResult()
+    public void ShowResult(List<string> testCases, bool isRdMode)
     {
         if (!prefResultRow || !transCont)
             return;
-
-        List<string> testCases = DataMgr.Instance.GetTestCases();
 
         // generate new rows
         if (rows.Count < testCases.Count)
@@ -72,7 +72,19 @@ public class ResultZoneMgr : MonoBehaviour
             if (i < rows.Count)
             {
                 GameObject row = rows[i];
+                // change content of text
                 row.GetComponentInChildren<Text>().text = val;
+
+                // change icon for result row
+                for (int j = 0; j < row.transform.childCount; j++)
+                {
+                    Image rowImg = row.transform.GetChild(j).GetComponent<Image>();
+                    if (rowImg && rdResultImg && pickingResultImg)
+                    {
+                        rowImg.sprite = isRdMode ? rdResultImg : pickingResultImg;
+                        break;
+                    }
+                }
             }
         }
 
@@ -91,14 +103,27 @@ public class ResultZoneMgr : MonoBehaviour
         {
             // add color tag for another color (!= white)
             if ((ColorBar.ColorType)dataIndex.colorId != ColorBar.ColorType.WHITE)
-                val += ParseColorTag((ColorBar.ColorType)dataIndex.colorId);
+                val += TextUtil.GetOpenColorTag((ColorBar.ColorType)dataIndex.colorId);
 
             if (dataIndex.elements.Count > 0)
-                val += dataIndex.elements[Random.Range(0, dataIndex.elements.Count)];
+            {
+                List<string> elements = new List<string>();
+                // get testing elements
+                if (dataIndex.testingIndex.Count > 0)
+                    elements = dataIndex.GetTestingElement();
+                // unless get all elements
+                else
+                    elements = dataIndex.elements;
+
+                // random pick 1 elements
+                if (elements.Count > 0)
+                    val += elements[Random.Range(0, elements.Count)];
+            }
+
 
             // close color tag
             if ((ColorBar.ColorType)dataIndex.colorId != ColorBar.ColorType.WHITE)
-                val += "</color>";
+                val += TextUtil.GetCloseColorTag();
         }
         // merge all element value
         else
@@ -119,31 +144,6 @@ public class ResultZoneMgr : MonoBehaviour
                     val = val.Replace("#" + linkKey + "#", linkVal);
             }
         }
-
-        return val;
-    }
-
-    private string ParseColorTag(ColorBar.ColorType colorType)
-    {
-        string val = "<color=";
-        switch (colorType)
-        {
-            case ColorBar.ColorType.WHITE:
-                break;
-            case ColorBar.ColorType.BLACK:
-            case ColorBar.ColorType.RED:
-            case ColorBar.ColorType.CYAN:
-            case ColorBar.ColorType.GREEN:
-            case ColorBar.ColorType.BLUE:
-            case ColorBar.ColorType.ORANGE:
-            case ColorBar.ColorType.PURPLE:
-                val += colorType.ToString().ToLower();
-                break;
-            default:
-                break;
-        }
-
-        val += ">";
 
         return val;
     }

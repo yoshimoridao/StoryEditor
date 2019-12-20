@@ -26,42 +26,41 @@ public class DataMgr : Singleton<DataMgr>
     {
         public List<string> origin = new List<string>();
 
+        private List<string> pickedTestCases = new List<string>();
+
         public DataStorage()
         {
             ClearAllNullVal();
         }
 
-        public List<string> TestCases
-        {
-            get { return origin; }
-        }
+        // --- pick test case ---
+        public List<string> PickedTestCases { get { return pickedTestCases; } }
 
-        public void AddTestCase(string key)
+        public void AddPickedTestCase(string key)
         {
             if (key.Length == 0)
                 return;
 
-            ClearAllNullVal();
-
-            if (!origin.Contains(key))
-                origin.Add(key);
+            if (!pickedTestCases.Contains(key))
+                pickedTestCases.Add(key);
         }
 
-        public void RemoveTestCase(string key)
+        public void RemovePickedTestCase(string key)
         {
-            if (origin.Contains(key))
-                origin.Remove(key);
+            if (pickedTestCases.Contains(key))
+                pickedTestCases.Remove(key);
         }
 
         public void ClearTestCases()
         {
-            origin.Clear();
+            pickedTestCases.Clear();
         }
 
         public string ExportTracyFile()
         {
             DataStorage clone = new DataStorage();
-            clone.origin = new List<string>(origin);
+            // get picked test case || origin list
+            clone.origin = new List<string>(pickedTestCases.Count > 0 ? pickedTestCases : origin);
             for (int i = 0; i < clone.origin.Count; i++)
             {
                 clone.origin[i] = "#" + clone.origin[i] + "#";
@@ -93,33 +92,38 @@ public class DataMgr : Singleton<DataMgr>
 
     // ========================================= GET/ SET =========================================
     // === Data storage ===
-    public void ClearTestCases()
+    public void AddPickedTestCase(string testCase)
     {
-        dataStorage.ClearTestCases();
+        if (!isInitDone)
+            return;
 
-        // export tracery file
-        ExportTraceryFile();
-    }
-    public void AddTestCase(string testCase)
-    {
         if (testCase.Length == 0)
             return;
 
-        dataStorage.AddTestCase(testCase);
+        dataStorage.AddPickedTestCase(testCase);
 
         // export tracery file
         ExportTraceryFile();
     }
-    public void RemoveTestCase(string testCase)
+
+    public void RemovePickedTestCase(string testCase)
     {
-        dataStorage.RemoveTestCase(testCase);
+        if (!isInitDone)
+            return;
+
+        dataStorage.RemovePickedTestCase(testCase);
 
         // export tracery file
         ExportTraceryFile();
     }
-    public List<string> GetTestCases() { return dataStorage.TestCases; }
+
+    public void ClearAllPickedTestCases() { dataStorage.ClearTestCases(); }
+
+    public List<string> GetPickedTestCases() { return dataStorage.PickedTestCases; }
+    public List<string> GetTestCases() { return dataStorage.origin; }
 
     public List<DataIndex> GetDataStories() { return dataIndexer.stories; }
+
     // === Index ===
     /// <summary>
     /// get index data with unknown data type
@@ -185,6 +189,9 @@ public class DataMgr : Singleton<DataMgr>
 
     public void SortIndexes(DataIndexer.DataType type, List<Panel> panels)
     {
+        if (!isInitDone)
+            return;
+
         List<string> panelKeys = new List<string>();
         foreach (Panel panel in panels)
         {
@@ -245,6 +252,22 @@ public class DataMgr : Singleton<DataMgr>
         ExportTraceryFile();
     }
 
+    public void ReplaceTestingIndex(DataIndexer.DataType type, string indexKey, List<int> testingIndex)
+    {
+        if (!isInitDone)
+            return;
+
+        dataIndexer.ReplaceTestingIndex(type, indexKey, testingIndex);
+    }
+
+    public void Save()
+    {
+        dataIndexer.Save();
+
+        // export tracery file
+        ExportTraceryFile();
+    }
+
     public void SetColorIndex(DataIndexer.DataType type, string indexKey, ColorBar.ColorType colorType)
     {
         if (!isInitDone)
@@ -289,8 +312,10 @@ public class DataMgr : Singleton<DataMgr>
 
     public void ExportTraceryFile()
     {
-        //string output = JsonUtility.ToJson(dataStorage).Replace("}", "");
-        string output = dataStorage.ExportTracyFile().Replace("}", "");
+        //string output = dataStorage.ExportTracyFile().Replace("}", "");
+        string output = "";
+        // clear all dataStorage
+        dataStorage.origin.Clear();
 
         for (int i = 0; i < 2; i++)
         {
@@ -321,23 +346,35 @@ public class DataMgr : Singleton<DataMgr>
                 strElement = strElement.Replace("elements", dataIndex.key).Replace("{", ",").Replace("}", "");     // merge string (json format)
 
                 output += strElement;
+
+                // add element to origin
+                if (dataType == DataIndexer.DataType.Story)
+                    dataStorage.origin.Add(dataIndex.key);
             }
         }
 
         output += "}";
+        // parse pre-fix origin
+        output = dataStorage.ExportTracyFile().Replace("}", "") + output;
 
         Debug.Log("Export Tracery File = " + output);
 
-        // create file if not exist
 #if (IN_UNITY_EDITOR)
-        if (!File.Exists(DataDefine.save_path_storyData))
-            File.CreateText(DataDefine.save_path_storyData);
+        // save to data folder (for only on editor)
+        if (!Directory.Exists(DataDefine.save_path_dataFolder))
+            Directory.CreateDirectory(DataDefine.save_path_dataFolder);
         // write new content
-        File.WriteAllText(DataDefine.save_path_storyData, output);
+        File.WriteAllText(DataDefine.save_path_dataFolder + DataDefine.save_fileName_storyData, output);
 #else
-        // save to playerpref
-        PlayerPrefs.SetString(DataConfig.save_key_storyData, output);
+        // save to playerpref (for back up)
+        PlayerPrefs.SetString(DataDefine.save_key_storyData, output);
 #endif
+
+        // save to out-side folder (save to folder where user can reach)
+        if (!Directory.Exists(DataDefine.save_path_outputFolder))
+            Directory.CreateDirectory(DataDefine.save_path_outputFolder);
+
+        File.WriteAllText(DataDefine.save_path_outputFolder + DataDefine.save_fileName_storyData, output);
     }
 
     public string MergeAllElements(DataIndex dataIndex)
@@ -347,8 +384,9 @@ public class DataMgr : Singleton<DataMgr>
         {
             for (int k = 0; k < dataIndex.elements.Count; k++)
             {
-                if (k != 0)
-                    val += " ";
+                // automatically add space between variables
+                //if (k != 0)
+                //    val += " ";
                 val += dataIndex.elements[k];
             }
         }

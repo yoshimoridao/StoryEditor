@@ -6,17 +6,15 @@ using UnityEngine.UI;
 public class ResultBoard : Board
 {
     public ResultZoneMgr resultZone;
+    public Transform randomModePanel;
+    public InputField rdCaseAmountText;
+    // pick-up panel
+    public Transform pickingModePanel;
+    public InputField pickupAmountText;
 
-    private int testCaseAmount = 2;
+    private int rdCaseAmount = 2;
     [SerializeField]
     private bool isRandom = true;
-
-    // ========================================= GET/ SET =========================================
-    public bool IsRandomTestCases
-    {
-        get { return isRandom; }
-        set { isRandom = value; }
-    }
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
@@ -36,6 +34,11 @@ public class ResultBoard : Board
 
         if (resultZone)
             resultZone.Init();
+
+        // default de-active random mode
+        isRandom = true;
+        // active panel
+        ActivePanel(isRandom);
     }
 
     public void OnOriginBtnPress()
@@ -43,25 +46,21 @@ public class ResultBoard : Board
         if (!resultZone)
             return;
 
+        List<string> testCases = new List<string>();
         if (isRandom)
         {
-            // clear old test case
-            DataMgr.Instance.ClearTestCases();
-
-            // get random testcase 
-            List<string> rdTestCases = new List<string>();
             // clone list data
             List<DataIndex> tmp = new List<DataIndex>(DataMgr.Instance.GetDataStories());
-            int turn = Mathf.Min(testCaseAmount, tmp.Count);
-            bool isRdIndex = tmp.Count > testCaseAmount;
+            int turn = Mathf.Min(rdCaseAmount, tmp.Count);
 
+            bool isRdIndex = tmp.Count > rdCaseAmount;
             for (int i = 0; i < turn; i++)
             {
                 int id = isRdIndex ? Random.Range(0, tmp.Count) : i;
                 if (id >= 0 && id < tmp.Count)
                 {
                     // add test case for storage
-                    DataMgr.Instance.AddTestCase(tmp[id].key);
+                    testCases.Add(tmp[id].key);
                     // remove out of temp list
                     if (isRdIndex)
                         tmp.RemoveAt(id);
@@ -70,13 +69,90 @@ public class ResultBoard : Board
         }
         else
         {
+            testCases = DataMgr.Instance.GetPickedTestCases();
         }
 
-        resultZone.ShowResult();
+        resultZone.ShowResult(testCases, isRandom);
     }
 
     // temp
-    public void ShowResult(string text)
+    public void ShowResult(string text) { }
+    // end temp
+
+    public void RefreshPickupAmountText()
     {
+        // update text
+        if (pickupAmountText)
+            pickupAmountText.text = DataMgr.Instance.GetPickedTestCases().Count.ToString();
+    }
+
+    // ====== Event Button ======
+    public void OnSwitchButtonPress()
+    {
+        // default de-active random mode
+        isRandom = !isRandom;
+        // active panel
+        ActivePanel(isRandom);
+    }
+
+    // = Picking up panel =
+    public void OnArrowButtonPress(bool isPlusArrow)
+    {
+        // update amount of random test cases
+        rdCaseAmount += isPlusArrow ? 1 : -1;
+        if (rdCaseAmount < 1)
+            rdCaseAmount = 1;
+
+        if (rdCaseAmountText)
+            rdCaseAmountText.text = rdCaseAmount.ToString();
+
+        // refresh random mode text
+        RefreshRdAmountText();
+    }
+
+    public void OnClearAllBtnPress()
+    {
+        // disable all selected tag
+        StoryBoard storyBoard = CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard;
+        storyBoard.ClearAllPickedTestPanels();
+        ElementBoard elementBoard = CanvasMgr.Instance.GetBoard<ElementBoard>() as ElementBoard;
+        elementBoard.ClearAllPickedTestPanels();
+
+        // clear all in data
+        DataMgr.Instance.ClearAllPickedTestCases();
+    }
+
+    // = Random mode panel =
+    public void OnEditRdAmountTextDone()
+    {
+        rdCaseAmount = int.Parse(rdCaseAmountText.text);
+    }
+
+    // ========================================= PRIVATE FUNCS =========================================
+    private void ActivePanel(bool isActiveRandom)
+    {
+        isRandom = isActiveRandom;
+
+        // panel of picking mode
+        if (pickingModePanel)
+        {
+            pickingModePanel.gameObject.SetActive(!isRandom);
+            // refresh text
+            RefreshPickupAmountText();
+        }
+        // panel of random mode
+        if (randomModePanel)
+        {
+            randomModePanel.gameObject.SetActive(isRandom);
+            // refresh text
+            RefreshRdAmountText();
+        }
+    }
+
+    private void RefreshRdAmountText()
+    {
+        // init text
+        if (rdCaseAmountText)
+            rdCaseAmountText.text = rdCaseAmount.ToString();
     }
 }

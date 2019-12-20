@@ -18,7 +18,7 @@ public class DataIndexer
     public DataIndexer() { }
     public List<DataIndex> GetStories() { return stories; }
 
-    // ====== INDEX ======
+    // ====== Index Data ======
     public DataIndex GetIndex(string key, out DataIndexer.DataType type)
     {
         type = DataType.Element;
@@ -131,7 +131,7 @@ public class DataIndexer
         Save();
     }
 
-    // ====== VAL ======
+    // ====== Index value ======
     public void AddElement(DataType type, string key, Label label)
     {
         string val = label.GetText();
@@ -209,21 +209,42 @@ public class DataIndexer
         Save();
     }
 
+    public void ReplaceTestingIndex(DataType type, string indexKey, List<int> testingIndex)
+    {
+        DataIndex dataIndex = GetIndex(type, indexKey);
+
+        if (dataIndex != null)
+        {
+            dataIndex.testingIndex.Clear();
+            dataIndex.testingIndex = testingIndex;
+        }
+
+        // export save file
+        Save();
+    }
+
     // ====== UTIL ======
     public void Load()
     {
         // load in editor
 #if (IN_UNITY_EDITOR)
-        if (!File.Exists(DataDefine.save_path_indexData))
-            File.CreateText(DataDefine.save_path_indexData);
+        if (!Directory.Exists(DataDefine.save_path_dataFolder))
+            Directory.CreateDirectory(DataDefine.save_path_dataFolder);
 
-        string content = File.ReadAllText(DataDefine.save_path_indexData);
+        string content = "";
+        if (File.Exists(DataDefine.save_path_dataFolder + DataDefine.save_fileName_indexData))
+            content = File.ReadAllText(DataDefine.save_path_dataFolder + DataDefine.save_fileName_indexData);
 #else
-        // load by Player Pref
-        if (!PlayerPrefs.HasKey(DataConfig.indexDataSaveKey))
-            return;
+        // load from out-side folder (the folder where user can reach)
+        if (!Directory.Exists(DataDefine.save_path_outputFolder))
+            Directory.CreateDirectory(DataDefine.save_path_outputFolder);
 
-        string content = PlayerPrefs.GetString(DataConfig.indexDataSaveKey);
+        string content = "";
+        if (File.Exists(DataDefine.save_path_outputFolder + DataDefine.save_fileName_indexData))
+            content = File.ReadAllText(DataDefine.save_path_outputFolder + DataDefine.save_fileName_indexData);
+        // load again from by Player Pref (backup)
+        if (content.Length == 0 && PlayerPrefs.HasKey(DataDefine.save_key_indexData))
+            content = PlayerPrefs.GetString(DataDefine.save_key_indexData); 
 #endif
 
         Debug.Log("Load Index = " + content);
@@ -240,16 +261,23 @@ public class DataIndexer
         string strOutput = JsonUtility.ToJson(this);
         Debug.Log("Save Indexer = " + strOutput);
 
-        // create file if not exist
 #if (IN_UNITY_EDITOR)
-        if (!File.Exists(DataDefine.save_path_indexData))
-            File.CreateText(DataDefine.save_path_indexData);
+        // save to data folder (for only on editor)
+        if (!Directory.Exists(DataDefine.save_path_dataFolder))
+            Directory.CreateDirectory(DataDefine.save_path_dataFolder);
+
         // write new content
-        File.WriteAllText(DataDefine.save_path_indexData, strOutput);
+        File.WriteAllText(DataDefine.save_path_dataFolder + DataDefine.save_fileName_indexData, strOutput);
 #else
         // save to playerpref
-        PlayerPrefs.SetString(DataConfig.save_key_indexData, strOutput);
+        PlayerPrefs.SetString(DataDefine.save_key_indexData, strOutput);
 #endif
+
+        // save to out-side folder (save to folder where user can reach)
+        if (!Directory.Exists(DataDefine.save_path_outputFolder))
+            Directory.CreateDirectory(DataDefine.save_path_outputFolder);
+
+        File.WriteAllText(DataDefine.save_path_outputFolder + DataDefine.save_fileName_indexData, strOutput);
     }
 
     public void CreateElements(DataType type)
@@ -261,11 +289,14 @@ public class DataIndexer
         {
             DataIndex dataIndex = dataIndexes[i];
             CommonPanel panel = null;
+
+            // create panel
             if (type == DataType.Element)
                 panel = (board as ElementBoard).AddPanel(dataIndex.key) as CommonPanel;
             else
                 panel = (board as StoryBoard).AddPanel(dataIndex.key) as CommonPanel;
 
+            // create label elements
             if (panel)
             {
                 for (int j = 0; j < dataIndex.elements.Count; j++)
@@ -280,11 +311,14 @@ public class DataIndexer
                         panel.AddInputLabel(var);
                     }
                 }
+
+                // load testing index
+                if (panel is ElementPanel)
+                    (panel as ElementPanel).LoadTestingLabel(dataIndex.testingIndex);
             }
         }
     }
 
-    
     public List<DataIndex> GetDatas(DataType type)
     {
         List<DataIndex> datas = new List<DataIndex>();

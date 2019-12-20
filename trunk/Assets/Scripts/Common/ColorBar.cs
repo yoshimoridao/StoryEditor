@@ -7,7 +7,7 @@ public class ColorBar : Singleton<ColorBar>
 {
     [System.Serializable]
     public enum ColorType { WHITE, BLACK, RED, CYAN, GREEN, BLUE, ORANGE, PURPLE }
-    Panel referralPanel = null;
+    List<Panel> referralPanels = new List<Panel>();
     RectTransform rt;
 
     // ========================================= UNITY FUNCS =========================================
@@ -19,7 +19,7 @@ public class ColorBar : Singleton<ColorBar>
     void Start()
     {
         rt = GetComponent<RectTransform>();
-        SetActiveGameObject(false);
+        SetActive(false);
     }
     
     void Update()
@@ -28,37 +28,19 @@ public class ColorBar : Singleton<ColorBar>
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void SetReferPanel(Panel panel)
+    public void AddReferralPanel(Panel panel)
     {
         // re-active color btn of prev panel
-        if (referralPanel != panel && referralPanel is CommonPanel)
-        {
-            (referralPanel as CommonPanel).SetActiveColorButton(true);
-        }
-
-        // show color bar at position of panel
-        if (panel is CommonPanel)
-        {
-            RectTransform rtColorBtn = (panel as CommonPanel).GetColorBtn().transform as RectTransform;
-            rt.position = rtColorBtn.position;
-        }
-
-        referralPanel = panel;
-
-        // active color bar
-        SetActiveGameObject(true);
+        referralPanels.Add(panel);
     }
 
-    public void OnTouchColorButton(ColorBtn colorBtn)
+    public void OnColorButtonPress(ColorBtn colorBtn)
     {
-        if (referralPanel)
-        {
-            (referralPanel as CommonPanel).SetActiveColorButton(true);
-            referralPanel.SetColor(colorBtn.type);
-        }
+        foreach (Panel panel in referralPanels)
+            (panel as CommonPanel).SetColor(colorBtn.type);
 
-        // de-active color bar
-        SetActiveGameObject(false);
+        //// de-active color bar
+        //SetActiveGameObject(false);
     }
 
     public bool IsActive()
@@ -66,16 +48,11 @@ public class ColorBar : Singleton<ColorBar>
         return gameObject.active;
     }
 
-    public void SetActiveGameObject(bool isActive)
+    public void SetActive(bool isActive)
     {
         if (!isActive)
         {
-            // re-active color btn of prev panel
-            if (referralPanel && referralPanel is CommonPanel)
-            {
-                (referralPanel as CommonPanel).SetActiveColorButton(true);
-                referralPanel = null;
-            }
+            referralPanels.Clear();
         }
 
         gameObject.SetActive(isActive);

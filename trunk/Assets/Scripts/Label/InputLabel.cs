@@ -7,8 +7,11 @@ public class InputLabel : Label
 {
     public bool isTitleLabel = false;
 
-    bool isEditing = false;
-    string oldText = "";
+    private bool isEditing = false;
+
+    // variables for nested label
+    private List<string> referElementNames = new List<string>();
+    private List<Panel> referElements = new List<Panel>();
 
     // ========================================= GET/ SET =========================================
     public bool IsEditing()
@@ -48,7 +51,7 @@ public class InputLabel : Label
         if (!isTitleLabel)
         {
             if (panelParent)
-                (panelParent as CommonPanel).OnChildLabelEditDone(this);
+                (panelParent as CommonPanel).OnChildLabelEdited(this);
         }
     }
 
@@ -69,5 +72,24 @@ public class InputLabel : Label
             if (panelParent)
                 (panelParent as CommonPanel).OnChildLabelEditing();
         }
+    }
+
+    public void AddReferPanel(Panel panel)
+    {
+        ColorBar.ColorType panelColor = panel.GetColorType();
+
+        string panelTitle = panel.GetTitle();
+        // append link tag to content of text
+        string val = GetText();
+        val += " " + TextUtil.GetOpenColorTag(panelColor) + panelTitle + TextUtil.GetCloseColorTag();
+        SetText(val);
+
+        // store referral panel
+        referElementNames.Add(panelTitle);
+        referElements.Add(panel);
+
+        // callback to parent -> save val
+        if (panelParent)
+            (panelParent as CommonPanel).OnChildLabelEdited(this);
     }
 }

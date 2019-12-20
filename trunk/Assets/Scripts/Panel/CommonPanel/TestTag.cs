@@ -11,6 +11,9 @@ public class TestTag : MonoBehaviour
     Image img;
     bool isActive = false;
 
+    // ========================================= GET/ SET =========================================
+    public bool IsActive() { return isActive; }
+
     private void Awake()
     {
         img = GetComponent<Image>();
@@ -26,31 +29,39 @@ public class TestTag : MonoBehaviour
         
     }
 
+    // ========================================= PUBLIC =========================================
     public void OnTestTagPress()
     {
-        isActive = !isActive;
+        SetActiveTag(!isActive);
+    }
+
+    public void SetActiveTag(bool _isActive)
+    {
+        isActive = _isActive;
+        gameObject.SetActive(isActive);
 
         if (panel)
         {
-            ResultBoard resultBoard = CanvasMgr.Instance.GetBoard<ResultBoard>() as ResultBoard;
-            // clear all of old test cases (for the first pick-up case)
-            if (resultBoard && resultBoard.IsRandomTestCases && isActive)
-                DataMgr.Instance.ClearTestCases();
-
             // add || remove test case
             string panelTitle = panel.GetTitle();
             if (isActive)
-                DataMgr.Instance.AddTestCase(panelTitle);
+            {
+                // add test case in data
+                DataMgr.Instance.AddPickedTestCase(panelTitle);
+            }
             else
-                DataMgr.Instance.RemoveTestCase(panelTitle);
+            {
+                // remove test case in data
+                DataMgr.Instance.RemovePickedTestCase(panelTitle);
+            }
 
             // set color of tag
             if (img)
                 img.color = isActive ? enableColor : disableColor;
-
-            // change mode test cases for result board (random test || specific case)
-            if (resultBoard)
-                resultBoard.IsRandomTestCases = DataMgr.Instance.GetTestCases().Count > 0 ? false : true;
         }
+
+        // refresh text of amount of picking up panel
+        ResultBoard resultBoard = CanvasMgr.Instance.GetBoard<ResultBoard>() as ResultBoard;
+        resultBoard.RefreshPickupAmountText();
     }
 }

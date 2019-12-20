@@ -15,6 +15,7 @@ TagManager:
   - zone_btm_board_element
   - zone_top_board_story
   - zone_btm_board_story
+  - label_input
   layers:
   - Default
   - TransparentFX

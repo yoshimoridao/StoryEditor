@@ -9,6 +9,7 @@ public class DataIndex
     public List<string> elements = new List<string>();
     public int colorId;
     public bool isStoryElement = false;
+    public List<int> testingIndex = new List<int>();
 
     public DataIndex() { }
     public DataIndex(string _key, int _colorId, bool _isStoryElement = false)
@@ -45,6 +46,7 @@ public class DataIndex
         }
     }
 
+    // === element ===
     public void AddElement(string val)
     {
         elements.Add(val);
@@ -81,5 +83,19 @@ public class DataIndex
                 j--;
             }
         }
+    }
+
+    // === Testing Index ===
+    public List<string> GetTestingElement()
+    {
+        List<string> testingElements = new List<string>();
+        for (int i = 0; i < testingIndex.Count; i++)
+        {
+            int testingId = testingIndex[i];
+            if (testingId < elements.Count)
+                testingElements.Add(elements[testingId]);
+        }
+
+        return testingElements;
     }
 }

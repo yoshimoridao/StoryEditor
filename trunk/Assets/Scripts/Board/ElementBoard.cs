@@ -5,6 +5,7 @@ using UnityEngine;
 public class ElementBoard : Board
 {
     public Transform transPanelCont;
+    public Transform transPlusPanel;
 
     string defaultNewPanelName = "element";
     [SerializeField]
@@ -41,12 +42,13 @@ public class ElementBoard : Board
         base.Init();
 
         // load prefab
-        prefPanel = Resources.Load<GameObject>(DataDefine.pref_path_Panel);
+        prefPanel = Resources.Load<GameObject>(DataDefine.pref_path_elementPanel);
 
-        // clear all child
+        // clear all child (which is template)
         for (int i = 0; i < transPanelCont.childCount; i++)
         {
-            Destroy(transPanelCont.GetChild(i).gameObject);
+            if (transPanelCont.GetChild(i) != transPlusPanel)
+                Destroy(transPanelCont.GetChild(i).gameObject);
         }
     }
 
@@ -66,6 +68,10 @@ public class ElementBoard : Board
 
             // save data in case just created
             DataMgr.Instance.AddIndex(panel as CommonPanel);
+
+            // set index of adding element panel as last child
+            if (transPlusPanel)
+                transPlusPanel.transform.SetAsLastSibling();
             return panel;
         }
 
@@ -93,5 +99,21 @@ public class ElementBoard : Board
     public void OnAddBtnPressed()
     {
         AddPanel();
+    }
+
+    public void ClearAllPickedTestPanels()
+    {
+        // get list of picked up panels from data
+        List<string> pickedPanel = DataMgr.Instance.GetPickedTestCases();
+        // un-pick these panels
+        for (int i = 0; i < panels.Count; i++)
+        {
+            CommonPanel panel = panels[i] as CommonPanel;
+            // if panel in list
+            if (pickedPanel.FindIndex(x => x == panel.GetTitle()) != -1 && panel.testTag)
+            {
+                panel.testTag.SetActiveTag(false);
+            }
+        }
     }
 }

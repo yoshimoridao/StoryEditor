@@ -8,16 +8,16 @@ public class CommonPanel : Panel
 {
     public InputLabel titleLabel;
     public Button addBtn;
-    public Button colorBtn;
+    public TestTag testTag;
     public float percentWContent = 0.9f;    // percent ratio vs base width (=> the width to contain elements)
 
-    Board board;
-    GameObject prefRowLabel;
+    protected Board board;
+    protected GameObject prefRowLabel;
 
-    List<RowLabelMgr> labelRows = new List<RowLabelMgr>();
-    float baseWidth = 0;
-    bool isChildLabelEditing = false;
-    DataIndexer.DataType dataType;
+    protected List<RowLabelMgr> labelRows = new List<RowLabelMgr>();
+    protected float baseWidth = 0;
+    protected bool isChildLabelEditing = false;
+    protected DataIndexer.DataType dataType;
 
     // ========================================= GET/ SET =========================================
     public DataIndexer.DataType GetDataType()
@@ -38,13 +38,6 @@ public class CommonPanel : Panel
             labels.AddRange(labelRows[i].GetLabels());
         }
         return labels;
-    }
-
-    public Button GetColorBtn()
-    {
-        if (colorBtn)
-            return colorBtn;
-        return null;
     }
 
     public Label GetTitleObj()
@@ -80,7 +73,7 @@ public class CommonPanel : Panel
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init(Board board, string key)
+    public virtual void Init(Board board, string key)
     {
         base.Init();
 
@@ -189,7 +182,7 @@ public class CommonPanel : Panel
         RefreshAddButtonPos();
     }
 
-    public void OnChildLabelEditDone(Label childLabel)
+    public void OnChildLabelEdited(Label childLabel)
     {
         isChildLabelEditing = false;
 
@@ -209,29 +202,16 @@ public class CommonPanel : Panel
         isChildLabelEditing = true;
     }
 
-    public void SetActiveColorButton(bool isActive)
-    {
-        if (colorBtn)
-        {
-            colorBtn.interactable = isActive;
-        }
-    }
-
-    public void RefreshLabels()
+    public virtual void OnArrangedLabels()
     {
         foreach (RowLabelMgr row in labelRows)
             row.RefreshLabels();
     }
 
-    // === button ===
-    public void OnColorButtonPressed()
-    {
-        // de-active color button
-        SetActiveColorButton(false);
+    // === test tag ===
+    public void SetActiveTestTag(bool isActive) { testTag.SetActiveTag(isActive); }
+    public bool IsTestTagActive() { return testTag.IsActive(); }
 
-        // show color bar
-        ColorBar.Instance.SetReferPanel(this);
-    }
     // ========================================= OVERRIDE FUNCS =========================================
     public override void SetColor(ColorBar.ColorType type)
     {
@@ -252,7 +232,7 @@ public class CommonPanel : Panel
     }
 
     // ========================================= PRIVATE FUNCS =========================================
-    private RowLabelMgr AddLabelRow()
+    protected RowLabelMgr AddLabelRow()
     {
         if (prefRowLabel)
         {
@@ -267,7 +247,7 @@ public class CommonPanel : Panel
         return null;
     }
 
-    private void RefreshPanel()
+    protected void RefreshPanel()
     {
         //if (isChildLabelEditing)
         //    return;
@@ -305,13 +285,13 @@ public class CommonPanel : Panel
         RefreshAddButtonPos();
     }
 
-    private int FindIndexLabel(Label label)
+    protected int FindIndexLabel(Label label)
     {
         List<Label> labels = GetLabels();
-        return labels.FindIndex(x => x.GetText() == label.GetText());
+        return labels.FindIndex(x => x.gameObject == label.gameObject);
     }
 
-    private RowLabelMgr GetLastLabelRow()
+    protected RowLabelMgr GetLastLabelRow()
     {
         // add new row if empty
         if (labelRows.Count == 0)
@@ -328,7 +308,7 @@ public class CommonPanel : Panel
     }
 
     // === ADD BUTTON ===
-    private void RefreshAddButtonPos()
+    protected void RefreshAddButtonPos()
     {
         // get last row
         RowLabelMgr row = GetLastLabelRow();

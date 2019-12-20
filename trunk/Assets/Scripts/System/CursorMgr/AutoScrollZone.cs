@@ -28,8 +28,7 @@ public class AutoScrollZone : MonoBehaviour
                 if (!img.enabled)
                     img.enabled = true;
 
-                GameObject hoverObj = null;
-                if (scrollBar && CursorMgr.Instance.IsHoverObjs(out hoverObj, gameObject.tag))
+                if (scrollBar && CursorMgr.Instance.IsHoverObjs(gameObject.tag))
                 {
                     Debug.Log("Before = " + scrollBar.value);
                     scrollBar.value += (Time.deltaTime * sensitivity * (sensitivityPerUnit / content.childCount)) * (isTopZone ? 1 : -1);

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[System.Serializable]
 public class Label : MonoBehaviour
 {
     public InputField inputField;
     public ContentSizeFitter contentSize;
+    public GameObject highlightPanel;
     public float scaleText = 0.98f;
 
     // prop
@@ -127,5 +129,32 @@ public class Label : MonoBehaviour
             (panelParent as CommonPanel).RemoveLabel(this);
 
         Destroy(gameObject);
+    }
+
+    // ========================================= ACTIVE FUNCS =========================================
+    public bool IsActiveHighlightPanel()
+    {
+        if (highlightPanel)
+            return highlightPanel.gameObject.active;
+
+        return false;
+    }
+
+    public void SetActiveHighlightPanel(bool isActive)
+    {
+        if (!highlightPanel)
+            return;
+
+        // set active highlight panel
+        highlightPanel.gameObject.SetActive(isActive);
+
+        // storing for parent panel
+        if (panelParent && panelParent is ElementPanel)
+        {
+            if (isActive)
+                (panelParent as ElementPanel).AddTestingLabel(this);
+            else
+                (panelParent as ElementPanel).RemoveTestingLabel(this);
+        }
     }
 }

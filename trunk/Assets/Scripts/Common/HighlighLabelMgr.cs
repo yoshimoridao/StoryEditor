@@ -137,7 +137,7 @@ public class HighlighLabelMgr : MonoBehaviour
             // check hover obj in same board
             string parentTag = (parentPanel as CommonPanel).IsStoryElement() ? DataDefine.tag_board_story : DataDefine.tag_board_element;
             // check hover obj on panel
-            if (CursorMgr.Instance.IsHoverObjs(out catchObj, parentTag) && CursorMgr.Instance.IsHoverObjs(out catchObj, DataDefine.tag_panel_common))
+            if (CursorMgr.Instance.IsHoverObjs(out catchObj, DataDefine.tag_panel_common, parentTag))
             {
                 CommonPanel hoverPanel = catchObj.GetComponent<CommonPanel>();
                 // in case: drop label in same panel
@@ -155,7 +155,7 @@ public class HighlighLabelMgr : MonoBehaviour
 
         if (panel is CommonPanel)
         {
-            (panel as CommonPanel).RefreshLabels();
+            (panel as CommonPanel).OnArrangedLabels();
             DataMgr.Instance.ReplaceElements(panel as CommonPanel);
         }
     }
