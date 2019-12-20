@@ -27,12 +27,12 @@ public class HighlighPanelMgr : MonoBehaviour
         if (referPanel && CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.ARRANGE)
         {
             // just process arrange in same board
-            string parentTag = (referPanel as CommonPanel).IsStoryElement() ? DataDefine.tag_board_story : DataDefine.tag_board_element;
+            string parentTag = (referPanel as Panel).IsStoryElement() ? DataDefine.tag_board_story : DataDefine.tag_board_element;
 
             GameObject catchObj = null;
             if (CursorMgr.Instance.IsHoverObjs(out catchObj, DataDefine.tag_panel_common, parentTag))
             {
-                CommonPanel hoverPanel = catchObj.GetComponent<CommonPanel>();
+                Panel hoverPanel = catchObj.GetComponent<Panel>();
                 if (hoverPanel)
                     ArrangePanel(hoverPanel);
             }
@@ -63,7 +63,7 @@ public class HighlighPanelMgr : MonoBehaviour
         if (referPanel && CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.ARRANGE)
         {
             // revert index in case user drag to another board
-            string parentTag = (referPanel as CommonPanel).IsStoryElement() ? DataDefine.tag_board_story : DataDefine.tag_board_element;
+            string parentTag = (referPanel as Panel).IsStoryElement() ? DataDefine.tag_board_story : DataDefine.tag_board_element;
             if (!CursorMgr.Instance.IsHoverObjs(parentTag))
             {
                 referPanel.transform.SetSiblingIndex(fstSiblingIndex);
@@ -124,6 +124,6 @@ public class HighlighPanelMgr : MonoBehaviour
                 panels.Add(childPanel);
         }
 
-        DataMgr.Instance.SortIndexes((referPanel as CommonPanel).GetDataType(), panels);
+        DataMgr.Instance.SortIndexes((referPanel as Panel).GetDataType(), panels);
     }
 }

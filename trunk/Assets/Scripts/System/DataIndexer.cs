@@ -8,7 +8,7 @@ using System.IO;
 public class DataIndexer
 {
     public enum DataType { Element, Story, Count };
-
+    public int genKey = 0;
     [SerializeField]
     public List<DataIndex> elements = new List<DataIndex>();
     [SerializeField]
@@ -16,94 +16,74 @@ public class DataIndexer
 
     // ============================================ PUBLIC ============================================
     public DataIndexer() { }
-    public List<DataIndex> GetStories() { return stories; }
 
-    // ====== Index Data ======
-    public DataIndex GetIndex(string key, out DataIndexer.DataType type)
+    // ====== data ======
+    public DataIndex GetData(DataType _type, string _key)
     {
-        type = DataType.Element;
-        for (int i = 0; i < 2; i++)
-        {
-            DataType dataType = i == 0 ? DataType.Element : DataType.Story;
-            DataIndex findData = GetIndex(dataType, key);
-            if (findData != null)
-            {
-                type = dataType;
-                return findData;
-            }
-        }
+        List<DataIndex> datas = GetDatas(_type);
 
-        return null;
-    }
-    public DataIndex GetIndex(DataType type, string key)
-    {
-        List<DataIndex> datas = GetDatas(type);
-
-        int findId = datas.FindIndex(x => x.key == key);
+        int findId = datas.FindIndex(x => x.genKey == _key);
         if (findId != -1 && findId < datas.Count)
             return datas[findId];
 
         return null;
     }
 
-    public void AddIndex(DataIndex data)
+    public void AddData(DataType _type, DataIndex _data)
     {
-        List<DataIndex> datas = GetDatas(data.isStoryElement ? DataType.Story : DataType.Element);
-        datas.Add(data);
+        List<DataIndex> datas = GetDatas(_type);
+        datas.Add(_data);
 
-        // export save file
+        // save
         Save();
     }
 
-    public void RemoveIndex(DataType type, string key)
+    public void RemoveData(DataType _type, string _key)
     {
-        List<DataIndex> datas = GetDatas(type);
+        List<DataIndex> datas = GetDatas(_type);
 
-        int findId = datas.FindIndex(x => x.key == key);
+        int findId = datas.FindIndex(x => x.genKey == _key);
         if (findId != -1 && findId < datas.Count)
         {
             // remove the index
             datas.RemoveAt(findId);
-            // also remove the index in another elements which refer to it
-            RemoveLinkingIndex(key);
         }
 
-        // export save file
+        // save
         Save();
     }
 
-    public void ReplaceIndexKey(DataType type, string oldKey, string newKey)
+    public void ReplaceTitle(DataType _type, string _oldTitle, string _newTitle)
     {
-        List<DataIndex> datas = GetDatas(type);
+        List<DataIndex> datas = GetDatas(_type);
 
-        int findId = datas.FindIndex(x => x.key == oldKey);
+        int findId = datas.FindIndex(x => x.genKey == _oldTitle);
         if (findId != -1 && findId < datas.Count)
         {
             // replace key of the index
-            datas[findId].key = newKey;
-            // also replace in another elements which refer to this index
-            ReplaceLinkingIndex(oldKey, newKey);
+            datas[findId].genKey = _newTitle;
         }
 
         // export save file
         Save();
     }
 
-    public void SortIndexes(DataType type, List<string> panelKeys)
+    public void SortData(DataType _type, List<string> _keys)
     {
         List<DataIndex> sortList = new List<DataIndex>();
-        for (int i = 0; i < panelKeys.Count; i++)
+        for (int i = 0; i < _keys.Count; i++)
         {
-            string key = panelKeys[i];
-            DataIndex index = GetIndex(type, key);
+            string key = _keys[i];
+            DataIndex index = GetData(_type, key);
             if (index != null)
                 sortList.Add(index);
         }
+
         if (sortList.Count > 0)
         {
-            if (type == DataType.Story)
+            if (_type == DataType.Story)
                 stories = sortList;
-            else if (type == DataType.Element)
+            else if (_type == DataType.Element)
                 elements = sortList;
         }
 
@@ -111,119 +91,86 @@ public class DataIndexer
         Save();
     }
 
-    public bool IsContain(DataType type, string key)
+    public bool IsContain(DataType _type, string _key)
     {
-        List<DataIndex> datas = GetDatas(type);
+        List<DataIndex> datas = GetDatas(_type);
 
-        int findId = datas.FindIndex(x => x.key == key);
+        int findId = datas.FindIndex(x => x.genKey == _key);
         if (findId != -1 && findId < datas.Count)
             return true;
 
         return false;
     }
 
-    public void ClearAll()
+    // ====== element ======
+    public void AddElement(DataType _type, string _key, string _val)
     {
-        elements.Clear();
-        stories.Clear();
-
-        // export save file
-        Save();
-    }
-
-    // ====== Index value ======
-    public void AddElement(DataType type, string key, Label label)
-    {
-        string val = label.GetText();
-        if (label is LinkLabel)
-            val = "#" + val + "#";
-
-        DataIndex dataIndex = GetIndex(type, key);
+        DataIndex dataIndex = GetData(_type, _key);
         if (dataIndex != null)
-            dataIndex.AddElement(val);
+            dataIndex.AddElement(_val);
 
         // export save file
         Save();
     }
 
-    public void ReplaceElement(DataType type, string indexKey, int elementIndex, Label label)
+    public void ReplaceElement(DataType _type, string _key, int _eIndex, string _val)
     {
-        string val = label.GetText();
-        if (label is LinkLabel)
-            val = "#" + val + "#";
-
-        DataIndex dataIndex = GetIndex(type, indexKey);
+        DataIndex dataIndex = GetData(_type, _key);
         if (dataIndex != null)
-            dataIndex.ReplaceElement(elementIndex, val);
+            dataIndex.ReplaceElement(_eIndex, _val);
 
         // export save file
         Save();
     }
 
-    public void ReplaceElements(DataType type, string indexKey, CommonPanel panel)
+    public void ReplaceElements(DataType _type, string _key, List<string> _elements)
     {
-        List<Label> labels = panel.GetLabels();
-
-        DataIndex dataIndex = GetIndex(type, indexKey);
+        DataIndex dataIndex = GetData(_type, _key);
         // replace list of elements of data index
         if (dataIndex != null)
-        {
-            List<string> tmp = new List<string>();
-            foreach (var label in labels)
-            {
-                if (label is LinkLabel)
-                    tmp.Add("#" + label.GetText() + "#");
-                else
-                    tmp.Add(label.GetText());
-            }
-
-            if (tmp.Count > 0)
-                dataIndex.elements = tmp;
-        }
+            dataIndex.elements = _elements;
 
         // export save file
         Save();
     }
 
-    public void RemoveElement(DataType type, string indexKey, int elementIndex)
+    public void RemoveElement(DataType _type, string _key, int _eIndex)
     {
-        DataIndex dataIndex = GetIndex(type, indexKey);
+        DataIndex dataIndex = GetData(_type, _key);
 
         if (dataIndex != null)
-            dataIndex.RemoveElement(elementIndex);
+            dataIndex.RemoveElement(_eIndex);
 
         // export save file
         Save();
     }
 
-    public void SetColorIndex(DataType type, string indexKey, ColorBar.ColorType colorType)
+    public void SetColor(DataType _type, string _key, ColorBar.ColorType _color)
     {
-        DataIndex dataIndex = GetIndex(type, indexKey);
+        DataIndex dataIndex = GetData(_type, _key);
 
         if (dataIndex != null)
-        {
-            dataIndex.colorId = (int)colorType;
-        }
+            dataIndex.colorId = (int)_color;
 
         // export save file
         Save();
     }
 
-    public void ReplaceTestingIndex(DataType type, string indexKey, List<int> testingIndex)
-    {
-        DataIndex dataIndex = GetIndex(type, indexKey);
+    //public void ReplaceTestingIndex(DataType type, string indexKey, List<int> testingIndex)
+    //{
+    //    DataIndex dataIndex = GetData(type, indexKey);
 
-        if (dataIndex != null)
-        {
-            dataIndex.testingIndex.Clear();
-            dataIndex.testingIndex = testingIndex;
-        }
+    //    if (dataIndex != null)
+    //    {
+    //        dataIndex.testingIndex.Clear();
+    //        dataIndex.testingIndex = testingIndex;
+    //    }
 
-        // export save file
-        Save();
-    }
+    //    // export save file
+    //    Save();
+    //}
 
-    // ====== UTIL ======
+    // ====== util ======
     public void Load()
     {
         // load in editor
@@ -280,49 +227,10 @@ public class DataIndexer
         File.WriteAllText(DataDefine.save_path_outputFolder + DataDefine.save_fileName_indexData, strOutput);
     }
 
-    public void CreateElements(DataType type)
-    {
-        Board board = (type == DataType.Element) ? (CanvasMgr.Instance.GetBoard<ElementBoard>()) : (CanvasMgr.Instance.GetBoard<StoryBoard>());
-        List<DataIndex> dataIndexes = GetDatas(type);
-
-        for (int i = 0; i < dataIndexes.Count; i++)
-        {
-            DataIndex dataIndex = dataIndexes[i];
-            CommonPanel panel = null;
-
-            // create panel
-            if (type == DataType.Element)
-                panel = (board as ElementBoard).AddPanel(dataIndex.key) as CommonPanel;
-            else
-                panel = (board as StoryBoard).AddPanel(dataIndex.key) as CommonPanel;
-
-            // create label elements
-            if (panel)
-            {
-                for (int j = 0; j < dataIndex.elements.Count; j++)
-                {
-                    string var = dataIndex.elements[j];
-                    if (var.Contains("#"))
-                    {
-                        panel.AddLinkLabel(var.Replace("#", ""));
-                    }
-                    else
-                    {
-                        panel.AddInputLabel(var);
-                    }
-                }
-
-                // load testing index
-                if (panel is ElementPanel)
-                    (panel as ElementPanel).LoadTestingLabel(dataIndex.testingIndex);
-            }
-        }
-    }
-
-    public List<DataIndex> GetDatas(DataType type)
+    public List<DataIndex> GetDatas(DataType _type)
     {
         List<DataIndex> datas = new List<DataIndex>();
-        switch (type)
+        switch (_type)
         {
             case DataType.Element:
                 datas = elements;
@@ -334,34 +242,5 @@ public class DataIndexer
                 break;
         }
         return datas;
-    }
-
-    // ============================================ PRIVATE ============================================
-    private void RemoveLinkingIndex(string key)
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            DataType type = i == 0 ? DataType.Story : DataType.Element;
-
-            List<DataIndex> dataIndexes = GetDatas(type);
-            foreach (DataIndex index in dataIndexes)
-            {
-                index.ReplaceElementPart("#" + key + "#", "");
-            }
-        }
-    }
-
-    private void ReplaceLinkingIndex(string oldkey, string newKey)
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            DataType type = i == 0 ? DataType.Story : DataType.Element;
-
-            List<DataIndex> dataIndexes = GetDatas(type);
-            foreach (DataIndex index in dataIndexes)
-            {
-                index.ReplaceElementPart("#" + oldkey + "#", "#" + newKey + "#");
-            }
-        }
     }
 }

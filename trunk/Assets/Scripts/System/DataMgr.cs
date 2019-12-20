@@ -11,269 +11,215 @@ public class DataMgr : Singleton<DataMgr>
     public class DataElement
     {
         [SerializeField]
-        public List<string> elements = new List<string>();
+        public List<string> _elements = new List<string>();
 
         public DataElement() { }
 
         public void RemoveEmptyElements()
         {
-            elements.RemoveAll(x => x.Length == 0);
+            _elements.RemoveAll(x => x.Length == 0);
         }
     }
 
     [System.Serializable]
     public class DataStorage
     {
-        public List<string> origin = new List<string>();
+        public List<string> _origin = new List<string>();
 
-        private List<string> pickedTestCases = new List<string>();
+        private List<string> _testCaseIds = new List<string>();
 
         public DataStorage()
         {
-            ClearAllNullVal();
+            ClearNullVals();
         }
 
         // --- pick test case ---
-        public List<string> PickedTestCases { get { return pickedTestCases; } }
-
-        public void AddPickedTestCase(string key)
+        public List<string> TestCases
         {
-            if (key.Length == 0)
-                return;
-
-            if (!pickedTestCases.Contains(key))
-                pickedTestCases.Add(key);
+            get { return _testCaseIds; }
         }
 
-        public void RemovePickedTestCase(string key)
+        public void AddTestCase(string _key)
         {
-            if (pickedTestCases.Contains(key))
-                pickedTestCases.Remove(key);
+            if (_key.Length == 0)
+                return;
+
+            if (!_testCaseIds.Contains(_key))
+                _testCaseIds.Add(_key);
+        }
+
+        public void RemoveTestCase(string _key)
+        {
+            if (_testCaseIds.Contains(_key))
+                _testCaseIds.Remove(_key);
         }
 
         public void ClearTestCases()
         {
-            pickedTestCases.Clear();
+            _testCaseIds.Clear();
         }
 
         public string ExportTracyFile()
         {
             DataStorage clone = new DataStorage();
             // get picked test case || origin list
-            clone.origin = new List<string>(pickedTestCases.Count > 0 ? pickedTestCases : origin);
-            for (int i = 0; i < clone.origin.Count; i++)
+            clone._origin = new List<string>(_testCaseIds.Count > 0 ? _testCaseIds : _origin);
+            for (int i = 0; i < clone._origin.Count; i++)
             {
-                clone.origin[i] = "#" + clone.origin[i] + "#";
+                clone._origin[i] = "#" + clone._origin[i] + "#";
             }
             return JsonUtility.ToJson(clone);
         }
 
         // [*] bug: remove all null value
-        private void ClearAllNullVal()
+        private void ClearNullVals()
         {
-            for (int i = 0; i < origin.Count; i++)
+            for (int i = 0; i < _origin.Count; i++)
             {
-                if (origin[i].Length == 0)
+                if (_origin[i].Length == 0)
                 {
-                    origin.RemoveAt(i);
+                    _origin.RemoveAt(i);
                     i--;
                 }
             }
         }
     }
 
-    //Dictionary<string, List<string>> dicLinking = new Dictionary<string, List<string>>();
     [HideInInspector]
     [SerializeField]
     DataStorage dataStorage = new DataStorage();
     [SerializeField]
     DataIndexer dataIndexer = new DataIndexer();
-    bool isInitDone = false;
 
     // ========================================= GET/ SET =========================================
     // === Data storage ===
-    public void AddPickedTestCase(string testCase)
+    public void AddTestCase(string _key)
     {
-        if (!isInitDone)
+        if (_key.Length == 0)
             return;
 
-        if (testCase.Length == 0)
-            return;
-
-        dataStorage.AddPickedTestCase(testCase);
+        dataStorage.AddTestCase(_key);
 
         // export tracery file
         ExportTraceryFile();
     }
 
-    public void RemovePickedTestCase(string testCase)
+    public void RemoveTestCase(string _key)
     {
-        if (!isInitDone)
-            return;
-
-        dataStorage.RemovePickedTestCase(testCase);
+        dataStorage.RemoveTestCase(_key);
 
         // export tracery file
         ExportTraceryFile();
     }
 
-    public void ClearAllPickedTestCases() { dataStorage.ClearTestCases(); }
+    public void ClearTestCases() { dataStorage.ClearTestCases(); }
+    public List<string> GetTestCases() { return dataStorage.TestCases; }
 
-    public List<string> GetPickedTestCases() { return dataStorage.PickedTestCases; }
-    public List<string> GetTestCases() { return dataStorage.origin; }
-
-    public List<DataIndex> GetDataStories() { return dataIndexer.stories; }
+    public List<DataIndex> Stories {  get { return dataIndexer.stories; } }
+    public List<DataIndex> Elements { get { return dataIndexer.elements; } }
 
     // === Index ===
-    /// <summary>
-    /// get index data with unknown data type
-    /// </summary>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    public DataIndex GetIndex(string key, out DataIndexer.DataType type) { return dataIndexer.GetIndex(key, out type); }
+    public DataIndex GetData(DataIndexer.DataType _type, string _key) { return dataIndexer.GetData(_type, _key); }
 
-    /// <summary>
-    /// get index data with specific data type
-    /// </summary>
-    /// <param name="type"></param>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    public DataIndex GetIndex(DataIndexer.DataType type, string key)
+    public void AddData(DataIndexer.DataType _type, Panel _panel)
     {
-        return dataIndexer.GetIndex(type, key);
-    }
-
-    public void AddIndex(CommonPanel panel)
-    {
-        if (!isInitDone)
-            return;
-
-        DataIndex dataIndex = new DataIndex(panel);
-        DataIndexer.DataType type = dataIndex.isStoryElement ? DataIndexer.DataType.Story : DataIndexer.DataType.Element;
-
-        if (dataIndexer.IsContain(type, dataIndex.key))
+        DataIndex dataIndex = new DataIndex(_panel);
+        if (dataIndexer.IsContain(_type, dataIndex.genKey))
         {
             // WARNING match key
 
         }
         else
         {
-            dataIndexer.AddIndex(dataIndex);
+            dataIndexer.AddData(_type, dataIndex);
         }
 
         // export tracery file
         ExportTraceryFile();
     }
 
-    public void RemoveIndex(DataIndexer.DataType type, string key)
+    public void RemoveData(DataIndexer.DataType _type, string _key)
     {
-        if (!isInitDone)
-            return;
-
-        dataIndexer.RemoveIndex(type, key);
+        dataIndexer.RemoveData(_type, _key);
 
         // export tracery file
         ExportTraceryFile();
     }
 
-    public void ReplaceIndexKey(DataIndexer.DataType type, string oldKey, string newKey)
+    public void ReplaceTitle(DataIndexer.DataType _type, string _oldTitle, string _newTitle)
     {
-        if (!isInitDone)
-            return;
-
-        dataIndexer.ReplaceIndexKey(type, oldKey, newKey);
+        dataIndexer.ReplaceTitle(_type, _oldTitle, _newTitle);
 
         // export tracery file
         ExportTraceryFile();
     }
 
-    public void SortIndexes(DataIndexer.DataType type, List<Panel> panels)
+    public void SortIndexes(DataIndexer.DataType _type, List<Panel> _panels)
     {
-        if (!isInitDone)
-            return;
-
         List<string> panelKeys = new List<string>();
-        foreach (Panel panel in panels)
+        foreach (Panel panel in _panels)
         {
             if (panel)
-                panelKeys.Add(panel.GetTitle());
+                panelKeys.Add(panel.Key);
         }
 
-        dataIndexer.SortIndexes(type, panelKeys);
+        dataIndexer.SortData(_type, panelKeys);
 
         // export tracery file
         ExportTraceryFile();
     }
 
-    // === Index's Val ===
-    public void AddElement(DataIndexer.DataType type, string key, Label label)
+    public int GetGenKey()
     {
-        if (!isInitDone)
-            return;
+        int genKey = dataIndexer.genKey;
+        dataIndexer.genKey++;
+        return genKey;
+    }
 
-        dataIndexer.AddElement(type, key, label);
+    // === Element ===
+    public void AddElement(DataIndexer.DataType _type, string _key, string _val)
+    {
+        dataIndexer.AddElement(_type, _key, _val);
 
         // export tracery file
         ExportTraceryFile();
     }
 
-    public void RemoveElement(DataIndexer.DataType type, string indexKey, int elementIndex)
+    public void RemoveElement(DataIndexer.DataType _type, string _key, int _eIndex)
     {
-        if (!isInitDone)
-            return;
-
-        dataIndexer.RemoveElement(type, indexKey, elementIndex);
+        dataIndexer.RemoveElement(_type, _key, _eIndex);
 
         // export tracery file
         ExportTraceryFile();
     }
 
-    public void ReplaceElement(DataIndexer.DataType type, string indexKey, int elementIndex, Label label)
+    public void ReplaceElement(DataIndexer.DataType _type, string _key, int _eIndex, string _val)
     {
-        if (!isInitDone)
-            return;
-
-        dataIndexer.ReplaceElement(type, indexKey, elementIndex, label);
+        dataIndexer.ReplaceElement(_type, _key, _eIndex, _val);
 
         // export tracery file
         ExportTraceryFile();
     }
 
-    public void ReplaceElements(CommonPanel panel)
+    public void ReplaceElements(DataIndexer.DataType _type, string _key, List<string> _elements)
     {
-        if (!isInitDone)
-            return;
-
-        DataIndexer.DataType type = panel.GetDataType();
-        string indexKey = panel.GetTitle();
-        dataIndexer.ReplaceElements(type, indexKey, panel);
+        dataIndexer.ReplaceElements(_type, _key, _elements);
 
         // export tracery file
         ExportTraceryFile();
     }
 
-    public void ReplaceTestingIndex(DataIndexer.DataType type, string indexKey, List<int> testingIndex)
+    //public void ReplaceTestingIndex(DataIndexer.DataType type, string indexKey, List<int> testingIndex)
+    //{
+    //    if (!isInitDone)
+    //        return;
+
+    //    dataIndexer.ReplaceTestingIndex(type, indexKey, testingIndex);
+    //}
+
+    public void SetColorIndexData(DataIndexer.DataType type, string indexKey, ColorBar.ColorType colorType)
     {
-        if (!isInitDone)
-            return;
-
-        dataIndexer.ReplaceTestingIndex(type, indexKey, testingIndex);
-    }
-
-    public void Save()
-    {
-        dataIndexer.Save();
-
-        // export tracery file
-        ExportTraceryFile();
-    }
-
-    public void SetColorIndex(DataIndexer.DataType type, string indexKey, ColorBar.ColorType colorType)
-    {
-        if (!isInitDone)
-            return;
-
-        dataIndexer.SetColorIndex(type, indexKey, colorType);
+        dataIndexer.SetColor(type, indexKey, colorType);
 
         // export tracery file
         ExportTraceryFile();
@@ -301,21 +247,12 @@ public class DataMgr : Singleton<DataMgr>
         dataIndexer.Load();
     }
 
-    public void CreateElements()
-    {
-        // create objs for Element Board
-        dataIndexer.CreateElements(DataIndexer.DataType.Element);
-        dataIndexer.CreateElements(DataIndexer.DataType.Story);
-
-        isInitDone = true;
-    }
-
     public void ExportTraceryFile()
     {
         //string output = dataStorage.ExportTracyFile().Replace("}", "");
         string output = "";
         // clear all dataStorage
-        dataStorage.origin.Clear();
+        dataStorage._origin.Clear();
 
         for (int i = 0; i < 2; i++)
         {
@@ -329,27 +266,27 @@ public class DataMgr : Singleton<DataMgr>
                 // parse for story element
                 if (dataType == DataIndexer.DataType.Story)
                 {
-                    dataElement.elements = new List<string>();
-                    dataElement.elements.Add(MergeAllElements(dataIndex));
+                    dataElement._elements = new List<string>();
+                    dataElement._elements.Add(MergeAllElements(dataIndex));
                 }
                 else
                 {
                     // clone elements
-                    dataElement.elements = new List<string>(dataIndex.elements);
+                    dataElement._elements = new List<string>(dataIndex.elements);
                 }
 
                 // add null to output is [""] -> fix bug read element wrong
-                if (dataElement.elements.Count == 0)
-                    dataElement.elements.Add("");
+                if (dataElement._elements.Count == 0)
+                    dataElement._elements.Add("");
 
                 string strElement = JsonUtility.ToJson(dataElement);
-                strElement = strElement.Replace("elements", dataIndex.key).Replace("{", ",").Replace("}", "");     // merge string (json format)
+                strElement = strElement.Replace("elements", dataIndex.genKey).Replace("{", ",").Replace("}", "");     // merge string (json format)
 
                 output += strElement;
 
                 // add element to origin
                 if (dataType == DataIndexer.DataType.Story)
-                    dataStorage.origin.Add(dataIndex.key);
+                    dataStorage._origin.Add(dataIndex.genKey);
             }
         }
 
@@ -382,38 +319,17 @@ public class DataMgr : Singleton<DataMgr>
         string val = "";
         if (dataIndex != null)
         {
-            for (int k = 0; k < dataIndex.elements.Count; k++)
-            {
-                // automatically add space between variables
-                //if (k != 0)
-                //    val += " ";
-                val += dataIndex.elements[k];
-            }
+            foreach (string element in dataIndex.elements)
+                val += element;
         }
 
         return val;
     }
 
-    // ========================================= PRIVATE FUNCS =========================================
-    public List<string> ParseRetrieveLinkId(string val)
+    public void Save()
     {
-        List<string> tmp = new List<string>();
-
-        var parsedVal = val.Split('#');
-        // iterate odd index
-        for (int i = 1; i < parsedVal.Length; i += 2)
-        {
-            string linkKey = parsedVal[i];
-            tmp.Add(linkKey);
-
-            //DataIndexer.DataType dataType = DataIndexer.DataType.Element;
-
-            //// check this link key exists
-            //DataIndex foundIndex = GetIndex(linkKey, out dataType);
-            //if (foundIndex != null)
-            //    tmp.Add(foundIndex);
-        }
-
-        return tmp;
+        // save and export tracery file
+        dataIndexer.Save();
+        ExportTraceryFile();
     }
 }

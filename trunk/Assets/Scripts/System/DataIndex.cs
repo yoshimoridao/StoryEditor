@@ -5,97 +5,46 @@ using UnityEngine;
 [System.Serializable]
 public class DataIndex
 {
-    public string key;
-    public List<string> elements = new List<string>();
+    public string genKey;
+    public string title;
     public int colorId;
-    public bool isStoryElement = false;
-    public List<int> testingIndex = new List<int>();
+    public List<string> elements = new List<string>();
 
     public DataIndex() { }
-    public DataIndex(string _key, int _colorId, bool _isStoryElement = false)
+    public DataIndex(Panel _panel)
     {
-        key = _key;
-        colorId = _colorId;
-        isStoryElement = _isStoryElement;
-    }
 
-    public DataIndex(CommonPanel panel)
-    {
-        // get all text of label of panel
-        key = panel.GetTitle();
-        colorId = (int)panel.GetColorType();
-        // determine panel is in which board (element or story)
-        isStoryElement = panel.IsStoryElement();
-
-        // add elements
-        List<Label> labels = panel.GetLabels();
-        for (int i = 0; i < labels.Count; i++)
-        {
-            Label label = labels[i];
-            string var = "";
-            if (label is LinkLabel)
-            {
-                var = "#" + label.GetText() + "#";
-            }
-            else
-            {
-                var = label.GetText();
-            }
-
-            elements.Add(var);
-        }
     }
 
     // === element ===
-    public void AddElement(string val)
+    public void AddElement(string _val)
     {
-        elements.Add(val);
+        elements.Add(_val);
     }
 
-    public void RemoveElement(int index)
+    public void RemoveElement(int _index)
     {
-        if (index >= 0 && index < elements.Count)
-            elements.RemoveAt(index);
+        if (_index >= 0 && _index < elements.Count)
+            elements.RemoveAt(_index);
     }
 
-    public void ReplaceElement(int index, string val)
+    public void ReplaceElement(int _index, string _val)
     {
-        if (index >= 0 && index < elements.Count)
-            elements[index] = val;
-    }
-
-    public void ReplaceElementPart(string oldVal, string newVal)
-    {
-        for (int j = 0; j < elements.Count; j++)
-        {
-            string element = elements[j];
-            element = element.Replace(oldVal, newVal);
-
-            // replace
-            if (element.Length > 0)
-            {
-                elements[j] = element;
-            }
-            // remove element
-            else
-            {
-                elements.RemoveAt(j);
-                j--;
-            }
-        }
+        if (_index >= 0 && _index < elements.Count)
+            elements[_index] = _val;
     }
 
     // === Testing Index ===
-    public List<string> GetTestingElement()
-    {
-        List<string> testingElements = new List<string>();
-        for (int i = 0; i < testingIndex.Count; i++)
-        {
-            int testingId = testingIndex[i];
-            if (testingId < elements.Count)
-                testingElements.Add(elements[testingId]);
-        }
+    //public List<string> GetTestingElement()
+    //{
+    //    List<string> testingElements = new List<string>();
+    //    for (int i = 0; i < testingIndex.Count; i++)
+    //    {
+    //        int testingId = testingIndex[i];
+    //        if (testingId < elements.Count)
+    //            testingElements.Add(elements[testingId]);
+    //    }
 
-        return testingElements;
-    }
+    //    return testingElements;
+    //}
 }

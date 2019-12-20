@@ -65,11 +65,11 @@ public class ToolBarMgr : Singleton<ToolBarMgr>
         bool isActiveAllLabel = true;
 
         // get selected panel also check status all of them is active test tag
-        List<CommonPanel> panels = new List<CommonPanel>();
+        List<Panel> panels = new List<Panel>();
         List<Label> labels = new List<Label>();
         foreach (SelectAbleElement element in selectedObjs)
         {
-            CommonPanel panel = element.GetComponent<CommonPanel>();
+            Panel panel = element.GetComponent<Panel>();
             // testing with label
             if (panel)
             {
@@ -90,7 +90,7 @@ public class ToolBarMgr : Singleton<ToolBarMgr>
         }
 
         // set active test tag of all panels (which selected)
-        foreach (CommonPanel panel in panels)
+        foreach (Panel panel in panels)
             panel.SetActiveTestTag(!isActiveAllPanel);
         // set active highlight panel of labels 
         foreach (Label label in labels)
@@ -109,7 +109,7 @@ public class ToolBarMgr : Singleton<ToolBarMgr>
         // add panel to colorize
         foreach (SelectAbleElement element in selectedObjs)
         {
-            CommonPanel panel = element.GetComponent<CommonPanel>();
+            Panel panel = element.GetComponent<Panel>();
             if (panel)
                 ColorBar.Instance.AddReferralPanel(panel);
         }
@@ -126,7 +126,7 @@ public class ToolBarMgr : Singleton<ToolBarMgr>
         for (int i = 0; i < selectedObjs.Count; i++)
         {
             SelectAbleElement element = selectedObjs[i];
-            CommonPanel panel = element.GetComponent<CommonPanel>();
+            Panel panel = element.GetComponent<Panel>();
             // checking is selected panel
             if (!isSelectedPanel && panel)
             {

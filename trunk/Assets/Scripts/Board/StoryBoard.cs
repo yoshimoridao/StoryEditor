@@ -4,28 +4,8 @@ using UnityEngine;
 
 public class StoryBoard : Board
 {
-    public Transform transPanelCont;
-    public Transform transPlusPanel;
-
-    string defaultNewPanelName = "story";
-    [SerializeField]
-    List<Panel> panels = new List<Panel>();
-    GameObject prefPanel;
-    int panelCounter = 0;
-
     // ========================================= GET/ SET =========================================
-    public Panel GetPanel(string key)
-    {
-        for (int i = 0; i < panels.Count; i++)
-        {
-            CommonPanel panel = panels[i] as CommonPanel;
-            if (panel.GetTitle() == key)
-            {
-                return panel;
-            }
-        }
-        return null;
-    }
+
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
@@ -43,78 +23,52 @@ public class StoryBoard : Board
         // load prefab
         prefPanel = Resources.Load<GameObject>(DataDefine.pref_path_storyPanel);
 
-        // clear all child (which is template)
-        for (int i = 0; i < transPanelCont.childCount; i++)
+        // load data
+        List<DataIndex> dataIndexes = DataMgr.Instance.Stories;
+        for (int i = 0; i < dataIndexes.Count; i++)
         {
-            if (transPanelCont.GetChild(i) != transPlusPanel)
-                Destroy(transPanelCont.GetChild(i).gameObject);
+            DataIndex dataIndex = dataIndexes[i];
+            // create panel
+            Panel panel = AddPanel(dataIndex.genKey) as Panel;
+
+            // create label elements
+            if (panel)
+            {
+                for (int j = 0; j < dataIndex.elements.Count; j++)
+                {
+                    string var = dataIndex.elements[j];
+                    panel.AddLabel(var);
+                }
+            }
         }
     }
 
-    public Panel AddPanel(string name = "")
+    public override Panel AddPanel(string _genKey)
     {
-        Panel panel = Instantiate(prefPanel, transPanelCont).GetComponent<Panel>();
+        if (!prefPanel)
+            return null;
 
+        // create new panel
+        Panel panel = Instantiate(prefPanel, transPanelCont).GetComponent<Panel>();
         if (panel)
         {
-            if (name.Length == 0)
-                name = defaultNewPanelName + "_" + panelCounter;
-
-            (panel as CommonPanel).Init(this, name);
-
-            panelCounter++;
+            string title = DataDefine.default_name_story_panel;
+            panel.Init(this, _genKey, title);
 
             panels.Add(panel);
-
-            CanvasMgr.Instance.RefreshCanvas();
-            // save data in case just created
-            DataMgr.Instance.AddIndex(panel as CommonPanel);
 
             // set index of adding element panel as last child
             if (transPlusPanel)
                 transPlusPanel.transform.SetAsLastSibling();
+
+            // refresh canvas
+            CanvasMgr.Instance.RefreshCanvas();
+
+            // save
+            DataMgr.Instance.AddData(DataIndexer.DataType.Story, panel);
             return panel;
         }
 
         return null;
-    }
-
-    public bool RemovePanel(Panel panel)
-    {
-        int panelId = panels.FindIndex(x => x.GetTitle() == panel.GetTitle());
-        // remove panel in list panels
-        if (panelId > -1 && panelId < panels.Count)
-        {
-            panels.RemoveAt(panelId);
-
-            // also remove in data storage
-            DataMgr.Instance.RemoveIndex(DataIndexer.DataType.Story, panel.GetTitle());
-
-            CanvasMgr.Instance.RefreshCanvas();
-            return true;
-        }
-
-        return false;
-    }
-
-    public void OnAddBtnPressed()
-    {
-        AddPanel();
-    }
-
-    public void ClearAllPickedTestPanels()
-    {
-        // get list of picked up panels from data
-        List<string> pickedPanel = DataMgr.Instance.GetPickedTestCases();
-        // un-pick these panels
-        for (int i = 0; i < panels.Count; i++)
-        {
-            CommonPanel panel = panels[i] as CommonPanel;
-            // if panel in list
-            if (pickedPanel.FindIndex(x => x == panel.GetTitle()) != -1 && panel.testTag)
-            {
-                panel.testTag.SetActiveTag(false);
-            }
-        }
     }
 }

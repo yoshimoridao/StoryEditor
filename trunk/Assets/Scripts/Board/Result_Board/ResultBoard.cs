@@ -50,7 +50,7 @@ public class ResultBoard : Board
         if (isRandom)
         {
             // clone list data
-            List<DataIndex> tmp = new List<DataIndex>(DataMgr.Instance.GetDataStories());
+            List<DataIndex> tmp = new List<DataIndex>(DataMgr.Instance.Stories());
             int turn = Mathf.Min(rdCaseAmount, tmp.Count);
 
             bool isRdIndex = tmp.Count > rdCaseAmount;
@@ -60,7 +60,7 @@ public class ResultBoard : Board
                 if (id >= 0 && id < tmp.Count)
                 {
                     // add test case for storage
-                    testCases.Add(tmp[id].key);
+                    testCases.Add(tmp[id].genKey);
                     // remove out of temp list
                     if (isRdIndex)
                         tmp.RemoveAt(id);
@@ -69,7 +69,7 @@ public class ResultBoard : Board
         }
         else
         {
-            testCases = DataMgr.Instance.GetPickedTestCases();
+            testCases = DataMgr.Instance.GetTestCases();
         }
 
         resultZone.ShowResult(testCases, isRandom);
@@ -83,7 +83,7 @@ public class ResultBoard : Board
     {
         // update text
         if (pickupAmountText)
-            pickupAmountText.text = DataMgr.Instance.GetPickedTestCases().Count.ToString();
+            pickupAmountText.text = DataMgr.Instance.GetTestCases().Count.ToString();
     }
 
     // ====== Event Button ======
@@ -119,7 +119,7 @@ public class ResultBoard : Board
         elementBoard.ClearAllPickedTestPanels();
 
         // clear all in data
-        DataMgr.Instance.ClearAllPickedTestCases();
+        DataMgr.Instance.ClearTestCases();
     }
 
     // = Random mode panel =

@@ -37,7 +37,7 @@ public class ColorBar : Singleton<ColorBar>
     public void OnColorButtonPress(ColorBtn colorBtn)
     {
         foreach (Panel panel in referralPanels)
-            (panel as CommonPanel).SetColor(colorBtn.type);
+            (panel as Panel).SetColor(colorBtn.type);
 
         //// de-active color bar
         //SetActiveGameObject(false);

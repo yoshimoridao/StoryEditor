@@ -35,9 +35,7 @@ public class CanvasMgr : Singleton<CanvasMgr>
             rootPanel.Init();
         }
 
-        // init element
-        DataMgr.Instance.CreateElements();
-
+        // refresh canvas
         RefreshCanvas();
     }
 
@@ -87,8 +85,8 @@ public class CanvasMgr : Singleton<CanvasMgr>
         for (int i = 0; i < elements.Count; i++)
         {
             SelectAbleElement element = elements[i];
-            if (element && element.GetComponent<CommonPanel>())
-                element.GetComponent<CommonPanel>().SelfDestroy();
+            if (element && element.GetComponent<Panel>())
+                element.GetComponent<Panel>().SelfDestroy();
             if (element && element.GetComponent<Label>())
                 element.GetComponent<Label>().SelfDestroy();
         }

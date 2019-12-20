@@ -306,7 +306,7 @@ public class CursorMgr : Singleton<CursorMgr>
     private void ProcessDrag()
     {
         // process for Panel
-        CommonPanel dragPanel = dragingObj.GetComponent<CommonPanel>();
+        Panel dragPanel = dragingObj.GetComponent<Panel>();
 
         if (dragPanel)
         {
@@ -315,14 +315,14 @@ public class CursorMgr : Singleton<CursorMgr>
             // draging from a panel to panel
             if (IsHoverObjs(DataDefine.tag_board_story, DataDefine.tag_board_element) && IsHoverObjs(out catchObj, DataDefine.tag_panel_common))
             {
-                CommonPanel hoverPanel = catchObj.GetComponent<CommonPanel>();
+                Panel hoverPanel = catchObj.GetComponent<Panel>();
                 if (hoverPanel)
                 {
                     switch (dragBehavior)
                     {
                         // for link function
                         case DragBehavior.CONNECT:
-                            hoverPanel.AddLinkLabel(dragingObj.GetComponent<CommonPanel>());
+                            hoverPanel.AddLinkLabel(dragingObj.GetComponent<Panel>());
                             break;
                     }
                 }

@@ -7,7 +7,7 @@ public class TestTag : MonoBehaviour
 {
     public Color enableColor = new Color(0.0f, 0.0f, 1.0f, 1.0f);
     public Color disableColor = new Color(0.4f, 0.4f, 0.4f, 1.0f);
-    public CommonPanel panel;
+    public Panel panel;
     Image img;
     bool isActive = false;
 
@@ -43,16 +43,16 @@ public class TestTag : MonoBehaviour
         if (panel)
         {
             // add || remove test case
-            string panelTitle = panel.GetTitle();
+            string panelTitle = panel.Title();
             if (isActive)
             {
                 // add test case in data
-                DataMgr.Instance.AddPickedTestCase(panelTitle);
+                DataMgr.Instance.AddTestCase(panelTitle);
             }
             else
             {
                 // remove test case in data
-                DataMgr.Instance.RemovePickedTestCase(panelTitle);
+                DataMgr.Instance.RemoveTestCase(panelTitle);
             }
 
             // set color of tag

@@ -35,7 +35,7 @@ public class ResultZoneMgr : MonoBehaviour
             Destroy(transCont.GetChild(i).gameObject);
     }
 
-    public void ShowResult(CommonPanel panel)
+    public void ShowResult(Panel panel)
     {
 
     }
@@ -67,7 +67,7 @@ public class ResultZoneMgr : MonoBehaviour
             string val = ParseDataIndex(dataIndex, dataType);
 
             // show result of each row
-            val = "<b>" + dataIndex.key + "</b>" + " = " + val;
+            val = "<b>" + dataIndex.genKey + "</b>" + " = " + val;
 
             if (i < rows.Count)
             {
@@ -99,51 +99,51 @@ public class ResultZoneMgr : MonoBehaviour
 
         string val = "";
         // pick random one element
-        if (dataType == DataIndexer.DataType.Element)
-        {
-            // add color tag for another color (!= white)
-            if ((ColorBar.ColorType)dataIndex.colorId != ColorBar.ColorType.WHITE)
-                val += TextUtil.GetOpenColorTag((ColorBar.ColorType)dataIndex.colorId);
+        //if (dataType == DataIndexer.DataType.Element)
+        //{
+        //    // add color tag for another color (!= white)
+        //    if ((ColorBar.Color)dataIndex.colorId != ColorBar.Color.WHITE)
+        //        val += TextUtil.GetOpenColorTag((ColorBar.Color)dataIndex.colorId);
 
-            if (dataIndex.elements.Count > 0)
-            {
-                List<string> elements = new List<string>();
-                // get testing elements
-                if (dataIndex.testingIndex.Count > 0)
-                    elements = dataIndex.GetTestingElement();
-                // unless get all elements
-                else
-                    elements = dataIndex.elements;
+        //    if (dataIndex.elements.Count > 0)
+        //    {
+        //        List<string> elements = new List<string>();
+        //        //// get testing elements
+        //        //if (dataIndex.testingIndex.Count > 0)
+        //        //    elements = dataIndex.GetTestingElement();
+        //        //// unless get all elements
+        //        //else
+        //        //    elements = dataIndex.elements;
 
-                // random pick 1 elements
-                if (elements.Count > 0)
-                    val += elements[Random.Range(0, elements.Count)];
-            }
+        //        // random pick 1 elements
+        //        if (elements.Count > 0)
+        //            val += elements[Random.Range(0, elements.Count)];
+        //    }
 
 
-            // close color tag
-            if ((ColorBar.ColorType)dataIndex.colorId != ColorBar.ColorType.WHITE)
-                val += TextUtil.GetCloseColorTag();
-        }
-        // merge all element value
-        else
-        {
-            val = DataMgr.Instance.MergeAllElements(dataIndex);
-        }
+        //    // close color tag
+        //    if ((ColorBar.Color)dataIndex.colorId != ColorBar.Color.WHITE)
+        //        val += TextUtil.GetCloseColorTag();
+        //}
+        //// merge all element value
+        //else
+        //{
+        //    val = DataMgr.Instance.MergeAllElements(dataIndex);
+        //}
 
-        List<string> linkKeys = DataMgr.Instance.ParseRetrieveLinkId(val);
-        for (int i = 0; i < linkKeys.Count; i++)
-        {
-            string linkKey = linkKeys[i];
-            DataIndexer.DataType linkType = DataIndexer.DataType.Element;
-            DataIndex linkData = DataMgr.Instance.GetIndex(linkKeys[i], out linkType);
-            if (linkData != null)
-            {
-                string linkVal = ParseDataIndex(linkData, linkType);
-                if (linkVal.Length > 0)
-                    val = val.Replace("#" + linkKey + "#", linkVal);
-            }
-        }
+        //List<string> linkKeys = DataMgr.Instance.ParseRetrieveLinkId(val);
+        //for (int i = 0; i < linkKeys.Count; i++)
+        //{
+        //    string linkKey = linkKeys[i];
+        //    DataIndexer.DataType linkType = DataIndexer.DataType.Element;
+        //    DataIndex linkData = DataMgr.Instance.GetIndex(linkKeys[i], out linkType);
+        //    if (linkData != null)
+        //    {
+        //        string linkVal = ParseDataIndex(linkData, linkType);
+        //        if (linkVal.Length > 0)
+        //            val = val.Replace("#" + linkKey + "#", linkVal);
+        //    }
+        //}
 
         return val;
     }
