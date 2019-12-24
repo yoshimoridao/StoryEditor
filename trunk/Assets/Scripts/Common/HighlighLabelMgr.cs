@@ -131,17 +131,16 @@ public class HighlighLabelMgr : MonoBehaviour
     {
         catchObj = null;
 
-        Panel parentPanel = referLabel.GetParent();
-        if (parentPanel is Panel)
+        if (referLabel.Panel)
         {
             // check hover obj in same board
-            string parentTag = (parentPanel as Panel).IsStoryElement() ? DataDefine.tag_board_story : DataDefine.tag_board_element;
+            string boardTag = (referLabel.Panel is StoryPanel) ? DataDefine.tag_board_story : DataDefine.tag_board_element;
             // check hover obj on panel
-            if (CursorMgr.Instance.IsHoverObjs(out catchObj, DataDefine.tag_panel_common, parentTag))
+            if (CursorMgr.Instance.IsHoverObjs(out catchObj, DataDefine.tag_panel_common, boardTag))
             {
                 Panel hoverPanel = catchObj.GetComponent<Panel>();
                 // in case: drop label in same panel
-                if (hoverPanel && hoverPanel.gameObject == parentPanel.gameObject)
+                if (hoverPanel && hoverPanel.gameObject == referLabel.Panel.gameObject)
                     return true;
             }
         }
@@ -151,12 +150,15 @@ public class HighlighLabelMgr : MonoBehaviour
 
     private void SaveIndex()
     {
-        Panel panel = referLabel.GetParent();
-
-        if (panel is Panel)
+        if (referLabel.Panel)
         {
-            (panel as Panel).OnArrangedLabels();
-            DataMgr.Instance.ReplaceElements(panel as Panel);
+            // get all of label's text
+            List<string> labels = new List<string>();
+            foreach (Label l in referLabel.Panel.Labels)
+                labels.Add(l.LabelText);
+
+            // store data
+            DataMgr.Instance.ReplaceElements(referLabel.Panel.DataType, referLabel.Panel.Key, labels);
         }
     }
 }

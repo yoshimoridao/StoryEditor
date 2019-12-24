@@ -34,6 +34,8 @@ public class StoryBoard : Board
             // create label elements
             if (panel)
             {
+                panel.Title = dataIndex.title;
+                panel.Color = (ColorBar.ColorType)dataIndex.colorId;
                 for (int j = 0; j < dataIndex.elements.Count; j++)
                 {
                     string var = dataIndex.elements[j];
@@ -41,6 +43,9 @@ public class StoryBoard : Board
                 }
             }
         }
+
+        // refresh canvas
+        CanvasMgr.Instance.RefreshCanvas();
     }
 
     public override Panel AddPanel(string _genKey)
@@ -61,11 +66,6 @@ public class StoryBoard : Board
             if (transPlusPanel)
                 transPlusPanel.transform.SetAsLastSibling();
 
-            // refresh canvas
-            CanvasMgr.Instance.RefreshCanvas();
-
-            // save
-            DataMgr.Instance.AddData(DataIndexer.DataType.Story, panel);
             return panel;
         }
 

@@ -11,22 +11,22 @@ public class DataMgr : Singleton<DataMgr>
     public class DataElement
     {
         [SerializeField]
-        public List<string> _elements = new List<string>();
+        public List<string> elements = new List<string>();
 
         public DataElement() { }
 
         public void RemoveEmptyElements()
         {
-            _elements.RemoveAll(x => x.Length == 0);
+            elements.RemoveAll(x => x.Length == 0);
         }
     }
 
     [System.Serializable]
     public class DataStorage
     {
-        public List<string> _origin = new List<string>();
+        public List<string> origin = new List<string>();
 
-        private List<string> _testCaseIds = new List<string>();
+        private List<string> testCaseIds = new List<string>();
 
         public DataStorage()
         {
@@ -36,7 +36,7 @@ public class DataMgr : Singleton<DataMgr>
         // --- pick test case ---
         public List<string> TestCases
         {
-            get { return _testCaseIds; }
+            get { return testCaseIds; }
         }
 
         public void AddTestCase(string _key)
@@ -44,29 +44,29 @@ public class DataMgr : Singleton<DataMgr>
             if (_key.Length == 0)
                 return;
 
-            if (!_testCaseIds.Contains(_key))
-                _testCaseIds.Add(_key);
+            if (!testCaseIds.Contains(_key))
+                testCaseIds.Add(_key);
         }
 
         public void RemoveTestCase(string _key)
         {
-            if (_testCaseIds.Contains(_key))
-                _testCaseIds.Remove(_key);
+            if (testCaseIds.Contains(_key))
+                testCaseIds.Remove(_key);
         }
 
         public void ClearTestCases()
         {
-            _testCaseIds.Clear();
+            testCaseIds.Clear();
         }
 
         public string ExportTracyFile()
         {
             DataStorage clone = new DataStorage();
             // get picked test case || origin list
-            clone._origin = new List<string>(_testCaseIds.Count > 0 ? _testCaseIds : _origin);
-            for (int i = 0; i < clone._origin.Count; i++)
+            clone.origin = new List<string>(testCaseIds.Count > 0 ? testCaseIds : origin);
+            for (int i = 0; i < clone.origin.Count; i++)
             {
-                clone._origin[i] = "#" + clone._origin[i] + "#";
+                clone.origin[i] = "#" + clone.origin[i] + "#";
             }
             return JsonUtility.ToJson(clone);
         }
@@ -74,21 +74,18 @@ public class DataMgr : Singleton<DataMgr>
         // [*] bug: remove all null value
         private void ClearNullVals()
         {
-            for (int i = 0; i < _origin.Count; i++)
+            for (int i = 0; i < origin.Count; i++)
             {
-                if (_origin[i].Length == 0)
+                if (origin[i].Length == 0)
                 {
-                    _origin.RemoveAt(i);
+                    origin.RemoveAt(i);
                     i--;
                 }
             }
         }
     }
-
-    [HideInInspector]
-    [SerializeField]
+    
     DataStorage dataStorage = new DataStorage();
-    [SerializeField]
     DataIndexer dataIndexer = new DataIndexer();
 
     // ========================================= GET/ SET =========================================
@@ -146,9 +143,9 @@ public class DataMgr : Singleton<DataMgr>
         ExportTraceryFile();
     }
 
-    public void ReplaceTitle(DataIndexer.DataType _type, string _oldTitle, string _newTitle)
+    public void ReplaceTitle(DataIndexer.DataType _type, string _key, string _title)
     {
-        dataIndexer.ReplaceTitle(_type, _oldTitle, _newTitle);
+        dataIndexer.ReplaceTitle(_type, _key, _title);
 
         // export tracery file
         ExportTraceryFile();
@@ -169,11 +166,10 @@ public class DataMgr : Singleton<DataMgr>
         ExportTraceryFile();
     }
 
-    public int GetGenKey()
+    public string GenNewKey()
     {
-        int genKey = dataIndexer.genKey;
         dataIndexer.genKey++;
-        return genKey;
+        return dataIndexer.genKey.ToString();
     }
 
     // === Element ===
@@ -252,7 +248,7 @@ public class DataMgr : Singleton<DataMgr>
         //string output = dataStorage.ExportTracyFile().Replace("}", "");
         string output = "";
         // clear all dataStorage
-        dataStorage._origin.Clear();
+        dataStorage.origin.Clear();
 
         for (int i = 0; i < 2; i++)
         {
@@ -266,27 +262,28 @@ public class DataMgr : Singleton<DataMgr>
                 // parse for story element
                 if (dataType == DataIndexer.DataType.Story)
                 {
-                    dataElement._elements = new List<string>();
-                    dataElement._elements.Add(MergeAllElements(dataIndex));
+                    dataElement.elements = new List<string>();
+                    dataElement.elements.Add(MergeAllElements(dataIndex));
                 }
                 else
                 {
                     // clone elements
-                    dataElement._elements = new List<string>(dataIndex.elements);
+                    dataElement.elements = new List<string>(dataIndex.elements);
                 }
 
                 // add null to output is [""] -> fix bug read element wrong
-                if (dataElement._elements.Count == 0)
-                    dataElement._elements.Add("");
+                if (dataElement.elements.Count == 0)
+                    dataElement.elements.Add("");
 
                 string strElement = JsonUtility.ToJson(dataElement);
-                strElement = strElement.Replace("elements", dataIndex.genKey).Replace("{", ",").Replace("}", "");     // merge string (json format)
+
+                strElement = strElement.Replace("elements", dataIndex.title).Replace("{", ",").Replace("}", "");     // merge string (json format)
 
                 output += strElement;
 
                 // add element to origin
                 if (dataType == DataIndexer.DataType.Story)
-                    dataStorage._origin.Add(dataIndex.genKey);
+                    dataStorage.origin.Add(dataIndex.title);
             }
         }
 

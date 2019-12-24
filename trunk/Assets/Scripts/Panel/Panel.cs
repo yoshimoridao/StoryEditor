@@ -52,6 +52,11 @@ public class Panel : MonoBehaviour
         set { color = value; }
     }
 
+    public DataIndexer.DataType DataType
+    {
+        get { return dataType; }
+    }
+
     public List<Label> Labels
     {
         get { return labels; }
@@ -93,8 +98,11 @@ public class Panel : MonoBehaviour
             image = GetComponent<Image>();
 
         // clear all child rows (template)
-        for (int i = 0; i < transLabelCont.childCount; i++)
-            Destroy(transLabelCont.GetChild(i).gameObject);
+        if (transLabelCont)
+        {
+            for (int i = 0; i < transLabelCont.childCount; i++)
+                Destroy(transLabelCont.GetChild(i).gameObject);
+        }
 
         // load prefab
         prefRow = Resources.Load<GameObject>(DataDefine.pref_path_rowLabel);
@@ -104,7 +112,8 @@ public class Panel : MonoBehaviour
         this.board = _board;
         // set key
         key = _key;
-        // set title
+        // set title 
+        titleLabel.Init(this, "");  // init default
         Title = _title;
         // determine data type
         dataType = this is ElementPanel ? DataIndexer.DataType.Element : DataIndexer.DataType.Story;
@@ -114,10 +123,10 @@ public class Panel : MonoBehaviour
         baseWidth = (this.transform as RectTransform).sizeDelta.x - (boardPadding.left + boardPadding.right);
     }
 
-    public void AddLabel(string _var)
+    public Label AddLabel(string _var)
     {
         if (!prefLabel)
-            return;
+            return null;
 
         Transform lastRow = GetLastRow();
         if (lastRow)
@@ -127,16 +136,17 @@ public class Panel : MonoBehaviour
             if (genLabel)
             {
                 genLabel.Init(this, _var);
+                // store label
+                labels.Add(genLabel);
 
                 // refresh position of add button
                 RefreshAddButtonPos();
 
-                // save
-                DataMgr.Instance.AddElement(dataType, Key, genLabel.LabelText);
-                // refresh canvas
-                CanvasMgr.Instance.RefreshCanvas();
+                return genLabel;
             }
         }
+
+        return null;
     }
 
     public void RemoveLabel(Label _label)
@@ -170,13 +180,25 @@ public class Panel : MonoBehaviour
         }
     }
 
-    public virtual void OnArrangedLabels()
+    public void OnTitleEdited()
     {
-        //foreach (RowLabelMgr row in rows)
-        //    row.RefreshLabels();
+        // override new title
+        Title = titleLabel.LabelText;
 
-        // save testing index after arrange
-        //SaveTestingLabel();
+        DataMgr.Instance.ReplaceTitle(dataType, key, Title);
+    }
+
+    public void OnAddButtonPress()
+    {
+        Label genLabel = AddLabel("");
+
+        if (genLabel)
+        {
+            // save
+            DataMgr.Instance.AddElement(dataType, key, genLabel.LabelText);
+            // refresh canvas
+            CanvasMgr.Instance.RefreshCanvas();
+        }
     }
 
     public void SelfDestroy()

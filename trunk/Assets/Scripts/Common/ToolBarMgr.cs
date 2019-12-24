@@ -60,41 +60,41 @@ public class ToolBarMgr : Singleton<ToolBarMgr>
 
     public void OnPressTestingBtn()
     {
-        List<SelectAbleElement> selectedObjs = CursorMgr.Instance.GetSelectedObjs();
-        bool isActiveAllPanel = true;
-        bool isActiveAllLabel = true;
+        //List<SelectAbleElement> selectedObjs = CursorMgr.Instance.GetSelectedObjs();
+        //bool isActiveAllPanel = true;
+        //bool isActiveAllLabel = true;
 
-        // get selected panel also check status all of them is active test tag
-        List<Panel> panels = new List<Panel>();
-        List<Label> labels = new List<Label>();
-        foreach (SelectAbleElement element in selectedObjs)
-        {
-            Panel panel = element.GetComponent<Panel>();
-            // testing with label
-            if (panel)
-            {
-                if (!panel.IsTestTagActive())
-                    isActiveAllPanel = false;
-                panels.Add(panel);
-            }
-            else
-            {
-                Label label = element.GetComponent<Label>();
-                if (label && label.GetParent() is ElementPanel)
-                {
-                    if (!label.IsActiveHighlightPanel())
-                        isActiveAllLabel = false;
-                    labels.Add(label);
-                }
-            }
-        }
+        //// get selected panel also check status all of them is active test tag
+        //List<Panel> panels = new List<Panel>();
+        //List<Label> labels = new List<Label>();
+        //foreach (SelectAbleElement element in selectedObjs)
+        //{
+        //    Panel panel = element.GetComponent<Panel>();
+        //    // testing with label
+        //    if (panel)
+        //    {
+        //        if (!panel.IsTestTagActive())
+        //            isActiveAllPanel = false;
+        //        panels.Add(panel);
+        //    }
+        //    else
+        //    {
+        //        Label label = element.GetComponent<Label>();
+        //        if (label && label.GetParent() is ElementPanel)
+        //        {
+        //            if (!label.IsActiveHighlightPanel())
+        //                isActiveAllLabel = false;
+        //            labels.Add(label);
+        //        }
+        //    }
+        //}
 
-        // set active test tag of all panels (which selected)
-        foreach (Panel panel in panels)
-            panel.SetActiveTestTag(!isActiveAllPanel);
-        // set active highlight panel of labels 
-        foreach (Label label in labels)
-            label.SetActiveHighlightPanel(!isActiveAllLabel);
+        //// set active test tag of all panels (which selected)
+        //foreach (Panel panel in panels)
+        //    panel.SetActiveTestTag(!isActiveAllPanel);
+        //// set active highlight panel of labels 
+        //foreach (Label label in labels)
+        //    label.SetActiveHighlightPanel(!isActiveAllLabel);
     }
 
     public void OnPressDestroyBtn()
@@ -137,7 +137,7 @@ public class ToolBarMgr : Singleton<ToolBarMgr>
             if (!isSelectedElementLabel)
             {
                 Label label = element.GetComponent<Label>();
-                if (label && label.GetParent() is ElementPanel)
+                if (label && label.Panel is ElementPanel)
                     isSelectedElementLabel = true;
             }
 

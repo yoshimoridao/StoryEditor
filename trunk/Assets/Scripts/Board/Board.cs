@@ -61,8 +61,8 @@ public class Board : MonoBehaviour
     public void OnAddBtnPressed()
     {
         // get generation key from data
-        int genKey = DataMgr.Instance.GetGenKey();
-        Panel genPanel = AddPanel(genKey.ToString());
+        string genKey = DataMgr.Instance.GenNewKey();
+        Panel genPanel = AddPanel(genKey);
 
         if (genPanel)
         {

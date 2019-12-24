@@ -43,16 +43,15 @@ public class TestTag : MonoBehaviour
         if (panel)
         {
             // add || remove test case
-            string panelTitle = panel.Title();
             if (isActive)
             {
                 // add test case in data
-                DataMgr.Instance.AddTestCase(panelTitle);
+                DataMgr.Instance.AddTestCase(panel.Title);
             }
             else
             {
                 // remove test case in data
-                DataMgr.Instance.RemoveTestCase(panelTitle);
+                DataMgr.Instance.RemoveTestCase(panel.Title);
             }
 
             // set color of tag
@@ -61,7 +60,7 @@ public class TestTag : MonoBehaviour
         }
 
         // refresh text of amount of picking up panel
-        ResultBoard resultBoard = CanvasMgr.Instance.GetBoard<ResultBoard>() as ResultBoard;
-        resultBoard.RefreshPickupAmountText();
+        //ResultBoard resultBoard = CanvasMgr.Instance.GetBoard<ResultBoard>() as ResultBoard;
+        //resultBoard.RefreshPickupAmountText();
     }
 }

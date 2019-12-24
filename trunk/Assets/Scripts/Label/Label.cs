@@ -7,6 +7,7 @@ public class Label : MonoBehaviour
 {
     public InputField inputField;
     public ContentSizeFitter contentSize;
+    public bool isTitle;
     //public GameObject highlightPanel;
 
     // prop
@@ -72,7 +73,8 @@ public class Label : MonoBehaviour
         if (image == null)
             image = GetComponent<Image>();
 
-        // set text of label
+        panel = _panel;
+        // set default text of label
         if (_text.Length == 0)
             _text = DataDefine.defaultLabelVar;
         LabelText = _text;
@@ -91,7 +93,12 @@ public class Label : MonoBehaviour
 
         // Label is component or row
         if (panel)
-            panel.OnChildLabelEdited(this);
+        {
+            if (isTitle)
+                panel.OnTitleEdited();
+            else
+                panel.OnChildLabelEdited(this);
+        }
     }
 
     public void OnEditing()
@@ -104,10 +111,6 @@ public class Label : MonoBehaviour
         // to refresh size of content
         contentSize.enabled = false;
         contentSize.enabled = true;
-
-        // Label is component or row
-        if (panel)
-            panel.OnEditing();
     }
 
     public void AddReferalPanel(Panel panel)

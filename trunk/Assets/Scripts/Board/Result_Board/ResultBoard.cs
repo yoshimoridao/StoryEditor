@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ResultBoard : Board
+public class ResultBoard : MonoBehaviour
 {
     public ResultZoneMgr resultZone;
     public Transform randomModePanel;
@@ -28,10 +28,8 @@ public class ResultBoard : Board
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public override void Init()
+    public void Init()
     {
-        base.Init();
-
         if (resultZone)
             resultZone.Init();
 
@@ -50,7 +48,7 @@ public class ResultBoard : Board
         if (isRandom)
         {
             // clone list data
-            List<DataIndex> tmp = new List<DataIndex>(DataMgr.Instance.Stories());
+            List<DataIndex> tmp = new List<DataIndex>(DataMgr.Instance.Stories);
             int turn = Mathf.Min(rdCaseAmount, tmp.Count);
 
             bool isRdIndex = tmp.Count > rdCaseAmount;
@@ -113,10 +111,10 @@ public class ResultBoard : Board
     public void OnClearAllBtnPress()
     {
         // disable all selected tag
-        StoryBoard storyBoard = CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard;
-        storyBoard.ClearAllPickedTestPanels();
-        ElementBoard elementBoard = CanvasMgr.Instance.GetBoard<ElementBoard>() as ElementBoard;
-        elementBoard.ClearAllPickedTestPanels();
+        //StoryBoard storyBoard = CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard;
+        //storyBoard.ClearAllPickedTestPanels();
+        //ElementBoard elementBoard = CanvasMgr.Instance.GetBoard<ElementBoard>() as ElementBoard;
+        //elementBoard.ClearAllPickedTestPanels();
 
         // clear all in data
         DataMgr.Instance.ClearTestCases();

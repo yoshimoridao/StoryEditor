@@ -42,53 +42,53 @@ public class ResultZoneMgr : MonoBehaviour
 
     public void ShowResult(List<string> testCases, bool isRdMode)
     {
-        if (!prefResultRow || !transCont)
-            return;
+        //if (!prefResultRow || !transCont)
+        //    return;
 
-        // generate new rows
-        if (rows.Count < testCases.Count)
-        {
-            int turn = testCases.Count - rows.Count;
-            for (int i = 0; i < turn; i++)
-                rows.Add(Instantiate(prefResultRow, transCont));
-        }
-        // show using row || hide un-used rows
-        else
-        {
-            for (int i = 0; i < rows.Count; i++)
-                rows[i].SetActive(i < testCases.Count);
-        }
+        //// generate new rows
+        //if (rows.Count < testCases.Count)
+        //{
+        //    int turn = testCases.Count - rows.Count;
+        //    for (int i = 0; i < turn; i++)
+        //        rows.Add(Instantiate(prefResultRow, transCont));
+        //}
+        //// show using row || hide un-used rows
+        //else
+        //{
+        //    for (int i = 0; i < rows.Count; i++)
+        //        rows[i].SetActive(i < testCases.Count);
+        //}
 
-        for (int i = 0; i < testCases.Count; i++)
-        {
-            DataIndexer.DataType dataType;
-            DataIndex dataIndex = DataMgr.Instance.GetIndex(testCases[i], out dataType);
-            // get result content of the data index
-            string val = ParseDataIndex(dataIndex, dataType);
+        //for (int i = 0; i < testCases.Count; i++)
+        //{
+        //    DataIndexer.DataType dataType;
+        //    DataIndex dataIndex = DataMgr.Instance.GetIndex(testCases[i], out dataType);
+        //    // get result content of the data index
+        //    string val = ParseDataIndex(dataIndex, dataType);
 
-            // show result of each row
-            val = "<b>" + dataIndex.genKey + "</b>" + " = " + val;
+        //    // show result of each row
+        //    val = "<b>" + dataIndex.genKey + "</b>" + " = " + val;
 
-            if (i < rows.Count)
-            {
-                GameObject row = rows[i];
-                // change content of text
-                row.GetComponentInChildren<Text>().text = val;
+        //    if (i < rows.Count)
+        //    {
+        //        GameObject row = rows[i];
+        //        // change content of text
+        //        row.GetComponentInChildren<Text>().text = val;
 
-                // change icon for result row
-                for (int j = 0; j < row.transform.childCount; j++)
-                {
-                    Image rowImg = row.transform.GetChild(j).GetComponent<Image>();
-                    if (rowImg && rdResultImg && pickingResultImg)
-                    {
-                        rowImg.sprite = isRdMode ? rdResultImg : pickingResultImg;
-                        break;
-                    }
-                }
-            }
-        }
+        //        // change icon for result row
+        //        for (int j = 0; j < row.transform.childCount; j++)
+        //        {
+        //            Image rowImg = row.transform.GetChild(j).GetComponent<Image>();
+        //            if (rowImg && rdResultImg && pickingResultImg)
+        //            {
+        //                rowImg.sprite = isRdMode ? rdResultImg : pickingResultImg;
+        //                break;
+        //            }
+        //        }
+        //    }
+        //}
 
-        CanvasMgr.Instance.RefreshCanvas();
+        //CanvasMgr.Instance.RefreshCanvas();
     }
 
     // ========================================= PRIVATE FUNCS =========================================

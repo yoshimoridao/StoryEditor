@@ -361,7 +361,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1025699647}
   m_HandleRect: {fileID: 1025699645}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -615,7 +615,7 @@ PrefabInstance:
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 36.36352
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
@@ -2867,7 +2867,7 @@ PrefabInstance:
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 36.36352
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
@@ -4720,7 +4720,6 @@ MonoBehaviour:
   lBoards:
   - {fileID: 546644972}
   - {fileID: 2097113356}
-  - {fileID: 1738704854}
 --- !u!114 &502606029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4733,20 +4732,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 588984f3a9ebfea4384809ee3163a01a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dataStorage:
-    origin:
-    - 
-    - 
-    - 
-    - 
-    - 
-    - 
-    - 
-    - 
-    - 
-  dataIndexer:
-    elements: []
-    stories: []
 --- !u!114 &502606030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4977,7 +4962,6 @@ MonoBehaviour:
   boardType: 0
   transPanelCont: {fileID: 1676381801}
   transPlusPanel: {fileID: 5597673473352772601}
-  panels: []
 --- !u!1 &557745172
 GameObject:
   m_ObjectHideFlags: 0
@@ -5325,7 +5309,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 966579773}
   m_HandleRect: {fileID: 966579772}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6756,7 +6740,7 @@ PrefabInstance:
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 36.36352
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
@@ -9032,7 +9016,7 @@ PrefabInstance:
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 36.36352
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
@@ -11629,7 +11613,7 @@ PrefabInstance:
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 36.36352
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
@@ -13293,7 +13277,7 @@ PrefabInstance:
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 36.36352
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
@@ -14858,7 +14842,7 @@ PrefabInstance:
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 36.36352
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5597673473547447729, guid: 6406eeb89933f8241ba0e42623d891f6,
         type: 3}
@@ -16567,7 +16551,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82e696d51a65aeb4e9494d3d8888b381, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardType: 3
   resultZone: {fileID: 1012483976}
   randomModePanel: {fileID: 2111448636}
   rdCaseAmountText: {fileID: 1545949858}
@@ -16691,7 +16674,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 832994540}
   m_HandleRect: {fileID: 832994539}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -17507,7 +17490,6 @@ MonoBehaviour:
   boardType: 1
   transPanelCont: {fileID: 794621803}
   transPlusPanel: {fileID: 1383528007}
-  panels: []
 --- !u!114 &2097113357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17830,6 +17812,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: result_row
+      objectReference: {fileID: 0}
+    - target: {fileID: 5369451542103254162, guid: 6f79ac700a1ef2f48a37971768719a17,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5479287318101511464, guid: 6f79ac700a1ef2f48a37971768719a17,
         type: 3}

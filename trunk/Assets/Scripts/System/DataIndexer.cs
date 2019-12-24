@@ -8,7 +8,8 @@ using System.IO;
 public class DataIndexer
 {
     public enum DataType { Element, Story, Count };
-    public int genKey = 0;
+    [HideInInspector]
+    public int genKey = -1;
     [SerializeField]
     public List<DataIndex> elements = new List<DataIndex>();
     [SerializeField]
@@ -53,15 +54,15 @@ public class DataIndexer
         Save();
     }
 
-    public void ReplaceTitle(DataType _type, string _oldTitle, string _newTitle)
+    public void ReplaceTitle(DataType _type, string _key, string _title)
     {
         List<DataIndex> datas = GetDatas(_type);
 
-        int findId = datas.FindIndex(x => x.genKey == _oldTitle);
+        int findId = datas.FindIndex(x => x.genKey == _key);
         if (findId != -1 && findId < datas.Count)
         {
             // replace key of the index
-            datas[findId].genKey = _newTitle;
+            datas[findId].title = _title;
         }
 
         // export save file
@@ -198,6 +199,7 @@ public class DataIndexer
         if (content.Length > 0)
         {
             DataIndexer newData = JsonUtility.FromJson<DataIndexer>(content);
+            genKey = newData.genKey;
             elements = newData.elements;
             stories = newData.stories;
         }
@@ -205,7 +207,11 @@ public class DataIndexer
 
     public void Save()
     {
+#if (IN_UNITY_EDITOR)
+        string strOutput = JsonUtility.ToJson(this, true);
+#else
         string strOutput = JsonUtility.ToJson(this);
+#endif
         Debug.Log("Save Indexer = " + strOutput);
 
 #if (IN_UNITY_EDITOR)

@@ -34,6 +34,8 @@ public class ElementBoard : Board
             // create label elements
             if (panel)
             {
+                panel.Title = dataIndex.title;
+                panel.Color = (ColorBar.ColorType)dataIndex.colorId;
                 for (int j = 0; j < dataIndex.elements.Count; j++)
                 {
                     string var = dataIndex.elements[j];
@@ -41,6 +43,9 @@ public class ElementBoard : Board
                 }
             }
         }
+
+        // refresh canvas
+        CanvasMgr.Instance.RefreshCanvas();
     }
 
     public override Panel AddPanel(string _genKey)
@@ -60,6 +65,7 @@ public class ElementBoard : Board
             // set index of adding element panel as last child
             if (transPlusPanel)
                 transPlusPanel.transform.SetAsLastSibling();
+
             return panel;
         }
 

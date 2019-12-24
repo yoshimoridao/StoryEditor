@@ -311,9 +311,8 @@ public class CursorMgr : Singleton<CursorMgr>
         if (dragPanel)
         {
             GameObject catchObj = null;
-
             // draging from a panel to panel
-            if (IsHoverObjs(DataDefine.tag_board_story, DataDefine.tag_board_element) && IsHoverObjs(out catchObj, DataDefine.tag_panel_common))
+            if (IsHoverObjs(out catchObj, DataDefine.tag_panel_common))
             {
                 Panel hoverPanel = catchObj.GetComponent<Panel>();
                 if (hoverPanel)
@@ -322,50 +321,16 @@ public class CursorMgr : Singleton<CursorMgr>
                     {
                         // for link function
                         case DragBehavior.CONNECT:
-                            hoverPanel.AddLinkLabel(dragingObj.GetComponent<Panel>());
+                            string labelVal = "#" + dragPanel.Key + "#";
+                            hoverPanel.AddLabel(labelVal);
+                            // save
+                            DataMgr.Instance.AddElement(hoverPanel.DataType, hoverPanel.Key, labelVal);
+                            // refresh canvas
+                            CanvasMgr.Instance.RefreshCanvas();
                             break;
                     }
                 }
             }
-
-            //if (dragPanel.IsStoryElement())
-            //{
-            //}
-            //else
-            //{
-            //    // draging from an element's panel to story's panel
-            //    if (IsHoverObjs(out catchObj, DataDefine.tag_panel_common, DataDefine.tag_board_story))
-            //    {
-            //        CommonPanel hoverPanel = catchObj.GetComponent<CommonPanel>();
-            //        if (hoverPanel && hoverPanel.IsStoryElement())
-            //        {
-            //            switch (dragBehavior)
-            //            {
-            //                // for link function
-            //                case DragBehavior.CONNECT:
-            //                    hoverPanel.AddLinkLabel(dragingObj.GetComponent<CommonPanel>());
-            //                    break;
-            //            }
-            //        }
-            //    }
-            //    //// draging from an element's panel to label's panel
-            //    //if (IsHoverObjs(out catchObj, DataDefine.tag_label_input, DataDefine.tag_board_element))
-            //    //{
-            //    //    InputLabel catchLabel = catchObj.GetComponent<InputLabel>();
-            //    //    if (catchLabel)
-            //    //    {
-            //    //        catchLabel.AddReferPanel(dragPanel);
-            //    //    }
-            //    //}
-            //}
-
-
-            // handle draging element to result window
-            //else if (IsHoverObjs(out catchObj, DataDefine.tag_board_result))
-            //{
-            //    if (catchObj.GetComponent<OriginBoard>() && dragingObj.GetComponent<CommonPanel>())
-            //        catchObj.GetComponent<OriginBoard>().ShowResult(dragingObj.GetComponent<CommonPanel>());
-            //}
         }
         // process for Label
         else if (dragingObj.GetComponent<Label>())

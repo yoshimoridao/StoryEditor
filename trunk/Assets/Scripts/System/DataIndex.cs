@@ -13,7 +13,9 @@ public class DataIndex
     public DataIndex() { }
     public DataIndex(Panel _panel)
     {
-
+        genKey = _panel.Key;
+        title = _panel.Title;
+        colorId = (int)_panel.Color;
     }
 
     // === element ===
