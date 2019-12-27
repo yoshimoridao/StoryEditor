@@ -1,24 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class Label : MonoBehaviour
 {
-    public InputField inputField;
-    public ContentSizeFitter contentSize;
-    public bool isTitle;
-    //public GameObject highlightPanel;
-
     // prop
-    private RectTransform rt;
-    private Image image;
+    protected Image image;
+    protected InputField inputField;
+    protected ContentSizeFitter contentSize;
 
     // var
-    private Panel panel;
-    private ColorBar.ColorType color = ColorBar.ColorType.WHITE;
-
-    private bool isEditing = false;
+    protected bool isEditing = false;
+    protected string pureText;
+    protected Panel panel;
+    protected ColorBar.ColorType color = ColorBar.ColorType.WHITE;
 
     // ========================================= GET/ SET =========================================
     public Panel Panel
@@ -31,10 +28,16 @@ public class Label : MonoBehaviour
         }
     }
 
-    public string LabelText
+    public virtual string PureText
     {
-        get { return inputField.text; }
-        set { inputField.text = value; }
+        get { return pureText; }
+        set { pureText = value; }
+    }
+
+    public Image ImgLabel
+    {
+        get { return image; }
+        set { image = value; }
     }
 
     public Text GetTextObject()
@@ -53,12 +56,14 @@ public class Label : MonoBehaviour
     }
 
     // ========================================= UNITY FUNCS =========================================
-    void Start()
+    public void Start()
     {
-        if (rt == null)
-            rt = GetComponent<RectTransform>();
         if (image == null)
             image = GetComponent<Image>();
+        if (inputField == null)
+            inputField = GetComponent<InputField>();
+        if (contentSize == null)
+            contentSize = GetComponent<ContentSizeFitter>();
     }
 
     public void Update()
@@ -66,39 +71,31 @@ public class Label : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public void Init(Panel _panel, string _text)
+    public virtual void Init(Panel _panel, string _text)
     {
-        if (rt == null)
-            rt = GetComponent<RectTransform>();
         if (image == null)
             image = GetComponent<Image>();
+        if (inputField == null)
+            inputField = GetComponent<InputField>();
+        if (contentSize == null)
+            contentSize = GetComponent<ContentSizeFitter>();
 
         panel = _panel;
         // set default text of label
         if (_text.Length == 0)
             _text = DataDefine.defaultLabelVar;
-        LabelText = _text;
+
+        PureText = _text;
     }
 
-    public void OnEditDone()
+    public virtual void OnEditDone()
     {
         if (!isEditing)
             return;
 
         isEditing = false;
 
-        // to refresh size of content
-        contentSize.enabled = false;
-        contentSize.enabled = true;
-
-        // Label is component or row
-        if (panel)
-        {
-            if (isTitle)
-                panel.OnTitleEdited();
-            else
-                panel.OnChildLabelEdited(this);
-        }
+        RefreshContentSize();
     }
 
     public void OnEditing()
@@ -106,30 +103,10 @@ public class Label : MonoBehaviour
         if (!contentSize)
             return;
 
-        isEditing = true;
+        if (!isEditing)
+            isEditing = true;
 
-        // to refresh size of content
-        contentSize.enabled = false;
-        contentSize.enabled = true;
-    }
-
-    public void AddReferalPanel(Panel panel)
-    {
-        //ColorBar.ColorType panelColor = panel.GetColorType();
-
-        //string panelTitle = panel.Title();
-        //// append link tag to content of text
-        //string val = Text();
-        //val += " " + TextUtil.GetOpenColorTag(panelColor) + panelTitle + TextUtil.GetCloseColorTag();
-        //SetText(val);
-
-        //// store referral panel
-        //referElementNames.Add(panelTitle);
-        //referElements.Add(panel);
-
-        //// callback to parent -> save val
-        //if (this.panel)
-        //    (this.panel as Panel).OnChildLabelEdited(this);
+        RefreshContentSize();
     }
 
     public virtual void SelfDestroy()
@@ -139,29 +116,11 @@ public class Label : MonoBehaviour
         Destroy(gameObject);
     }
 
-    //public bool IsActiveHighlightPanel()
-    //{
-    //    if (highlightPanel)
-    //        return highlightPanel.gameObject.active;
-
-    //    return false;
-    //}
-
-    //public void SetActiveHighlightPanel(bool isActive)
-    //{
-    //    if (!highlightPanel)
-    //        return;
-
-    //    // set active highlight panel
-    //    highlightPanel.gameObject.SetActive(isActive);
-
-    //    // storing for parent panel
-    //    if (panelParent && panelParent is ElementPanel)
-    //    {
-    //        if (isActive)
-    //            (panelParent as ElementPanel).AddTestingLabel(this);
-    //        else
-    //            (panelParent as ElementPanel).RemoveTestingLabel(this);
-    //    }
-    //}
+    // ========================================= PROTECTED FUNCS =========================================
+    protected void RefreshContentSize()
+    {
+        // to refresh size of content
+        contentSize.enabled = false;
+        contentSize.enabled = true;
+    }
 }

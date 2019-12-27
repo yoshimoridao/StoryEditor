@@ -29,18 +29,28 @@ public class ElementBoard : Board
         {
             DataIndex dataIndex = dataIndexes[i];
             // create panel
-            Panel panel = AddPanel(dataIndex.genKey) as Panel;
+            ElementPanel panel = AddPanel(dataIndex.genKey) as ElementPanel;
 
             // create label elements
             if (panel)
             {
-                panel.Title = dataIndex.title;
-                panel.Color = (ColorBar.ColorType)dataIndex.colorId;
+                panel.Title = dataIndex.title;                          // load title
+                panel.Color = (ColorBar.ColorType)dataIndex.colorId;    // load color
+                panel.IsTesting = dataIndex.isTest;                     // load testing flag
+
+                // gen labels
                 for (int j = 0; j < dataIndex.elements.Count; j++)
                 {
                     string var = dataIndex.elements[j];
-                    panel.AddLabel(var);
+                    Label genLabel = panel.AddLabel(var);
+
+                    // store testing elements
+                    if (dataIndex.testElements.Contains(j) && genLabel && genLabel is ElementLabel)
+                        panel.AddTestLabel(genLabel as ElementLabel);
                 }
+
+                // set active highlight for all testing labels
+                panel.ActiveTestLabels();
             }
         }
 

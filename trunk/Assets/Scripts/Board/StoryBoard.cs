@@ -34,8 +34,11 @@ public class StoryBoard : Board
             // create label elements
             if (panel)
             {
-                panel.Title = dataIndex.title;
-                panel.Color = (ColorBar.ColorType)dataIndex.colorId;
+                panel.Title = dataIndex.title;                          // load title
+                panel.Color = (ColorBar.ColorType)dataIndex.colorId;    // load color
+                panel.IsTesting = dataIndex.isTest;                     // load testing flag
+
+                // gen labels
                 for (int j = 0; j < dataIndex.elements.Count; j++)
                 {
                     string var = dataIndex.elements[j];

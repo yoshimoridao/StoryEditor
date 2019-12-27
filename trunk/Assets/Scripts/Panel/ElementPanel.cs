@@ -5,10 +5,9 @@ using UnityEngine.UI;
 
 public class ElementPanel : Panel
 {
-    //private List<Label> testingLabels = new List<Label>();
+    protected List<ElementLabel> testLabels = new List<ElementLabel>();
 
     // ========================================= GET/ SET =========================================
-    //public List<Label> GetTestingLabels() { return testingLabels; }
 
     // ========================================= UNITY FUNCS =========================================
     public void Start()
@@ -24,6 +23,9 @@ public class ElementPanel : Panel
     // ========================================= PUBLIC FUNCS =========================================
     public override void Init(Board _board, string _key, string _title)
     {
+        // load prefab label
+        prefLabel = Resources.Load<GameObject>(DataDefine.pref_path_element_label);
+
         base.Init(_board, _key, _title);
 
         // Load (color, index,...)
@@ -36,4 +38,60 @@ public class ElementPanel : Panel
         // refresh position of add button
         RefreshAddButtonPos();
     }
+
+    public override Label AddLabel(string _var)
+    {
+        Label genLabel = base.AddLabel(_var);
+        if (genLabel && genLabel is ElementLabel)
+            (genLabel as ElementLabel).actOnActive += OnLabelActiveTest;
+
+        return genLabel;
+    }
+
+    public void OnLabelActiveTest(ElementLabel _label)
+    {
+        if (_label.IsTesting)
+            AddTestLabel(_label);
+        else
+            RemoveTestLabel(_label);
+
+        // set active highlight for all testing labels
+        ActiveTestLabels();
+
+        // find all index of testing labels
+        List<int> tmpTestIds = new List<int>();
+        for (int i = 0; i < testLabels.Count; i++)
+        {
+            int findId = labels.FindIndex(x => x.gameObject == testLabels[i].gameObject);
+            if (findId != -1)
+                tmpTestIds.Add(findId);
+        }
+
+        if (tmpTestIds.Count > 0)
+            tmpTestIds.Sort();
+
+        // save index of testing labels
+        DataMgr.Instance.ReplaceTestingIndex(dataType, Key, tmpTestIds);
+    }
+
+    public void ActiveTestLabels()
+    {
+        foreach (ElementLabel eLabel in labels)
+            eLabel.ActiveTesting(testLabels.Contains(eLabel));
+    }
+
+    public void AddTestLabel(ElementLabel _label)
+    {
+        // find label is the child of the panel
+        if (!testLabels.Contains(_label))
+            testLabels.Add(_label);
+    }
+
+    public void RemoveTestLabel(ElementLabel _label)
+    {
+        if (testLabels.Contains(_label))
+            testLabels.Remove(_label);
+    }
+
+    // ========================================= PRIVATE FUNCS =========================================
 }

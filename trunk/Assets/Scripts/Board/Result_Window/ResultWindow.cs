@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ResultBoard : MonoBehaviour
+public class ResultWindow : Singleton<ResultWindow>
 {
     public ResultZoneMgr resultZone;
     public Transform randomModePanel;
@@ -17,6 +17,11 @@ public class ResultBoard : MonoBehaviour
     private bool isRandom = true;
 
     // ========================================= UNITY FUNCS =========================================
+    private void Awake()
+    {
+        instance = this;
+    }
+
     void Start()
     {
 
@@ -73,10 +78,6 @@ public class ResultBoard : MonoBehaviour
         resultZone.ShowResult(testCases, isRandom);
     }
 
-    // temp
-    public void ShowResult(string text) { }
-    // end temp
-
     public void RefreshPickupAmountText()
     {
         // update text
@@ -85,10 +86,10 @@ public class ResultBoard : MonoBehaviour
     }
 
     // ====== Event Button ======
-    public void OnSwitchButtonPress()
+    public void OnSwitchButtonPress(bool _isRdMode)
     {
         // default de-active random mode
-        isRandom = !isRandom;
+        isRandom = _isRdMode;
         // active panel
         ActivePanel(isRandom);
     }
@@ -129,8 +130,6 @@ public class ResultBoard : MonoBehaviour
     // ========================================= PRIVATE FUNCS =========================================
     private void ActivePanel(bool isActiveRandom)
     {
-        isRandom = isActiveRandom;
-
         // panel of picking mode
         if (pickingModePanel)
         {

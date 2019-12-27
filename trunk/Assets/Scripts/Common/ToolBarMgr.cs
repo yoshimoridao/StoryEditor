@@ -54,53 +54,63 @@ public class ToolBarMgr : Singleton<ToolBarMgr>
         // set sprite for arrange btn
         if (arrangeBtnImg && arrangeBtnImg && connectModeImg)
             arrangeBtnImg.sprite = cursorMgr.DragMode == CursorMgr.DragBehavior.ARRANGE ? arrangeModeImg : connectModeImg;
-
-        Debug.Log(cursorMgr.DragMode);
     }
 
     public void OnPressTestingBtn()
     {
-        //List<SelectAbleElement> selectedObjs = CursorMgr.Instance.GetSelectedObjs();
-        //bool isActiveAllPanel = true;
-        //bool isActiveAllLabel = true;
+        List<SelectAbleElement> selectedObjs = CursorMgr.Instance.GetSelectedObjs();
+        bool alreadyActiveAll = true;
 
-        //// get selected panel also check status all of them is active test tag
-        //List<Panel> panels = new List<Panel>();
-        //List<Label> labels = new List<Label>();
-        //foreach (SelectAbleElement element in selectedObjs)
-        //{
-        //    Panel panel = element.GetComponent<Panel>();
-        //    // testing with label
-        //    if (panel)
-        //    {
-        //        if (!panel.IsTestTagActive())
-        //            isActiveAllPanel = false;
-        //        panels.Add(panel);
-        //    }
-        //    else
-        //    {
-        //        Label label = element.GetComponent<Label>();
-        //        if (label && label.GetParent() is ElementPanel)
-        //        {
-        //            if (!label.IsActiveHighlightPanel())
-        //                isActiveAllLabel = false;
-        //            labels.Add(label);
-        //        }
-        //    }
-        //}
+        // get selected panel also check status all of them is active test tag
+        List<Panel> panels = new List<Panel>();
+        List<ElementLabel> labels = new List<ElementLabel>();
+        foreach (SelectAbleElement element in selectedObjs)
+        {
+            Panel panel = element.GetComponent<Panel>();
+            // testing with label
+            if (panel)
+            {
+                if (!panel.IsTesting)
+                    alreadyActiveAll = false;
+                panels.Add(panel);
+            }
 
-        //// set active test tag of all panels (which selected)
-        //foreach (Panel panel in panels)
-        //    panel.SetActiveTestTag(!isActiveAllPanel);
-        //// set active highlight panel of labels 
-        //foreach (Label label in labels)
-        //    label.SetActiveHighlightPanel(!isActiveAllLabel);
+            ElementLabel label = element.GetComponent<ElementLabel>();
+            if (label)
+            {
+                if (!label.IsTesting)
+                    alreadyActiveAll = false;
+                labels.Add(label);
+            }
+        }
+
+        // set active test tag of all panels (which selected)
+        foreach (Panel panel in panels)
+        {
+            panel.IsTesting = !alreadyActiveAll;
+            // save testing panel
+            DataMgr.Instance.SetTestPanel(panel.DataType, panel.Key, panel.IsTesting);
+        }
+        // set active highlight panel of labels 
+        foreach (ElementLabel label in labels)
+            label.IsTesting = !alreadyActiveAll;
     }
 
     public void OnPressDestroyBtn()
     {
         // active destroy mode
-        CanvasMgr.Instance.DestroyElements();
+        List<SelectAbleElement> elements = CursorMgr.Instance.GetSelectedObjs();
+        for (int i = 0; i < elements.Count; i++)
+        {
+            SelectAbleElement element = elements[i];
+            if (element && element.GetComponent<Panel>())
+                element.GetComponent<Panel>().SelfDestroy();
+            if (element && element.GetComponent<Label>())
+                element.GetComponent<Label>().SelfDestroy();
+        }
+
+        // clear list
+        elements.Clear();
     }
 
     public void OnPressColorBtn()

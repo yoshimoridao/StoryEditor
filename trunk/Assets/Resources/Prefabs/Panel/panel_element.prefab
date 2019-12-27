@@ -190,7 +190,6 @@ GameObject:
   - component: {fileID: 1448955157034001094}
   - component: {fileID: 184255500649222548}
   - component: {fileID: 1838452279307427394}
-  - component: {fileID: 3487248273614528819}
   m_Layer: 5
   m_Name: test_tag
   m_TagString: Untagged
@@ -239,7 +238,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.38679248, g: 0.38679248, b: 0.38679248, a: 1}
+  m_Color: {r: 0, g: 0, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -297,9 +296,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3487248273614528819}
-        m_MethodName: OnTestTagPress
-        m_Mode: 1
+      - m_Target: {fileID: 3691081104722009737}
+        m_MethodName: set_IsTesting
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -308,21 +307,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &3487248273614528819
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2558818997201781559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff752e91d560d294183bb2cea7eea942, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enableColor: {r: 0, g: 0, b: 1, a: 1}
-  disableColor: {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 1}
-  panel: {fileID: 3691081104722009737}
 --- !u!1 &5597673472452484925
 GameObject:
   m_ObjectHideFlags: 0
@@ -582,7 +566,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ccafe529f489c94791da57269fbfd6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  titleLabel: {fileID: 477431950466056277}
+  titleLabel: {fileID: 6283661336439146122}
 --- !u!114 &1619915976442640197
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -609,8 +593,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   addBtn: {fileID: 5597673472452484927}
-  titleLabel: {fileID: 477431950466056277}
+  titleLabel: {fileID: 6283661336439146122}
   transLabelCont: {fileID: 5597673473371183034}
+  testTag: {fileID: 2558818997201781559}
 --- !u!1 &5597673473371183035
 GameObject:
   m_ObjectHideFlags: 0
@@ -825,7 +810,7 @@ GameObject:
   - component: {fileID: 5643977746212386288}
   - component: {fileID: 5643977746212386289}
   - component: {fileID: 5643977746212386290}
-  - component: {fileID: 477431950466056277}
+  - component: {fileID: 6283661336439146122}
   m_Layer: 5
   m_Name: title
   m_TagString: Untagged
@@ -942,7 +927,7 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 477431950466056277}
+      - m_Target: {fileID: 6283661336439146122}
         m_MethodName: OnEditDone
         m_Mode: 1
         m_Arguments:
@@ -956,7 +941,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 477431950466056277}
+      - m_Target: {fileID: 6283661336439146122}
         m_MethodName: OnEditing
         m_Mode: 1
         m_Arguments:
@@ -988,7 +973,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
---- !u!114 &477431950466056277
+--- !u!114 &6283661336439146122
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -997,12 +982,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5643977746212386285}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1e71bcf8f31e25419db8a5fcb65201e, type: 3}
+  m_Script: {fileID: 11500000, guid: 1c9cd4c6087f61841b4402e2ff19e707, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputField: {fileID: 5643977746212386289}
-  contentSize: {fileID: 5643977746212386290}
-  isTitle: 1
 --- !u!1 &6437260227752082621
 GameObject:
   m_ObjectHideFlags: 0

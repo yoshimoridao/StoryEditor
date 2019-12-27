@@ -30,10 +30,8 @@ public class AutoScrollZone : MonoBehaviour
 
                 if (scrollBar && CursorMgr.Instance.IsHoverObjs(gameObject.tag))
                 {
-                    Debug.Log("Before = " + scrollBar.value);
                     scrollBar.value += (Time.deltaTime * sensitivity * (sensitivityPerUnit / content.childCount)) * (isTopZone ? 1 : -1);
                     Mathf.Clamp(scrollBar.value, 0, 1.0f);
-                    Debug.Log("After = " + scrollBar.value);
                 }
             }
             else

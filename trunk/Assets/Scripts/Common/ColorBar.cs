@@ -36,8 +36,13 @@ public class ColorBar : Singleton<ColorBar>
 
     public void OnColorButtonPress(ColorBtn colorBtn)
     {
+        // set color for each of panels
         foreach (Panel panel in referralPanels)
+        {
             panel.Color = colorBtn.type;
+            // save color
+            DataMgr.Instance.SetColorIndexData(panel.DataType, panel.Key, panel.Color);
+        }
 
         //// de-active color bar
         //SetActiveGameObject(false);

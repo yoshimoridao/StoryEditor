@@ -155,7 +155,7 @@ public class HighlighLabelMgr : MonoBehaviour
             // get all of label's text
             List<string> labels = new List<string>();
             foreach (Label l in referLabel.Panel.Labels)
-                labels.Add(l.LabelText);
+                labels.Add(l.PureText);
 
             // store data
             DataMgr.Instance.ReplaceElements(referLabel.Panel.DataType, referLabel.Panel.Key, labels);

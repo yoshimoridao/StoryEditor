@@ -79,22 +79,6 @@ public class CanvasMgr : Singleton<CanvasMgr>
         refreshCanvasDt.x = refreshCanvasDt.y;
     }
 
-    public void DestroyElements()
-    {
-        List<SelectAbleElement> elements = CursorMgr.Instance.GetSelectedObjs();
-        for (int i = 0; i < elements.Count; i++)
-        {
-            SelectAbleElement element = elements[i];
-            if (element && element.GetComponent<Panel>())
-                element.GetComponent<Panel>().SelfDestroy();
-            if (element && element.GetComponent<Label>())
-                element.GetComponent<Label>().SelfDestroy();
-        }
-
-        // clear list
-        elements.Clear();
-    }
-
     public void OnExitBtnPress()
     {
         Application.Quit();

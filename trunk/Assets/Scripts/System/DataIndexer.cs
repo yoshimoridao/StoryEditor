@@ -19,11 +19,18 @@ public class DataIndexer
     public DataIndexer() { }
 
     // ====== data ======
-    public DataIndex GetData(DataType _type, string _key)
+    public DataIndex GetData(DataType _type, string _key, bool _isFindByTitle = false)
     {
         List<DataIndex> datas = GetDatas(_type);
 
-        int findId = datas.FindIndex(x => x.genKey == _key);
+        int findId = -1;
+        // find data by title
+        if (_isFindByTitle)
+            findId = datas.FindIndex(x => x.title == _key);
+        // find data by generated key
+        else
+            findId = datas.FindIndex(x => x.genKey == _key);
+
         if (findId != -1 && findId < datas.Count)
             return datas[findId];
 
@@ -62,7 +69,7 @@ public class DataIndexer
         if (findId != -1 && findId < datas.Count)
         {
             // replace key of the index
-            datas[findId].title = _title;
+            datas[findId].Title = _title;
         }
 
         // export save file
@@ -92,6 +99,18 @@ public class DataIndexer
         Save();
     }
 
+    public DataIndex FindData(string _key, bool _isFindByTitle)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            DataIndex result = GetData(i == 0 ? DataType.Element : DataType.Story, _key, _isFindByTitle);
+            if (result != null)
+                return result;
+        }
+
+        return null;
+    }
+
     public bool IsContain(DataType _type, string _key)
     {
         List<DataIndex> datas = GetDatas(_type);
@@ -101,6 +120,28 @@ public class DataIndexer
             return true;
 
         return false;
+    }
+
+    public void SetColor(DataType _type, string _key, ColorBar.ColorType _color)
+    {
+        DataIndex dataIndex = GetData(_type, _key);
+
+        if (dataIndex != null)
+            dataIndex.Color = (int)_color;
+
+        // export save file
+        Save();
+    }
+
+    public void SetTestPanel(DataType _type, string _key, bool _isTest)
+    {
+        DataIndex dataIndex = GetData(_type, _key);
+
+        if (dataIndex != null)
+            dataIndex.isTest = _isTest;
+
+        // export save file
+        Save();
     }
 
     // ====== element ======
@@ -146,30 +187,19 @@ public class DataIndexer
         Save();
     }
 
-    public void SetColor(DataType _type, string _key, ColorBar.ColorType _color)
+    public void ReplaceTestElements(DataType _type, string _key, List<int> _testElements)
     {
         DataIndex dataIndex = GetData(_type, _key);
 
         if (dataIndex != null)
-            dataIndex.colorId = (int)_color;
+        {
+            dataIndex.testElements.Clear();
+            dataIndex.testElements = new List<int>(_testElements);
+        }
 
         // export save file
         Save();
     }
-
-    //public void ReplaceTestingIndex(DataType type, string indexKey, List<int> testingIndex)
-    //{
-    //    DataIndex dataIndex = GetData(type, indexKey);
-
-    //    if (dataIndex != null)
-    //    {
-    //        dataIndex.testingIndex.Clear();
-    //        dataIndex.testingIndex = testingIndex;
-    //    }
-
-    //    // export save file
-    //    Save();
-    //}
 
     // ====== util ======
     public void Load()

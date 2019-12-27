@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 [System.Serializable]
 public class DataIndex
@@ -8,7 +9,31 @@ public class DataIndex
     public string genKey;
     public string title;
     public int colorId;
+    public bool isTest;
     public List<string> elements = new List<string>();
+    public List<int> testElements = new List<int>();
+
+    public Action actModifyData;
+
+    public string Title
+    {
+        get { return title; }
+        set
+        {
+            title = value;
+            actModifyData();
+        }
+    }
+
+    public int Color
+    {
+        get { return colorId; }
+        set
+        {
+            colorId = value;
+            actModifyData();
+        }
+    }
 
     public DataIndex() { }
     public DataIndex(Panel _panel)

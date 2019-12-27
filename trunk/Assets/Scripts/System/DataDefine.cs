@@ -8,7 +8,8 @@ public class DataDefine
     public static string pref_path_storyPanel           = "Prefabs/Panel/panel_story";
     public static string pref_path_elementPanel         = "Prefabs/Panel/panel_element";
 
-    public static string pref_path_label                = "Prefabs/Label/label";
+    public static string pref_path_story_label          = "Prefabs/Label/story_label";
+    public static string pref_path_element_label        = "Prefabs/Label/element_label";
     public static string pref_path_rowLabel             = "Prefabs/row_label";
     public static string pref_path_result_row           = "Prefabs/result_row";
     

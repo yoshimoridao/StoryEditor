@@ -4,7 +4,10 @@ using UnityEngine;
 
 public static class TextUtil
 {
-    public static string GetOpenColorTag(ColorBar.ColorType colorType)
+    public static string OpenBoldTag() { return "<b>"; }
+    public static string CloseBoldTag() { return "</b>"; }
+
+    public static string OpenColorTag(ColorBar.ColorType colorType)
     {
         string val = "<color=";
         switch (colorType)
@@ -29,8 +32,5 @@ public static class TextUtil
         return val;
     }
 
-    public static string GetCloseColorTag()
-    {
-        return "</color>";
-    }
+    public static string CloseColorTag() { return "</color>"; }
 }

@@ -1,65 +1,79 @@
 {
-    "genKey": 11,
+    "genKey": 10,
     "elements": [
         {
-            "genKey": "2",
-            "title": "e1",
-            "colorId": 0,
+            "genKey": "0",
+            "title": "e12123",
+            "colorId": 6,
+            "isTest": false,
             "elements": [
-                "asdfasd",
-                "2",
-                "3",
-                "#e3#"
+                "#2# #0#",
+                "a",
+                "b"
+            ],
+            "testElements": [
+                0,
+                2
             ]
         },
         {
-            "genKey": "11",
+            "genKey": "7",
+            "title": "e232323",
+            "colorId": 7,
+            "isTest": false,
+            "elements": [
+                "#1#",
+                "sadfasdfsdfsdsfaejfawioefjadf"
+            ],
+            "testElements": [
+                0
+            ]
+        },
+        {
+            "genKey": "9",
             "title": "e3",
             "colorId": 0,
+            "isTest": true,
             "elements": [
-                "a",
-                "b",
-                "#2#",
-                "#2#"
-            ]
-        },
-        {
-            "genKey": "10",
-            "title": "e2",
-            "colorId": 0,
-            "elements": [
-                "#2# asdfj #e1# ",
-                "aewfwae",
-                "sadfawfwe",
-                "#2#",
-                "#2#",
-                "#2#"
-            ]
+                "#7# i'm pro"
+            ],
+            "testElements": []
         }
     ],
     "stories": [
         {
             "genKey": "1",
-            "title": "s1",
-            "colorId": 0,
-            "elements": []
+            "title": "story abc",
+            "colorId": 2,
+            "isTest": false,
+            "elements": [
+                "#7# #0#",
+                "---"
+            ],
+            "testElements": []
         },
         {
-            "genKey": "3",
-            "title": "s23",
+            "genKey": "6",
+            "title": "story",
             "colorId": 0,
+            "isTest": true,
             "elements": [
-                "abc",
+                "a",
                 "b",
                 "c",
-                "---"
-            ]
+                "#7#"
+            ],
+            "testElements": []
         },
         {
-            "genKey": "4",
-            "title": "s34",
+            "genKey": "10",
+            "title": "story",
             "colorId": 0,
-            "elements": []
+            "isTest": false,
+            "elements": [
+                "---"
+            ],
+            "testElements": []
         }
     ]
 }

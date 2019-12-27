@@ -166,6 +166,8 @@ public class DataMgr : Singleton<DataMgr>
         ExportTraceryFile();
     }
 
+    public DataIndex FindData(string _key, bool _isFindByTitle) { return dataIndexer.FindData(_key, _isFindByTitle); }
+
     public string GenNewKey()
     {
         dataIndexer.genKey++;
@@ -205,20 +207,19 @@ public class DataMgr : Singleton<DataMgr>
         ExportTraceryFile();
     }
 
-    //public void ReplaceTestingIndex(DataIndexer.DataType type, string indexKey, List<int> testingIndex)
-    //{
-    //    if (!isInitDone)
-    //        return;
-
-    //    dataIndexer.ReplaceTestingIndex(type, indexKey, testingIndex);
-    //}
-
-    public void SetColorIndexData(DataIndexer.DataType type, string indexKey, ColorBar.ColorType colorType)
+    public void ReplaceTestingIndex(DataIndexer.DataType _type, string _key, List<int> _testElements)
     {
-        dataIndexer.SetColor(type, indexKey, colorType);
+        dataIndexer.ReplaceTestElements(_type, _key, _testElements);
+    }
 
-        // export tracery file
-        ExportTraceryFile();
+    public void SetColorIndexData(DataIndexer.DataType _type, string _Key, ColorBar.ColorType _colorType)
+    {
+        dataIndexer.SetColor(_type, _Key, _colorType);
+    }
+
+    public void SetTestPanel(DataIndexer.DataType _type, string _key, bool _isTest)
+    {
+        dataIndexer.SetTestPanel(_type, _key, _isTest);
     }
 
     // ========================================= UNITY FUNCS =========================================

@@ -7,8 +7,9 @@ using UnityEngine.UI;
 public class Panel : MonoBehaviour
 {
     public Button addBtn;
-    public Label titleLabel;
+    public TitleLabel titleLabel;
     public Transform transLabelCont;
+    public GameObject testTag;
 
     protected RectTransform rt;
     protected Image image;
@@ -17,6 +18,7 @@ public class Panel : MonoBehaviour
 
     protected string key;
     protected string title;
+    protected bool isTesting;
     protected ColorBar.ColorType color = ColorBar.ColorType.WHITE;
 
     protected GameObject prefRow;
@@ -42,14 +44,29 @@ public class Panel : MonoBehaviour
         {
             title = value;
             if (titleLabel)
-                titleLabel.LabelText = title;
+                titleLabel.PureText = title;
+        }
+    }
+
+    public bool IsTesting
+    {
+        get { return isTesting; }
+        set
+        {
+            isTesting = value;
+            if (testTag)
+                testTag.gameObject.SetActive(isTesting);
         }
     }
 
     public ColorBar.ColorType Color
     {
         get { return color; }
-        set { color = value; }
+        set
+        {
+            color = value;
+            image.color = ColorBar.Instance.GetColor(color);
+        }
     }
 
     public DataIndexer.DataType DataType
@@ -75,17 +92,6 @@ public class Panel : MonoBehaviour
     public void Update()
     {
         RefreshPanel();
-
-        //// update title
-        //if (title != titleLabel.GetText() && !titleLabel.IsEditing())
-        //{
-        //    string newTitle = titleLabel.GetText();
-        //    // update key of panel in storage
-        //    DataMgr.Instance.ReplaceTitle(dataType, title, newTitle);
-
-        //    // update new key
-        //    title = newTitle;
-        //}
     }
 
     // ========================================= PUBLIC FUNCS =========================================
@@ -106,14 +112,14 @@ public class Panel : MonoBehaviour
 
         // load prefab
         prefRow = Resources.Load<GameObject>(DataDefine.pref_path_rowLabel);
-        prefLabel = Resources.Load<GameObject>(DataDefine.pref_path_label);
 
         // store parent
         this.board = _board;
         // set key
-        key = _key;
+        Key = _key;
         // set title 
-        titleLabel.Init(this, "");  // init default
+        if (titleLabel)
+            titleLabel.Init(this, "");  // init default
         Title = _title;
         // determine data type
         dataType = this is ElementPanel ? DataIndexer.DataType.Element : DataIndexer.DataType.Story;
@@ -123,7 +129,7 @@ public class Panel : MonoBehaviour
         baseWidth = (this.transform as RectTransform).sizeDelta.x - (boardPadding.left + boardPadding.right);
     }
 
-    public Label AddLabel(string _var)
+    public virtual Label AddLabel(string _var)
     {
         if (!prefLabel)
             return null;
@@ -149,7 +155,7 @@ public class Panel : MonoBehaviour
         return null;
     }
 
-    public void RemoveLabel(Label _label)
+    public virtual void RemoveLabel(Label _label)
     {
         int findId = labels.FindIndex(x => x.gameObject == _label.gameObject);
         if (findId != -1)
@@ -174,7 +180,7 @@ public class Panel : MonoBehaviour
         if (labelIndex != -1)
         {
             // replace value of label in storage
-            DataMgr.Instance.ReplaceElement(dataType, Key, labelIndex, _label.LabelText);
+            DataMgr.Instance.ReplaceElement(dataType, Key, labelIndex, _label.PureText);
             // refresh canvas
             CanvasMgr.Instance.RefreshCanvas();
         }
@@ -183,9 +189,12 @@ public class Panel : MonoBehaviour
     public void OnTitleEdited()
     {
         // override new title
-        Title = titleLabel.LabelText;
+        title = titleLabel.PureText;
 
         DataMgr.Instance.ReplaceTitle(dataType, key, Title);
+
+        // refresh canvas
+        CanvasMgr.Instance.RefreshCanvas();
     }
 
     public void OnAddButtonPress()
@@ -195,7 +204,8 @@ public class Panel : MonoBehaviour
         if (genLabel)
         {
             // save
-            DataMgr.Instance.AddElement(dataType, key, genLabel.LabelText);
+            DataMgr.Instance.AddElement(dataType, key, genLabel.PureText);
+
             // refresh canvas
             CanvasMgr.Instance.RefreshCanvas();
         }
@@ -283,57 +293,4 @@ public class Panel : MonoBehaviour
             addBtn.transform.SetSiblingIndex(row.transform.childCount);
         }
     }
-
-
-    //public void AddTestingLabel(Label label)
-    //{
-    //    // find label is the child of the panel
-    //    if (!testingLabels.Contains(label))
-    //        testingLabels.Add(label);
-
-    //    // save testing index
-    //    SaveTestingLabel();
-    //}
-
-    //public void RemoveTestingLabel(Label label)
-    //{
-    //    if (testingLabels.Contains(label))
-    //        testingLabels.Remove(label);
-
-    //    // save testing index
-    //    SaveTestingLabel();
-    //}
-
-    // ========================================= PRIVATE FUNCS =========================================
-    //public void LoadTestingLabel(List<int> testingIndex)
-    //{
-    //    List<Label> labels = Labels();
-    //    for (int i = 0; i < testingIndex.Count; i++)
-    //    {
-    //        int labelId = testingIndex[i];
-    //        if (labelId < labels.Count)
-    //        {
-    //            Label label = labels[labelId];
-    //            // set active highlight for label (also stored the highlight panel)
-    //            label.SetActiveHighlightPanel(true);
-    //        }
-    //    }
-    //}
-
-    //private void SaveTestingLabel()
-    //{
-    //    List<int> testingIndex = new List<int>();
-    //    List<Label> labels = Labels();
-    //    for (int i = 0; i < testingLabels.Count; i++)
-    //    {
-    //        int findId = labels.FindIndex(x => x == testingLabels[i]);
-    //        if (findId != -1)
-    //            testingIndex.Add(findId);
-    //    }
-
-    //    // save testing index
-    //    if (testingIndex.Count > 0)
-    //        testingIndex.Sort();
-    //    DataMgr.Instance.ReplaceTestingIndex(dataType, Title(), testingIndex);
-    //}
 }

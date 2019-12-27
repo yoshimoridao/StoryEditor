@@ -21,6 +21,9 @@ public class StoryPanel : Panel
     // ========================================= PUBLIC FUNCS =========================================
     public override void Init(Board _board, string _key, string _title)
     {
+        // load prefab label
+        prefLabel = Resources.Load<GameObject>(DataDefine.pref_path_story_label);
+
         base.Init(_board, _key, _title);
 
         // Load (color, index,...)

@@ -1,1 +1,1 @@
-{"origin":["#s1#","#s23#","#s34#"],"s1":[""],"s23":["abcbc---"],"s34":[""],"e1":["asdfasd","2","3","#e3#"],"e3":["a","b","#2#","#2#"],"e2":["#2# asdfj #e1# ","aewfwae","sadfawfwe","#2#","#2#","#2#"]}
+{"origin":["#story abc#","#story#","#story#"],"story abc":["#7# #0#---"],"story":["abc#7#"],"story":["---"],"e12123":["#2# #0#","a","b"],"e232323":["#1#","sadfasdfsdfsdsfaejfawioefjadf"],"e3":["#7# i'm pro"]}
