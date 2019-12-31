@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using System;
 
 [System.Serializable]
 public class DataMgr : Singleton<DataMgr>
@@ -26,44 +27,16 @@ public class DataMgr : Singleton<DataMgr>
     {
         public List<string> origin = new List<string>();
 
-        private List<string> testCaseIds = new List<string>();
-
         public DataStorage()
         {
             ClearNullVals();
         }
 
-        // --- pick test case ---
-        public List<string> TestCases
-        {
-            get { return testCaseIds; }
-        }
-
-        public void AddTestCase(string _key)
-        {
-            if (_key.Length == 0)
-                return;
-
-            if (!testCaseIds.Contains(_key))
-                testCaseIds.Add(_key);
-        }
-
-        public void RemoveTestCase(string _key)
-        {
-            if (testCaseIds.Contains(_key))
-                testCaseIds.Remove(_key);
-        }
-
-        public void ClearTestCases()
-        {
-            testCaseIds.Clear();
-        }
-
-        public string ExportTracyFile()
+        public string ExportTracyFile(List<string> _testCases)
         {
             DataStorage clone = new DataStorage();
             // get picked test case || origin list
-            clone.origin = new List<string>(testCaseIds.Count > 0 ? testCaseIds : origin);
+            clone.origin = new List<string>(_testCases.Count > 0 ? _testCases : origin);
             for (int i = 0; i < clone.origin.Count; i++)
             {
                 clone.origin[i] = "#" + clone.origin[i] + "#";
@@ -84,38 +57,40 @@ public class DataMgr : Singleton<DataMgr>
             }
         }
     }
-    
+
     DataStorage dataStorage = new DataStorage();
     DataIndexer dataIndexer = new DataIndexer();
 
     // ========================================= GET/ SET =========================================
-    // === Data storage ===
-    public void AddTestCase(string _key)
-    {
-        if (_key.Length == 0)
-            return;
-
-        dataStorage.AddTestCase(_key);
-
-        // export tracery file
-        ExportTraceryFile();
-    }
-
-    public void RemoveTestCase(string _key)
-    {
-        dataStorage.RemoveTestCase(_key);
-
-        // export tracery file
-        ExportTraceryFile();
-    }
-
-    public void ClearTestCases() { dataStorage.ClearTestCases(); }
-    public List<string> GetTestCases() { return dataStorage.TestCases; }
-
-    public List<DataIndex> Stories {  get { return dataIndexer.stories; } }
+    public List<DataIndex> Stories { get { return dataIndexer.stories; } }
     public List<DataIndex> Elements { get { return dataIndexer.elements; } }
 
-    // === Index ===
+    // ================== Index ==================
+    public string GenNewKey()
+    {
+        dataIndexer.genKey++;
+        return dataIndexer.genKey.ToString();
+    }
+
+    // ===== Properties =====
+    public bool IsRandomTest
+    {
+        get { return dataIndexer.IsRandomTest; }
+        set { dataIndexer.IsRandomTest = value; }
+    }
+
+    public int RdTestCaseAmount
+    {
+        get { return dataIndexer.RdTestCaseAmount; }
+        set
+        {
+            if (value < 1)
+                value = 1;
+            dataIndexer.RdTestCaseAmount = value;
+        }
+    }
+
+    // ====== Data Indexer ======
     public DataIndex GetData(DataIndexer.DataType _type, string _key) { return dataIndexer.GetData(_type, _key); }
 
     public void AddData(DataIndexer.DataType _type, Panel _panel)
@@ -167,14 +142,22 @@ public class DataMgr : Singleton<DataMgr>
     }
 
     public DataIndex FindData(string _key, bool _isFindByTitle) { return dataIndexer.FindData(_key, _isFindByTitle); }
+    public DataIndex FindData(string _key, bool _isFindByTitle, out DataIndexer.DataType _dataType) { return dataIndexer.FindData(_key, _isFindByTitle, out _dataType); }
 
-    public string GenNewKey()
+    // ===== Test Case =====
+    public Action ActModifiedTestCase
     {
-        dataIndexer.genKey++;
-        return dataIndexer.genKey.ToString();
+        get { return dataIndexer.actModifiedTestCase; }
+        set { dataIndexer.actModifiedTestCase += value; }
+    }
+    public List<string> TestCases
+    {
+        get { return dataIndexer.TestCases; }
     }
 
-    // === Element ===
+    public void ClearTestCases() { dataIndexer.ClearTestCases(); }
+
+    // ================== Element ==================
     public void AddElement(DataIndexer.DataType _type, string _key, string _val)
     {
         dataIndexer.AddElement(_type, _key, _val);
@@ -219,7 +202,13 @@ public class DataMgr : Singleton<DataMgr>
 
     public void SetTestPanel(DataIndexer.DataType _type, string _key, bool _isTest)
     {
-        dataIndexer.SetTestPanel(_type, _key, _isTest);
+        if (_isTest)
+            dataIndexer.AddTestCase(_key);
+        else
+            dataIndexer.RemoveTestCase(_key);
+
+        // export tracery file
+        ExportTraceryFile();
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -289,11 +278,25 @@ public class DataMgr : Singleton<DataMgr>
         }
 
         output += "}";
-        // parse pre-fix origin
-        output = dataStorage.ExportTracyFile().Replace("}", "") + output;
+
+        // Parse pre-fix origin
+        // get title all of test case
+        //List<string> testCaseIds = new List<string>(TestCaseIds);
+        //for (int i = 0; i < testCaseIds.Count; i++)
+        //{
+        //    DataIndex tmpData = FindData(testCaseIds[i], false);
+        //    if (tmpData != null)
+        //        testCaseIds[i] = tmpData.Title;
+        //}
+        // export test cases for origin part
+        output = dataStorage.ExportTracyFile(TestCases).Replace("}", "") + output;
+
+        // Replace all of keys to title of refer obj
+        output = ReplaceTitleOfHashKey(output);
 
         Debug.Log("Export Tracery File = " + output);
 
+        // --- Save ---
 #if (IN_UNITY_EDITOR)
         // save to data folder (for only on editor)
         if (!Directory.Exists(DataDefine.save_path_dataFolder))
@@ -312,12 +315,12 @@ public class DataMgr : Singleton<DataMgr>
         File.WriteAllText(DataDefine.save_path_outputFolder + DataDefine.save_fileName_storyData, output);
     }
 
-    public string MergeAllElements(DataIndex dataIndex)
+    public string MergeAllElements(DataIndex _dataIndex)
     {
         string val = "";
-        if (dataIndex != null)
+        if (_dataIndex != null)
         {
-            foreach (string element in dataIndex.elements)
+            foreach (string element in _dataIndex.elements)
                 val += element;
         }
 
@@ -329,5 +332,20 @@ public class DataMgr : Singleton<DataMgr>
         // save and export tracery file
         dataIndexer.Save();
         ExportTraceryFile();
+    }
+
+    // ========================================= PRIVATE FUNCS =========================================
+    private string ReplaceTitleOfHashKey(string _val)
+    {
+        string result = _val;
+        char[] splitter = { '#' };
+        string[] eKeys = result.Split(splitter, StringSplitOptions.RemoveEmptyEntries);
+        foreach (string eKey in eKeys)
+        {
+            DataIndex eData = FindData(eKey, false);
+            if (eData != null)
+                result = result.Replace("#" + eData.genKey + "#", "#" + eData.title + "#");
+        }
+        return result;
     }
 }

@@ -308,27 +308,29 @@ public class CursorMgr : Singleton<CursorMgr>
         // process for Panel
         Panel dragPanel = dragingObj.GetComponent<Panel>();
 
-        if (dragPanel)
+        if (dragBehavior == DragBehavior.CONNECT && dragPanel)
         {
             GameObject catchObj = null;
+            // drag from a panel to label
+            if (IsHoverObjs(out catchObj, DataDefine.tag_label_input))
+            {
+                ReactLabel hoverLabel = catchObj.GetComponent<ReactLabel>();
+                if (hoverLabel)
+                    hoverLabel.AddReferalPanel(dragPanel);
+            }
             // draging from a panel to panel
-            if (IsHoverObjs(out catchObj, DataDefine.tag_panel_common))
+            else if (IsHoverObjs(out catchObj, DataDefine.tag_panel_common))
             {
                 Panel hoverPanel = catchObj.GetComponent<Panel>();
                 if (hoverPanel)
                 {
-                    switch (dragBehavior)
-                    {
-                        // for link function
-                        case DragBehavior.CONNECT:
-                            string labelVal = "#" + dragPanel.Key + "#";
-                            hoverPanel.AddLabel(labelVal);
-                            // save
-                            DataMgr.Instance.AddElement(hoverPanel.DataType, hoverPanel.Key, labelVal);
-                            // refresh canvas
-                            CanvasMgr.Instance.RefreshCanvas();
-                            break;
-                    }
+                    // for link function
+                    string labelVal = "#" + dragPanel.Key + "#";
+                    hoverPanel.AddLabel(labelVal);
+                    // save
+                    DataMgr.Instance.AddElement(hoverPanel.DataType, hoverPanel.Key, labelVal);
+                    // refresh canvas
+                    CanvasMgr.Instance.RefreshCanvas();
                 }
             }
         }

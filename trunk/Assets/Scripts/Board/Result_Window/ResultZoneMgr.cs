@@ -42,108 +42,100 @@ public class ResultZoneMgr : MonoBehaviour
 
     public void ShowResult(List<string> testCases, bool isRdMode)
     {
-        //if (!prefResultRow || !transCont)
-        //    return;
+        if (!prefResultRow || !transCont)
+            return;
 
-        //// generate new rows
-        //if (rows.Count < testCases.Count)
-        //{
-        //    int turn = testCases.Count - rows.Count;
-        //    for (int i = 0; i < turn; i++)
-        //        rows.Add(Instantiate(prefResultRow, transCont));
-        //}
-        //// show using row || hide un-used rows
-        //else
-        //{
-        //    for (int i = 0; i < rows.Count; i++)
-        //        rows[i].SetActive(i < testCases.Count);
-        //}
+        // generate new rows
+        if (rows.Count < testCases.Count)
+        {
+            int turn = testCases.Count - rows.Count;
+            for (int i = 0; i < turn; i++)
+                rows.Add(Instantiate(prefResultRow, transCont));
+        }
+        // show using row || hide un-used rows
+        else
+        {
+            for (int i = 0; i < rows.Count; i++)
+                rows[i].SetActive(i < testCases.Count);
+        }
 
-        //for (int i = 0; i < testCases.Count; i++)
-        //{
-        //    DataIndexer.DataType dataType;
-        //    DataIndex dataIndex = DataMgr.Instance.GetIndex(testCases[i], out dataType);
-        //    // get result content of the data index
-        //    string val = ParseDataIndex(dataIndex, dataType);
+        for (int i = 0; i < testCases.Count; i++)
+        {
+            DataIndexer.DataType dataType;
+            DataIndex dataIndex = DataMgr.Instance.FindData(testCases[i], false, out dataType);
 
-        //    // show result of each row
-        //    val = "<b>" + dataIndex.genKey + "</b>" + " = " + val;
+            // get result content of the data index
+            if (dataIndex == null)
+                continue;
 
-        //    if (i < rows.Count)
-        //    {
-        //        GameObject row = rows[i];
-        //        // change content of text
-        //        row.GetComponentInChildren<Text>().text = val;
+            string val = TextUtil.AddBoldColorTag((ColorBar.ColorType)dataIndex.Color, dataIndex.title);
+            val += " = " + ParseToText(dataIndex, dataType, false);
 
-        //        // change icon for result row
-        //        for (int j = 0; j < row.transform.childCount; j++)
-        //        {
-        //            Image rowImg = row.transform.GetChild(j).GetComponent<Image>();
-        //            if (rowImg && rdResultImg && pickingResultImg)
-        //            {
-        //                rowImg.sprite = isRdMode ? rdResultImg : pickingResultImg;
-        //                break;
-        //            }
-        //        }
-        //    }
-        //}
+            if (i < rows.Count)
+            {
+                GameObject row = rows[i];
+                // change content of text
+                row.GetComponentInChildren<Text>().text = val;
 
-        //CanvasMgr.Instance.RefreshCanvas();
+                // change icon for result row
+                for (int j = 0; j < row.transform.childCount; j++)
+                {
+                    Image rowImg = row.transform.GetChild(j).GetComponent<Image>();
+                    if (rowImg && rdResultImg && pickingResultImg)
+                    {
+                        rowImg.sprite = isRdMode ? rdResultImg : pickingResultImg;
+                        break;
+                    }
+                }
+            }
+        }
+
+        CanvasMgr.Instance.RefreshCanvas();
     }
 
     // ========================================= PRIVATE FUNCS =========================================
-    private string ParseDataIndex(DataIndex dataIndex, DataIndexer.DataType dataType)
+    private string ParseToText(DataIndex _dataIndex, DataIndexer.DataType _dataType, bool _isRefer)
     {
-        if (dataIndex == null)
+        if (_dataIndex == null)
             return "";
 
         string val = "";
-        // pick random one element
-        //if (dataType == DataIndexer.DataType.Element)
-        //{
-        //    // add color tag for another color (!= white)
-        //    if ((ColorBar.Color)dataIndex.colorId != ColorBar.Color.WHITE)
-        //        val += TextUtil.GetOpenColorTag((ColorBar.Color)dataIndex.colorId);
+        if (_dataType == DataIndexer.DataType.Story)
+        {
+            val += DataMgr.Instance.MergeAllElements(_dataIndex);
+        }
+        else
+        {
+            List<string> pickedElements = _dataIndex.GetTestElements();
+            // random value
+            if (pickedElements.Count > 0)
+                val = pickedElements[Random.Range(0, pickedElements.Count)];
+        }
 
-        //    if (dataIndex.elements.Count > 0)
-        //    {
-        //        List<string> elements = new List<string>();
-        //        //// get testing elements
-        //        //if (dataIndex.testingIndex.Count > 0)
-        //        //    elements = dataIndex.GetTestingElement();
-        //        //// unless get all elements
-        //        //else
-        //        //    elements = dataIndex.elements;
+        bool isContainLinkObj = false;
+        char[] splitters = { '#' };
+        string[] aSplit = val.Split(splitters, System.StringSplitOptions.RemoveEmptyEntries);
+        // link to another refer object
+        for (int i = 0; i < aSplit.Length; i++)
+        {
+            DataIndexer.DataType eType;
+            DataIndex eIndex = DataMgr.Instance.FindData(aSplit[i], false, out eType);
+            if (eIndex != null)
+            {
+                isContainLinkObj = true;
+                string ePart = ParseToText(eIndex, eType, true);
+                val = val.Replace("#" + aSplit[i] + "#", ePart);
+            }
+        }
 
-        //        // random pick 1 elements
-        //        if (elements.Count > 0)
-        //            val += elements[Random.Range(0, elements.Count)];
-        //    }
+        // add bold tag && color tag for refer object
+        if (_isRefer && !isContainLinkObj && ((ColorBar.ColorType)_dataIndex.Color) != ColorBar.ColorType.WHITE)
+        {
+            //val = TextUtil.OpenBoldTag() + val + TextUtil.CloseBoldTag();
+            //val = TextUtil.OpenColorTag((ColorBar.ColorType)dataIndex.Color) + val + TextUtil.CloseColorTag();
 
-
-        //    // close color tag
-        //    if ((ColorBar.Color)dataIndex.colorId != ColorBar.Color.WHITE)
-        //        val += TextUtil.GetCloseColorTag();
-        //}
-        //// merge all element value
-        //else
-        //{
-        //    val = DataMgr.Instance.MergeAllElements(dataIndex);
-        //}
-
-        //List<string> linkKeys = DataMgr.Instance.ParseRetrieveLinkId(val);
-        //for (int i = 0; i < linkKeys.Count; i++)
-        //{
-        //    string linkKey = linkKeys[i];
-        //    DataIndexer.DataType linkType = DataIndexer.DataType.Element;
-        //    DataIndex linkData = DataMgr.Instance.GetIndex(linkKeys[i], out linkType);
-        //    if (linkData != null)
-        //    {
-        //        string linkVal = ParseDataIndex(linkData, linkType);
-        //        if (linkVal.Length > 0)
-        //            val = val.Replace("#" + linkKey + "#", linkVal);
-        //    }
-        //}
+            val = TextUtil.AddBoldColorTag((ColorBar.ColorType)_dataIndex.Color, val);
+        }
 
         return val;
     }

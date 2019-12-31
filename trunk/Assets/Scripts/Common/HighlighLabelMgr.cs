@@ -108,7 +108,6 @@ public class HighlighLabelMgr : MonoBehaviour
         float labelX = referLabel.transform.position.x;
         float dropX = dropLabel.transform.position.x;
 
-        //if ((dropX > labelX && mouseX >= dropX) || (dropX <= labelX && mouseX <= dropX))
         if (Mathf.Abs(dropX - mouseX) <= nailRange)
         {
             Transform transDropRow = dropLabel.gameObject.transform.parent;

@@ -2,21 +2,54 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 
 // ===== store index info =====
 [System.Serializable]
 public class DataIndexer
 {
     public enum DataType { Element, Story, Count };
-    [HideInInspector]
+
     public int genKey = -1;
     [SerializeField]
     public List<DataIndex> elements = new List<DataIndex>();
     [SerializeField]
     public List<DataIndex> stories = new List<DataIndex>();
 
+    public bool isRdTest = false;
+    // random test mode
+    public int rdTestCaseAmount = 1;
+    // picking test cases mode
+    public Action actModifiedTestCase;
+    public List<string> testCaseIds = new List<string>();
+
     // ============================================ PUBLIC ============================================
     public DataIndexer() { }
+
+    // ====== system ======
+    public int RdTestCaseAmount
+    {
+        get { return rdTestCaseAmount; }
+        set
+        {
+            rdTestCaseAmount = value;
+
+            // save
+            Save();
+        }
+    }
+
+    public bool IsRandomTest
+    {
+        get { return isRdTest; }
+        set
+        {
+            isRdTest = value;
+
+            // save
+            Save();
+        }
+    }
 
     // ====== data ======
     public DataIndex GetData(DataType _type, string _key, bool _isFindByTitle = false)
@@ -110,6 +143,22 @@ public class DataIndexer
 
         return null;
     }
+    public DataIndex FindData(string _key, bool _isFindByTitle, out DataType _dataType)
+    {
+        _dataType = DataType.Element;
+
+        for (int i = 0; i < 2; i++)
+        {
+            _dataType = i == 0 ? DataType.Element : DataType.Story;
+            DataIndex result = GetData(_dataType, _key, _isFindByTitle);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+
+        return null;
+    }
 
     public bool IsContain(DataType _type, string _key)
     {
@@ -128,17 +177,6 @@ public class DataIndexer
 
         if (dataIndex != null)
             dataIndex.Color = (int)_color;
-
-        // export save file
-        Save();
-    }
-
-    public void SetTestPanel(DataType _type, string _key, bool _isTest)
-    {
-        DataIndex dataIndex = GetData(_type, _key);
-
-        if (dataIndex != null)
-            dataIndex.isTest = _isTest;
 
         // export save file
         Save();
@@ -201,6 +239,48 @@ public class DataIndexer
         Save();
     }
 
+    // ====== pick test case ======
+    public List<string> TestCases
+    {
+        get { return testCaseIds; }
+    }
+
+    public void AddTestCase(string _key)
+    {
+        if (_key.Length == 0)
+            return;
+
+        if (!testCaseIds.Contains(_key))
+        {
+            testCaseIds.Add(_key);
+            InvokeTestCaseAct();
+        }
+
+        // save
+        Save();
+    }
+
+    public void RemoveTestCase(string _key)
+    {
+        if (testCaseIds.Contains(_key))
+        {
+            testCaseIds.Remove(_key);
+            InvokeTestCaseAct();
+        }
+
+        // save
+        Save();
+    }
+
+    public void ClearTestCases()
+    {
+        testCaseIds.Clear();
+        InvokeTestCaseAct();
+
+        // save
+        Save();
+    }
+
     // ====== util ======
     public void Load()
     {
@@ -225,6 +305,7 @@ public class DataIndexer
             content = PlayerPrefs.GetString(DataDefine.save_key_indexData); 
 #endif
 
+        // clone data
         Debug.Log("Load Index = " + content);
         if (content.Length > 0)
         {
@@ -232,6 +313,11 @@ public class DataIndexer
             genKey = newData.genKey;
             elements = newData.elements;
             stories = newData.stories;
+
+            rdTestCaseAmount = newData.rdTestCaseAmount;
+            isRdTest = newData.isRdTest;
+
+            testCaseIds = newData.testCaseIds;
         }
     }
 
@@ -278,5 +364,11 @@ public class DataIndexer
                 break;
         }
         return datas;
+    }
+
+    private void InvokeTestCaseAct()
+    {
+        if (actModifiedTestCase != null)
+            actModifiedTestCase();
     }
 }

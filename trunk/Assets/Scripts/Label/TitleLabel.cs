@@ -42,7 +42,8 @@ public class TitleLabel : Label
         pureText = inputField.text;
 
         base.OnEditDone();
-        if (panel)
-            panel.OnTitleEdited();
+
+        //if (panel)
+        //    panel.OnTitleEdited();
     }
 }

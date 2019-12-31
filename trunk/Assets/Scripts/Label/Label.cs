@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System;
 
 public class Label : MonoBehaviour
 {
+    public Action<Label> actEditDone;
+    public Action actEditing;
+
     // prop
     protected Image image;
     protected InputField inputField;
@@ -96,6 +100,10 @@ public class Label : MonoBehaviour
         isEditing = false;
 
         RefreshContentSize();
+
+        // call action func
+        if (actEditDone != null)
+            actEditDone(this);
     }
 
     public void OnEditing()
@@ -107,6 +115,10 @@ public class Label : MonoBehaviour
             isEditing = true;
 
         RefreshContentSize();
+
+        // call action func
+        if (actEditing != null)
+            actEditing();
     }
 
     public virtual void SelfDestroy()
@@ -115,7 +127,6 @@ public class Label : MonoBehaviour
             panel.RemoveLabel(this);
         Destroy(gameObject);
     }
-
     // ========================================= PROTECTED FUNCS =========================================
     protected void RefreshContentSize()
     {

@@ -24,11 +24,15 @@ public class Panel : MonoBehaviour
     protected GameObject prefRow;
     protected GameObject prefLabel;
 
-    protected float baseWidth = 0;
     protected List<Transform> rows = new List<Transform>();
     protected List<Label> labels = new List<Label>();
 
     protected DataIndexer.DataType dataType;
+
+    // arrange panel
+    protected float baseWidth = 0;
+    protected bool isRefreshPanel;
+    protected Vector2 refreshPanelDt = new Vector2(0, 0.5f);
 
     // ========================================= GET/ SET =========================================
     public string Key
@@ -91,7 +95,12 @@ public class Panel : MonoBehaviour
 
     public void Update()
     {
-        RefreshPanel();
+        // update dt for refresh panel
+        if (refreshPanelDt.x < refreshPanelDt.y)
+            refreshPanelDt.x += Time.deltaTime;
+
+        if (isRefreshPanel || refreshPanelDt.x < refreshPanelDt.y)
+            RefreshPanel();
     }
 
     // ========================================= PUBLIC FUNCS =========================================
@@ -119,14 +128,21 @@ public class Panel : MonoBehaviour
         Key = _key;
         // set title 
         if (titleLabel)
+        {
             titleLabel.Init(this, "");  // init default
+            titleLabel.actEditDone += OnTitleEdited;
+        }   
         Title = _title;
+
         // determine data type
         dataType = this is ElementPanel ? DataIndexer.DataType.Element : DataIndexer.DataType.Story;
 
         // calculate panel's zone
         RectOffset boardPadding = this.board.GetComponent<VerticalLayoutGroup>().padding;
         baseWidth = (this.transform as RectTransform).sizeDelta.x - (boardPadding.left + boardPadding.right);
+
+        // arrange panel
+        RefreshPanel();
     }
 
     public virtual Label AddLabel(string _var)
@@ -142,6 +158,10 @@ public class Panel : MonoBehaviour
             if (genLabel)
             {
                 genLabel.Init(this, _var);
+                // add call back action
+                genLabel.actEditDone += OnChildLabelEdited;
+                genLabel.actEditing += OnChildLabelEditing;
+
                 // store label
                 labels.Add(genLabel);
 
@@ -173,22 +193,40 @@ public class Panel : MonoBehaviour
         }
     }
 
+    public void OnChildLabelEditing()
+    {
+        isRefreshPanel = true;
+    }
+
     public void OnChildLabelEdited(Label _label)
     {
-        // find index of label
-        int labelIndex = labels.FindIndex(x => x.gameObject == _label.gameObject);
-        if (labelIndex != -1)
+        isRefreshPanel = false;
+
+        // remove label null
+        if (_label.PureText.Length == 0)
         {
-            // replace value of label in storage
-            DataMgr.Instance.ReplaceElement(dataType, Key, labelIndex, _label.PureText);
-            // refresh canvas
-            CanvasMgr.Instance.RefreshCanvas();
+            RemoveLabel(_label);
+        }
+        else
+        {
+            // find index of label
+            int labelIndex = labels.FindIndex(x => x.gameObject == _label.gameObject);
+            if (labelIndex != -1)
+            {
+                // replace value of label in storage
+                DataMgr.Instance.ReplaceElement(dataType, Key, labelIndex, _label.PureText);
+                // refresh canvas
+                CanvasMgr.Instance.RefreshCanvas();
+            }
         }
     }
 
-    public void OnTitleEdited()
+    public void OnTitleEdited(Label _title)
     {
         // override new title
+        if (_title.gameObject != titleLabel.gameObject)
+            return;
+
         title = titleLabel.PureText;
 
         DataMgr.Instance.ReplaceTitle(dataType, key, Title);
@@ -234,40 +272,42 @@ public class Panel : MonoBehaviour
 
     protected void RefreshPanel()
     {
-        ////if (isChildLabelEditing)
-        ////    return;
+        List<Label> rowLabels = new List<Label>();
+        float rowW = 0;
+        int rowCounter = 0;
 
-        //for (int i = 0; i < labelRows.Count; i++)
-        //{
-        //    RowLabelMgr row = labelRows[i];
-        //    float rowW = (row.transform as RectTransform).sizeDelta.x;      // row's width
+        for (int i = 0; i <= labels.Count; i++)
+        {
+            Label label = null;
+            if (i < labels.Count)
+            {
+                label = labels[i];
+                rowW += (label.transform as RectTransform).sizeDelta.x;
+            }
 
-        //    // if the width of content shorter -> check to append first element of next row
-        //    if (rowW < baseWidth * percentWContent && i + 1 < labelRows.Count)
-        //    {
-        //        RowLabelMgr nextRow = labelRows[i + 1];
-        //        if (row.CheckAppendLabel(nextRow, baseWidth))
-        //            break;
-        //    }
+            // if the width of content over size
+            if (rowW > baseWidth || (i == labels.Count))
+            {
+                Transform addingRow = null;
+                if (rowCounter < rows.Count)
+                    addingRow = rows[rowCounter];
+                else
+                    addingRow = AddNewRow();
 
-        //    // if the width of content over size -> push last element to next row
-        //    if (rowW > baseWidth && row.ChildCount() > 1)
-        //    {
-        //        // add label as first element of next row
-        //        RowLabelMgr nextRow = null;
-        //        if (i + 1 == labelRows.Count)
-        //            nextRow = AddLabelRow();
-        //        else
-        //            nextRow = labelRows[i + 1];
+                foreach (Label eLabel in rowLabels)
+                    eLabel.transform.parent = addingRow;
 
-        //        nextRow.AddFirstLabel(row);
+                rowLabels.Clear();
+                if (label != null)
+                    rowW = (label.transform as RectTransform).sizeDelta.x;
+                rowCounter++;
+            }
 
-        //        break;
-        //    }
-        //}
+            rowLabels.Add(label);
+        }
 
-        //// refresh position of add button
-        //RefreshAddButtonPos();
+        // refresh position of add button
+        RefreshAddButtonPos();
     }
 
     protected Transform GetLastRow()

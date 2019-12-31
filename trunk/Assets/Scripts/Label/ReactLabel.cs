@@ -50,32 +50,24 @@ public class ReactLabel : Label, IPointerClickHandler
         if (!isEditing)
             return;
 
-        base.OnEditDone();
-
         // convert input text to pure text
         ParseInputToPureText();
 
-        if (panel)
-            panel.OnChildLabelEdited(this);
+        base.OnEditDone();
+
+        //if (panel)
+        //    panel.OnChildLabelEdited(this);
     }
 
-    public void AddReferalPanel(Panel panel)
+    public void AddReferalPanel(Panel _referPanel)
     {
-        //ColorBar.ColorType panelColor = panel.GetColorType();
+        PureText = pureText + "#" + _referPanel.Key + "#";
+        RefreshContentSize();
 
-        //string panelTitle = panel.Title();
-        //// append link tag to content of text
-        //string val = Text();
-        //val += " " + TextUtil.GetOpenColorTag(panelColor) + panelTitle + TextUtil.GetCloseColorTag();
-        //SetText(val);
-
-        //// store referral panel
-        //referElementNames.Add(panelTitle);
-        //referElements.Add(panel);
-
-        //// callback to parent -> save val
-        //if (this.panel)
-        //    (this.panel as Panel).OnChildLabelEdited(this);
+        //if (panel)
+        //    panel.OnChildLabelEdited(this);
+        if (actEditDone != null)
+            actEditDone(this);
     }
 
     // ========================================= PRIVATE FUNCS =========================================

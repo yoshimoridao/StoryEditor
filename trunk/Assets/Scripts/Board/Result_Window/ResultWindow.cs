@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class ResultWindow : Singleton<ResultWindow>
 {
@@ -11,8 +12,9 @@ public class ResultWindow : Singleton<ResultWindow>
     // pick-up panel
     public Transform pickingModePanel;
     public InputField pickupAmountText;
+    public OriginSwitchButton switchPickModeBtn;
+    public OriginSwitchButton switchRdModeBtn;
 
-    private int rdCaseAmount = 2;
     [SerializeField]
     private bool isRandom = true;
 
@@ -39,11 +41,30 @@ public class ResultWindow : Singleton<ResultWindow>
             resultZone.Init();
 
         // default de-active random mode
-        isRandom = true;
+        // Load testing mode
+        isRandom = DataMgr.Instance.IsRandomTest;
+
+        // init switch btn
+        if (switchPickModeBtn)
+            switchPickModeBtn.Init(!isRandom);
+        if (switchRdModeBtn)
+            switchRdModeBtn.Init(isRandom);
+
         // active panel
-        ActivePanel(isRandom);
+        ActivePanel();
+
+        // add modified action for picking mode
+        DataMgr.Instance.ActModifiedTestCase += RefreshPickupAmountText;
     }
 
+    public void RefreshPickupAmountText()
+    {
+        // update text
+        if (pickupAmountText)
+            pickupAmountText.text = DataMgr.Instance.TestCases.Count.ToString();
+    }
+
+    // ====== Event Button ======
     public void OnOriginBtnPress()
     {
         if (!resultZone)
@@ -53,57 +74,56 @@ public class ResultWindow : Singleton<ResultWindow>
         if (isRandom)
         {
             // clone list data
-            List<DataIndex> tmp = new List<DataIndex>(DataMgr.Instance.Stories);
-            int turn = Mathf.Min(rdCaseAmount, tmp.Count);
+            List<DataIndex> stories = new List<DataIndex>(DataMgr.Instance.Stories);
+            int turn = Mathf.Min(DataMgr.Instance.RdTestCaseAmount, stories.Count);
 
-            bool isRdIndex = tmp.Count > rdCaseAmount;
+            bool isCanRd = stories.Count > DataMgr.Instance.RdTestCaseAmount;
             for (int i = 0; i < turn; i++)
             {
-                int id = isRdIndex ? Random.Range(0, tmp.Count) : i;
-                if (id >= 0 && id < tmp.Count)
+                int id = isCanRd ? UnityEngine.Random.Range(0, stories.Count) : i;
+                if (id >= 0 && id < stories.Count)
                 {
                     // add test case for storage
-                    testCases.Add(tmp[id].genKey);
+                    testCases.Add(stories[id].genKey);
                     // remove out of temp list
-                    if (isRdIndex)
-                        tmp.RemoveAt(id);
+                    if (isCanRd)
+                        stories.RemoveAt(id);
                 }
             }
         }
         else
         {
-            testCases = DataMgr.Instance.GetTestCases();
+            testCases = DataMgr.Instance.TestCases;
         }
 
         resultZone.ShowResult(testCases, isRandom);
     }
 
-    public void RefreshPickupAmountText()
-    {
-        // update text
-        if (pickupAmountText)
-            pickupAmountText.text = DataMgr.Instance.GetTestCases().Count.ToString();
-    }
-
-    // ====== Event Button ======
     public void OnSwitchButtonPress(bool _isRdMode)
     {
         // default de-active random mode
         isRandom = _isRdMode;
-        // active panel
-        ActivePanel(isRandom);
+        //// active panel
+        //ActivePanel();
+
+        // do active switch btn
+        if (switchRdModeBtn)
+            switchRdModeBtn.SetActive(isRandom, isRandom ? (Action)ActivePanel : null);
+        if (switchPickModeBtn)
+            switchPickModeBtn.SetActive(!isRandom, isRandom ? null : (Action)ActivePanel);
+
+        // Save current testing mode
+        DataMgr.Instance.IsRandomTest = isRandom;
     }
 
     // = Picking up panel =
     public void OnArrowButtonPress(bool isPlusArrow)
     {
         // update amount of random test cases
-        rdCaseAmount += isPlusArrow ? 1 : -1;
-        if (rdCaseAmount < 1)
-            rdCaseAmount = 1;
+        DataMgr.Instance.RdTestCaseAmount += isPlusArrow ? 1 : -1;
 
         if (rdCaseAmountText)
-            rdCaseAmountText.text = rdCaseAmount.ToString();
+            rdCaseAmountText.text = DataMgr.Instance.RdTestCaseAmount.ToString();
 
         // refresh random mode text
         RefreshRdAmountText();
@@ -111,11 +131,23 @@ public class ResultWindow : Singleton<ResultWindow>
 
     public void OnClearAllBtnPress()
     {
-        // disable all selected tag
-        //StoryBoard storyBoard = CanvasMgr.Instance.GetBoard<StoryBoard>() as StoryBoard;
-        //storyBoard.ClearAllPickedTestPanels();
-        //ElementBoard elementBoard = CanvasMgr.Instance.GetBoard<ElementBoard>() as ElementBoard;
-        //elementBoard.ClearAllPickedTestPanels();
+        // disable all testing panels
+        Board storyBoard = CanvasMgr.Instance.GetBoard<StoryBoard>();
+        Board elementBoard = CanvasMgr.Instance.GetBoard<ElementBoard>();
+
+        List<string> testCaseIds = DataMgr.Instance.TestCases;
+        for (int i = 0; i < testCaseIds.Count; i++)
+        {
+            string testKey = testCaseIds[i];
+            // find panel
+            Panel testingPanel = storyBoard.GetPanel(testKey);
+            if (testingPanel == null)
+                testingPanel = elementBoard.GetPanel(testKey);
+
+            // change testing flag
+            if (testingPanel)
+                testingPanel.IsTesting = false;
+        }
 
         // clear all in data
         DataMgr.Instance.ClearTestCases();
@@ -124,11 +156,11 @@ public class ResultWindow : Singleton<ResultWindow>
     // = Random mode panel =
     public void OnEditRdAmountTextDone()
     {
-        rdCaseAmount = int.Parse(rdCaseAmountText.text);
+        DataMgr.Instance.RdTestCaseAmount = int.Parse(rdCaseAmountText.text);
     }
 
     // ========================================= PRIVATE FUNCS =========================================
-    private void ActivePanel(bool isActiveRandom)
+    private void ActivePanel()
     {
         // panel of picking mode
         if (pickingModePanel)
@@ -150,6 +182,6 @@ public class ResultWindow : Singleton<ResultWindow>
     {
         // init text
         if (rdCaseAmountText)
-            rdCaseAmountText.text = rdCaseAmount.ToString();
+            rdCaseAmountText.text = DataMgr.Instance.RdTestCaseAmount.ToString();
     }
 }

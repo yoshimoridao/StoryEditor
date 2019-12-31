@@ -9,7 +9,6 @@ public class DataIndex
     public string genKey;
     public string title;
     public int colorId;
-    public bool isTest;
     public List<string> elements = new List<string>();
     public List<int> testElements = new List<int>();
 
@@ -21,7 +20,8 @@ public class DataIndex
         set
         {
             title = value;
-            actModifyData();
+            if (actModifyData != null)
+                actModifyData();
         }
     }
 
@@ -31,7 +31,8 @@ public class DataIndex
         set
         {
             colorId = value;
-            actModifyData();
+            if (actModifyData != null)
+                actModifyData();
         }
     }
 
@@ -62,16 +63,24 @@ public class DataIndex
     }
 
     // === Testing Index ===
-    //public List<string> GetTestingElement()
-    //{
-    //    List<string> testingElements = new List<string>();
-    //    for (int i = 0; i < testingIndex.Count; i++)
-    //    {
-    //        int testingId = testingIndex[i];
-    //        if (testingId < elements.Count)
-    //            testingElements.Add(elements[testingId]);
-    //    }
+    public List<string> GetTestElements()
+    {
+        List<string> tmp = new List<string>();
 
-    //    return testingElements;
-    //}
+        if (testElements.Count > 0)
+        {
+            for (int i = 0; i < testElements.Count; i++)
+            {
+                int testingId = testElements[i];
+                if (testingId < elements.Count)
+                    tmp.Add(elements[testingId]);
+            }
+        }
+        else
+        {
+            return elements;
+        }
+
+        return tmp;
+    }
 }

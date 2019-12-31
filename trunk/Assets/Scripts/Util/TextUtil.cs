@@ -6,11 +6,15 @@ public static class TextUtil
 {
     public static string OpenBoldTag() { return "<b>"; }
     public static string CloseBoldTag() { return "</b>"; }
+    public static string AddBoldTag(string _val)
+    {
+        return OpenBoldTag() + _val + CloseBoldTag();
+    }
 
-    public static string OpenColorTag(ColorBar.ColorType colorType)
+    public static string OpenColorTag(ColorBar.ColorType _colorType)
     {
         string val = "<color=";
-        switch (colorType)
+        switch (_colorType)
         {
             case ColorBar.ColorType.WHITE:
                 break;
@@ -21,7 +25,7 @@ public static class TextUtil
             case ColorBar.ColorType.BLUE:
             case ColorBar.ColorType.ORANGE:
             case ColorBar.ColorType.PURPLE:
-                val += colorType.ToString().ToLower();
+                val += _colorType.ToString().ToLower();
                 break;
             default:
                 break;
@@ -33,4 +37,17 @@ public static class TextUtil
     }
 
     public static string CloseColorTag() { return "</color>"; }
+    public static string AddColorTag(ColorBar.ColorType _colorType, string _val)
+    {
+        return OpenColorTag(_colorType) + _val + CloseColorTag();
+    }
+
+    public static string AddBoldColorTag(ColorBar.ColorType _colorType, string _val)
+    {
+        string result = AddBoldTag(_val);
+        if (_colorType != ColorBar.ColorType.WHITE)
+            result = AddColorTag(_colorType, _val);
+
+        return result;
+    }
 }

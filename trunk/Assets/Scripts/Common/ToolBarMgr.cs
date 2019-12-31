@@ -91,6 +91,7 @@ public class ToolBarMgr : Singleton<ToolBarMgr>
             // save testing panel
             DataMgr.Instance.SetTestPanel(panel.DataType, panel.Key, panel.IsTesting);
         }
+
         // set active highlight panel of labels 
         foreach (ElementLabel label in labels)
             label.IsTesting = !alreadyActiveAll;

@@ -35,6 +35,9 @@ public class CanvasMgr : Singleton<CanvasMgr>
             rootPanel.Init();
         }
 
+        // init result window
+        ResultWindow.Instance.Init();
+
         // refresh canvas
         RefreshCanvas();
     }
