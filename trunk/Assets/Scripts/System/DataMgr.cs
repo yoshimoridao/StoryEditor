@@ -68,8 +68,9 @@ public class DataMgr : Singleton<DataMgr>
     // ================== Index ==================
     public string GenNewKey()
     {
+        string newKey = "@" + dataIndexer.genKey;
         dataIndexer.genKey++;
-        return dataIndexer.genKey.ToString();
+        return newKey;
     }
 
     // ===== Properties =====

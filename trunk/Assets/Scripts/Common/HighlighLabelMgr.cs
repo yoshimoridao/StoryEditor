@@ -33,16 +33,24 @@ public class HighlighLabelMgr : MonoBehaviour
         // arrange labels
         if (referLabel && CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.ARRANGE)
         {
-            GameObject catchObj = null;
+            GameObject catchPanel = null;
             // in case: mouse drops on same panel
-            if (IsDropOnSamePanel(out catchObj))
+            if (IsDropOnSamePanel(out catchPanel))
             {
                 GameObject element = CursorMgr.Instance.CatchElementHandleByMouse();
                 if (element && element.GetComponent<Label>())
                 {
                     Label dropElement = element.GetComponent<Label>();
-                    if (dropElement.gameObject != referLabel.gameObject)
+                    // if user drags to another label
+                    if (referLabel && dropElement.gameObject != referLabel.gameObject)
+                    {
+                        // arrange label
                         ArrangeLabel(dropElement);
+
+                        // arrange panel
+                        //if (referLabel.Panel)
+                        //    referLabel.Panel.RefreshPanel();
+                    }
                 }
             }
         }
@@ -71,15 +79,16 @@ public class HighlighLabelMgr : MonoBehaviour
         // Revert first index in case user drag to another board or panel
         if (referLabel && CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.ARRANGE)
         {
-            GameObject catchObj = null;
-            if (!IsDropOnSamePanel(out catchObj))
+            GameObject catchPanel = null;
+            if (!IsDropOnSamePanel(out catchPanel))
             {
                 // in case: drop label out of parent panel's board
                 referLabel.transform.parent = rowTrans;
                 referLabel.transform.SetSiblingIndex(fstSiblingIndex);
 
-                // save index
-                SaveIndex();
+                // update order of labels of the panel
+                if (referLabel.Panel)
+                    referLabel.Panel.UpdateOrderLabels();
             }
         }
 
@@ -92,6 +101,10 @@ public class HighlighLabelMgr : MonoBehaviour
         // re-show refer panel
         if (referLabel)
         {
+            // arrange panel
+            if (referLabel.Panel)
+                referLabel.Panel.RefreshPanel();
+
             referLabel.gameObject.SetActive(true);
             referLabel = null;
         }
@@ -100,9 +113,9 @@ public class HighlighLabelMgr : MonoBehaviour
     public void ArrangeLabel(Label dropLabel)
     {
         // if match object -> return
-        if (!referLabel ||
-            dropLabel.gameObject == referLabel.gameObject)
-            return;
+        //if (!referLabel ||
+        //    dropLabel.gameObject == referLabel.gameObject)
+        //    return;
 
         float mouseX = Input.mousePosition.x;
         float labelX = referLabel.transform.position.x;
@@ -119,25 +132,26 @@ public class HighlighLabelMgr : MonoBehaviour
             // set parent, sibling index for highlight
             transform.transform.parent = referLabel.transform.parent;
             transform.SetSiblingIndex(referLabel.transform.GetSiblingIndex());
-
-            // save index
-            SaveIndex();
+            
+            // update order of labels in the panel
+            if (referLabel.Panel)
+                referLabel.Panel.UpdateOrderLabels();
         }
     }
 
     // ========================================= PRIVATE FUNCS =========================================
-    private bool IsDropOnSamePanel(out GameObject catchObj)
+    private bool IsDropOnSamePanel(out GameObject _catchObj)
     {
-        catchObj = null;
+        _catchObj = null;
 
         if (referLabel.Panel)
         {
             // check hover obj in same board
             string boardTag = (referLabel.Panel is StoryPanel) ? DataDefine.tag_board_story : DataDefine.tag_board_element;
             // check hover obj on panel
-            if (CursorMgr.Instance.IsHoverObjs(out catchObj, DataDefine.tag_panel_common, boardTag))
+            if (CursorMgr.Instance.IsHoverObjs(out _catchObj, DataDefine.tag_panel_common, boardTag))
             {
-                Panel hoverPanel = catchObj.GetComponent<Panel>();
+                Panel hoverPanel = _catchObj.GetComponent<Panel>();
                 // in case: drop label in same panel
                 if (hoverPanel && hoverPanel.gameObject == referLabel.Panel.gameObject)
                     return true;
@@ -145,19 +159,5 @@ public class HighlighLabelMgr : MonoBehaviour
         }
 
         return false;
-    }
-
-    private void SaveIndex()
-    {
-        if (referLabel.Panel)
-        {
-            // get all of label's text
-            List<string> labels = new List<string>();
-            foreach (Label l in referLabel.Panel.Labels)
-                labels.Add(l.PureText);
-
-            // store data
-            DataMgr.Instance.ReplaceElements(referLabel.Panel.DataType, referLabel.Panel.Key, labels);
-        }
     }
 }

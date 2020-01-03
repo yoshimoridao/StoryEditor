@@ -255,22 +255,7 @@ public class Panel : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // ========================================= PRIVATE FUNCS =========================================
-    protected Transform AddNewRow()
-    {
-        if (prefRow)
-        {
-            Transform row = Instantiate(prefRow, transLabelCont).transform;
-
-            // store label cont
-            rows.Add(row);
-            return row;
-        }
-
-        return null;
-    }
-
-    protected void RefreshPanel()
+    public void RefreshPanel()
     {
         List<Label> rowLabels = new List<Label>();
         float rowW = 0;
@@ -308,6 +293,36 @@ public class Panel : MonoBehaviour
 
         // refresh position of add button
         RefreshAddButtonPos();
+    }
+
+    public void UpdateOrderLabels()
+    {
+        labels.Clear();
+
+        // update order of labels
+        labels = new List<Label>(transform.GetComponentsInChildren<ReactLabel>(true));
+
+        List<string> eLabels = new List<string>();
+        foreach (Label eLabel in labels)
+            eLabels.Add(eLabel.PureText);
+
+        // save 
+        DataMgr.Instance.ReplaceElements(DataType, Key, eLabels);
+    }
+
+    // ========================================= PRIVATE FUNCS =========================================
+    protected Transform AddNewRow()
+    {
+        if (prefRow)
+        {
+            Transform row = Instantiate(prefRow, transLabelCont).transform;
+
+            // store label cont
+            rows.Add(row);
+            return row;
+        }
+
+        return null;
     }
 
     protected Transform GetLastRow()

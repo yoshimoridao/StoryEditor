@@ -47,7 +47,7 @@ public class ReactLabel : Label, IPointerClickHandler
 
     public override void OnEditDone()
     {
-        if (!isEditing)
+        if (!isEditing || !gameObject.active)
             return;
 
         // convert input text to pure text
@@ -131,9 +131,6 @@ public class ReactLabel : Label, IPointerClickHandler
     /// </summary>
     protected void ParseInputToPureText()
     {
-        // clear list first
-        ClearReferPanels();
-
         string parseText = inputField.text;
 
         string[] tmp = parseText.Split('#');
@@ -151,9 +148,6 @@ public class ReactLabel : Label, IPointerClickHandler
         }
 
         PureText = parseText;
-
-        // add trigger function for all refer panels
-        TriggerActionReferPanels();
     }
 
     /// <summary>
@@ -161,8 +155,14 @@ public class ReactLabel : Label, IPointerClickHandler
     /// </summary>
     protected void ParseReferPanels()
     {
-        // clear list first
-        ClearReferPanels();
+        // remove trigger modifying callback
+        for (int i = 0; i < referPanels.Count; i++)
+        {
+            DataIndex referPanel = referPanels[i];
+            referPanel.actModifyData -= ConvertoShowText;
+        }
+
+        referPanels.Clear();
 
         // parse pure text -> to retrieve referral panels
         string[] tmp = pureText.Split('#');
@@ -179,28 +179,10 @@ public class ReactLabel : Label, IPointerClickHandler
         }
 
         // add trigger function for all refer panels
-        TriggerActionReferPanels();
-    }
-
-    protected void TriggerActionReferPanels()
-    {
-        // add trigger modifying callback
         for (int i = 0; i < referPanels.Count; i++)
         {
             DataIndex referPanel = referPanels[i];
             referPanel.actModifyData += ConvertoShowText;
         }
-    }
-
-    protected void ClearReferPanels()
-    {
-        // remove trigger modifying callback
-        for (int i = 0; i < referPanels.Count; i++)
-        {
-            DataIndex referPanel = referPanels[i];
-            referPanel.actModifyData -= ConvertoShowText;
-        }
-
-        referPanels.Clear();
     }
 }

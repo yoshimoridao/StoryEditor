@@ -10,7 +10,7 @@ public class DataIndexer
 {
     public enum DataType { Element, Story, Count };
 
-    public int genKey = -1;
+    public int genKey = 0;
     [SerializeField]
     public List<DataIndex> elements = new List<DataIndex>();
     [SerializeField]

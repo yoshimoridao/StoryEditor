@@ -16,7 +16,8 @@ public class Label : MonoBehaviour
     protected ContentSizeFitter contentSize;
 
     // var
-    protected bool isEditing = false;
+    [SerializeField]
+    protected bool isEditing;
     protected string pureText;
     protected Panel panel;
     protected ColorBar.ColorType color = ColorBar.ColorType.WHITE;
@@ -90,11 +91,15 @@ public class Label : MonoBehaviour
             _text = DataDefine.defaultLabelVar;
 
         PureText = _text;
+
+        // * fix bug: input field call OnEditing() but not OnEditDone() when init
+        if (isEditing)
+            isEditing = false;
     }
 
     public virtual void OnEditDone()
     {
-        if (!isEditing)
+        if (!isEditing || !gameObject.active)
             return;
 
         isEditing = false;
