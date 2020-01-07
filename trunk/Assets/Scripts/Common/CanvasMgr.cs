@@ -6,14 +6,14 @@ using UnityEngine.UI;
 public class CanvasMgr : Singleton<CanvasMgr>
 {
     private Vector2 refreshCanvasDt = new Vector2(0, 0.5f);
-    public List<Board> lBoards = new List<Board>();
+    public List<Board> boards = new List<Board>();
 
     // ========================================= GET/ SET =========================================
     public Board GetBoard<T>()
     {
-        for (int i = 0; i < lBoards.Count; i++)
-            if (lBoards[i] is T)
-                return lBoards[i];
+        for (int i = 0; i < boards.Count; i++)
+            if (boards[i] is T)
+                return boards[i];
         return null;
     }
 
@@ -29,9 +29,9 @@ public class CanvasMgr : Singleton<CanvasMgr>
         DataMgr.Instance.Init();
 
         // init boards
-        for (int i = 0; i < lBoards.Count; i++)
+        for (int i = 0; i < boards.Count; i++)
         {
-            Board rootPanel = lBoards[i];
+            Board rootPanel = boards[i];
             rootPanel.Init();
         }
 
@@ -87,6 +87,19 @@ public class CanvasMgr : Singleton<CanvasMgr>
         Application.Quit();
 
         // Save data
-        DataMgr.Instance.Save();
+        //DataMgr.Instance.Save();
+    }
+
+    public void Load()
+    {
+        // load all of boards
+        foreach (Board board in boards)
+            board.Load();
+
+        // load result window
+        ResultWindow.Instance.Load();
+
+        // refresh canvas
+        RefreshCanvas();
     }
 }

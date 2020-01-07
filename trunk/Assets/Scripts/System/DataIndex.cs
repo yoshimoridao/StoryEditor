@@ -13,6 +13,7 @@ public class DataIndex
     public List<int> testElements = new List<int>();
 
     public Action actModifyData;
+    public Action<string> actOnDestroy;
 
     public string Title
     {
@@ -42,6 +43,12 @@ public class DataIndex
         genKey = _panel.Key;
         title = _panel.Title;
         colorId = (int)_panel.Color;
+    }
+
+    public void OnDestroy()
+    {
+        if (actOnDestroy != null)
+            actOnDestroy(genKey);
     }
 
     // === element ===

@@ -16,9 +16,8 @@ public class ReactLabel : Label, IPointerClickHandler
         {
             pureText = value;
 
+            // store all of refer panels
             ParseReferPanels();
-            // convert pure text to show text
-            ConvertoShowText();
         }
     }
 
@@ -31,6 +30,12 @@ public class ReactLabel : Label, IPointerClickHandler
     public void Update()
     {
         base.Update();
+    }
+
+    private void OnDestroy()
+    {
+        // clear all refer panels
+        ClearAllReferPanels();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -51,23 +56,102 @@ public class ReactLabel : Label, IPointerClickHandler
             return;
 
         // convert input text to pure text
-        ParseInputToPureText();
+        string parseText = inputField.text;
+
+        string[] tmp = parseText.Split('#');
+        for (int i = 0; i < tmp.Length; i++)
+        {
+            string splitVal = tmp[i];
+            DataIndex findData = DataMgr.Instance.FindData(splitVal, true);
+            if (findData != null)
+            {
+                // add refer panel
+                if (!IsContainReferPanel(findData.genKey))
+                    AddReferPanel(findData);
+                    
+                parseText = parseText.Replace("#" + findData.title + "#", "#" + findData.genKey + "#");
+            }
+        }
+
+        // override pure text
+        pureText = parseText;
+        // convert to show text
+        ConvertoShowText();
 
         base.OnEditDone();
-
-        //if (panel)
-        //    panel.OnChildLabelEdited(this);
     }
 
-    public void AddReferalPanel(Panel _referPanel)
+    public void OnDragPanelInto(Panel _panel)
     {
-        PureText = pureText + "#" + _referPanel.Key + "#";
+        pureText = pureText + "#" + _panel.Key + "#";
+        // add refer panel
+        if (!IsContainReferPanel(_panel.Key))
+        {
+            DataIndex findData = DataMgr.Instance.FindData(_panel.Key, false);
+            if (findData != null)
+            {
+                AddReferPanel(findData);
+            }
+        }
+
+        // convert to show text
+        ConvertoShowText();
+
         RefreshContentSize();
 
-        //if (panel)
-        //    panel.OnChildLabelEdited(this);
         if (actEditDone != null)
             actEditDone(this);
+    }
+
+    public void OnReferPanelDestroy(string _dataKey)
+    {
+        int findId = referPanels.FindIndex(x => x.genKey == _dataKey);
+
+        if (findId != -1)
+        {
+            // remove the refer panel
+            RemoveReferPanel(findId);
+            // replace error text
+            pureText = pureText.Replace("#" + _dataKey + "#", DataDefine.error_refer_text);
+
+            // convert to show text
+            ConvertoShowText();
+        }
+
+        RefreshContentSize();
+
+        // call action func
+        if (actEditDone != null)
+            actEditDone(this);
+    }
+
+    public void AddReferPanel(DataIndex _dataIndex)
+    {
+        if (_dataIndex != null)
+        {
+            referPanels.Add(_dataIndex);
+            // register modifying action
+            _dataIndex.actModifyData += ConvertoShowText;
+            _dataIndex.actOnDestroy += OnReferPanelDestroy;
+        }
+    }
+
+    public void RemoveReferPanel(int _id)
+    {
+        // remove the refer panel
+        if (_id >= 0 && _id < referPanels.Count)
+        {
+            DataIndex dataIndex = referPanels[_id];
+
+            // un-register modifying action
+            if (dataIndex != null)
+            {
+                dataIndex.actModifyData -= ConvertoShowText;
+                dataIndex.actOnDestroy -= OnReferPanelDestroy;
+            }
+
+            referPanels.RemoveAt(_id);
+        }
     }
 
     // ========================================= PRIVATE FUNCS =========================================
@@ -101,6 +185,13 @@ public class ReactLabel : Label, IPointerClickHandler
             showOffText = showOffText.Replace("#" + referPanel.genKey + "#", "#" + referStr + "#");
         }
 
+        // highlight link error text
+        if (showOffText.Contains(DataDefine.error_refer_text))
+        {
+            string errorText = TextUtil.OpenColorTag(ColorBar.ColorType.RED) + DataDefine.error_refer_text + TextUtil.CloseColorTag();
+            showOffText = showOffText.Replace(DataDefine.error_refer_text, errorText);
+        }
+
         // show text
         inputField.text = showOffText;
     }
@@ -127,42 +218,12 @@ public class ReactLabel : Label, IPointerClickHandler
     }
 
     /// <summary>
-    /// parse from input text to pure text
-    /// </summary>
-    protected void ParseInputToPureText()
-    {
-        string parseText = inputField.text;
-
-        string[] tmp = parseText.Split('#');
-        for (int i = 0; i < tmp.Length; i++)
-        {
-            string splitVal = tmp[i];
-            DataIndex findData = DataMgr.Instance.FindData(splitVal, true);
-            if (findData != null)
-            {
-                // store refer data
-                if (!referPanels.Contains(findData))
-                    referPanels.Add(findData);
-                parseText = parseText.Replace("#" + findData.title + "#", "#" + findData.genKey + "#");
-            }
-        }
-
-        PureText = parseText;
-    }
-
-    /// <summary>
     /// this func to update list refer panels (call when pure text is modified)
     /// </summary>
     protected void ParseReferPanels()
     {
-        // remove trigger modifying callback
-        for (int i = 0; i < referPanels.Count; i++)
-        {
-            DataIndex referPanel = referPanels[i];
-            referPanel.actModifyData -= ConvertoShowText;
-        }
-
-        referPanels.Clear();
+        // clear all refer panels
+        ClearAllReferPanels();
 
         // parse pure text -> to retrieve referral panels
         string[] tmp = pureText.Split('#');
@@ -173,16 +234,34 @@ public class ReactLabel : Label, IPointerClickHandler
                 continue;
 
             DataIndex findData = DataMgr.Instance.FindData(parseKey, false);
-            // store refer data
-            if (findData != null && !referPanels.Contains(findData))
-                referPanels.Add(findData);
+            // add refer data
+            if (findData != null && !IsContainReferPanel(findData.genKey))
+                AddReferPanel(findData);
         }
 
-        // add trigger function for all refer panels
+        // convert pure text to show text
+        ConvertoShowText();
+    }
+
+    public bool IsContainReferPanel(string _panelKey)
+    {
+        int findId = referPanels.FindIndex(x => x.genKey == _panelKey);
+
+        return findId != -1;
+    }
+
+    protected void ClearAllReferPanels()
+    {
+        // un-register action
         for (int i = 0; i < referPanels.Count; i++)
         {
-            DataIndex referPanel = referPanels[i];
-            referPanel.actModifyData += ConvertoShowText;
+            if (referPanels[i] != null)
+            {
+                RemoveReferPanel(i);
+                i--;
+            }
         }
+
+        referPanels.Clear();
     }
 }

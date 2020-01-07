@@ -280,8 +280,8 @@ namespace GracesGames.SimpleFileBrowser.Scripts
         // Then destroys the file browser
         private void SendFileSelectEvent(string path)
         {
-            OnFileSelect(path);
             Destroy();
+            OnFileSelect(path);
         }
 
         // Checks the current value of the InputField. If it is an empty string, disable the save button

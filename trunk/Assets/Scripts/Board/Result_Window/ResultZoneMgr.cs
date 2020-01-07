@@ -93,6 +93,15 @@ public class ResultZoneMgr : MonoBehaviour
         CanvasMgr.Instance.RefreshCanvas();
     }
 
+    public void ClearContent()
+    {
+        foreach (GameObject row in rows)
+        {
+            row.GetComponentInChildren<Text>().text = "";
+            row.SetActive(false);
+        }
+    }
+
     // ========================================= PRIVATE FUNCS =========================================
     private string ParseToText(DataIndex _dataIndex, DataIndexer.DataType _dataType, bool _isRefer)
     {

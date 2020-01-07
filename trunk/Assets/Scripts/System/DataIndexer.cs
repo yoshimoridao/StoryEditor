@@ -16,7 +16,7 @@ public class DataIndexer
     [SerializeField]
     public List<DataIndex> stories = new List<DataIndex>();
 
-    public bool isRdTest = false;
+    public bool isRdTest = true;
     // random test mode
     public int rdTestCaseAmount = 1;
     // picking test cases mode
@@ -34,8 +34,8 @@ public class DataIndexer
         {
             rdTestCaseAmount = value;
 
-            // save
-            Save();
+            //// save
+            //Save();
         }
     }
 
@@ -46,8 +46,8 @@ public class DataIndexer
         {
             isRdTest = value;
 
-            // save
-            Save();
+            //// save
+            //Save();
         }
     }
 
@@ -75,8 +75,8 @@ public class DataIndexer
         List<DataIndex> datas = GetDatas(_type);
         datas.Add(_data);
 
-        // save
-        Save();
+        //// save
+        //Save();
     }
 
     public void RemoveData(DataType _type, string _key)
@@ -87,11 +87,13 @@ public class DataIndexer
         if (findId != -1 && findId < datas.Count)
         {
             // remove the index
+            datas[findId].OnDestroy();
+
             datas.RemoveAt(findId);
         }
 
-        // save
-        Save();
+        //// save
+        //Save();
     }
 
     public void ReplaceTitle(DataType _type, string _key, string _title)
@@ -105,8 +107,8 @@ public class DataIndexer
             datas[findId].Title = _title;
         }
 
-        // export save file
-        Save();
+        //// export save file
+        //Save();
     }
 
     public void SortData(DataType _type, List<string> _keys)
@@ -128,8 +130,8 @@ public class DataIndexer
                 elements = sortList;
         }
 
-        // export save file
-        Save();
+        //// export save file
+        //Save();
     }
 
     public DataIndex FindData(string _key, bool _isFindByTitle)
@@ -178,8 +180,8 @@ public class DataIndexer
         if (dataIndex != null)
             dataIndex.Color = (int)_color;
 
-        // export save file
-        Save();
+        //// export save file
+        //Save();
     }
 
     // ====== element ======
@@ -189,8 +191,8 @@ public class DataIndexer
         if (dataIndex != null)
             dataIndex.AddElement(_val);
 
-        // export save file
-        Save();
+        //// export save file
+        //Save();
     }
 
     public void ReplaceElement(DataType _type, string _key, int _eIndex, string _val)
@@ -199,8 +201,8 @@ public class DataIndexer
         if (dataIndex != null)
             dataIndex.ReplaceElement(_eIndex, _val);
 
-        // export save file
-        Save();
+        //// export save file
+        //Save();
     }
 
     public void ReplaceElements(DataType _type, string _key, List<string> _elements)
@@ -210,8 +212,8 @@ public class DataIndexer
         if (dataIndex != null)
             dataIndex.elements = _elements;
 
-        // export save file
-        Save();
+        //// export save file
+        //Save();
     }
 
     public void RemoveElement(DataType _type, string _key, int _eIndex)
@@ -221,8 +223,8 @@ public class DataIndexer
         if (dataIndex != null)
             dataIndex.RemoveElement(_eIndex);
 
-        // export save file
-        Save();
+        //// export save file
+        //Save();
     }
 
     public void ReplaceTestElements(DataType _type, string _key, List<int> _testElements)
@@ -235,8 +237,8 @@ public class DataIndexer
             dataIndex.testElements = new List<int>(_testElements);
         }
 
-        // export save file
-        Save();
+        //// export save file
+        //Save();
     }
 
     // ====== pick test case ======
@@ -256,8 +258,8 @@ public class DataIndexer
             InvokeTestCaseAct();
         }
 
-        // save
-        Save();
+        //// save
+        //Save();
     }
 
     public void RemoveTestCase(string _key)
@@ -268,8 +270,8 @@ public class DataIndexer
             InvokeTestCaseAct();
         }
 
-        // save
-        Save();
+        //// save
+        //Save();
     }
 
     public void ClearTestCases()
@@ -277,76 +279,76 @@ public class DataIndexer
         testCaseIds.Clear();
         InvokeTestCaseAct();
 
-        // save
-        Save();
+        //// save
+        //Save();
     }
 
     // ====== util ======
-    public void Load()
+    public void Load(string _path, out bool _isConvertOldSave)
     {
-        // load in editor
-#if (IN_UNITY_EDITOR)
-        if (!Directory.Exists(DataDefine.save_path_dataFolder))
-            Directory.CreateDirectory(DataDefine.save_path_dataFolder);
+        _isConvertOldSave = false;
 
-        string content = "";
-        if (File.Exists(DataDefine.save_path_dataFolder + DataDefine.save_fileName_indexData))
-            content = File.ReadAllText(DataDefine.save_path_dataFolder + DataDefine.save_fileName_indexData);
-#else
-        // load from out-side folder (the folder where user can reach)
-        if (!Directory.Exists(DataDefine.save_path_outputFolder))
-            Directory.CreateDirectory(DataDefine.save_path_outputFolder);
-
-        string content = "";
-        if (File.Exists(DataDefine.save_path_outputFolder + DataDefine.save_fileName_indexData))
-            content = File.ReadAllText(DataDefine.save_path_outputFolder + DataDefine.save_fileName_indexData);
-        // load again from by Player Pref (backup)
-        if (content.Length == 0 && PlayerPrefs.HasKey(DataDefine.save_key_indexData))
-            content = PlayerPrefs.GetString(DataDefine.save_key_indexData); 
-#endif
+        string content = File.ReadAllText(_path);
 
         // clone data
-        Debug.Log("Load Index = " + content);
         if (content.Length > 0)
         {
-            DataIndexer newData = JsonUtility.FromJson<DataIndexer>(content);
-            genKey = newData.genKey;
-            elements = newData.elements;
-            stories = newData.stories;
+            DataIndexer loadData = null;
 
-            rdTestCaseAmount = newData.rdTestCaseAmount;
-            isRdTest = newData.isRdTest;
+            // old format -> convert to new format
+            if (Util.IsOldSaveFormat(content))
+            {
+                loadData = Util.ConvertOldSaveFileToLastest(content);
 
-            testCaseIds = newData.testCaseIds;
+                // clone data
+                if (loadData != null)
+                {
+                    elements = loadData.elements;
+                    stories = loadData.stories;
+                    _isConvertOldSave = true;
+
+                    // replace all link titles to link keys
+                    loadData = Util.ReplaceLinkTitlesToLinkKeys(loadData);
+                }
+            }
+            // new format
+            else
+            {
+                loadData = JsonUtility.FromJson<DataIndexer>(content);
+
+                // clone data
+                if (loadData != null)
+                {
+                    // just clone key from lastest save format
+                    if (!_isConvertOldSave)
+                        genKey = loadData.genKey;
+
+                    elements = loadData.elements;
+                    stories = loadData.stories;
+
+                    rdTestCaseAmount = loadData.rdTestCaseAmount;
+                    isRdTest = loadData.isRdTest;
+
+                    testCaseIds = loadData.testCaseIds;
+                }
+            }
         }
     }
 
     public void Save()
     {
-#if (IN_UNITY_EDITOR)
-        string strOutput = JsonUtility.ToJson(this, true);
-#else
         string strOutput = JsonUtility.ToJson(this);
-#endif
-        Debug.Log("Save Indexer = " + strOutput);
 
-#if (IN_UNITY_EDITOR)
-        // save to data folder (for only on editor)
-        if (!Directory.Exists(DataDefine.save_path_dataFolder))
-            Directory.CreateDirectory(DataDefine.save_path_dataFolder);
-
-        // write new content
-        File.WriteAllText(DataDefine.save_path_dataFolder + DataDefine.save_fileName_indexData, strOutput);
-#else
-        // save to playerpref
-        PlayerPrefs.SetString(DataDefine.save_key_indexData, strOutput);
-#endif
-
-        // save to out-side folder (save to folder where user can reach)
-        if (!Directory.Exists(DataDefine.save_path_outputFolder))
-            Directory.CreateDirectory(DataDefine.save_path_outputFolder);
-
-        File.WriteAllText(DataDefine.save_path_outputFolder + DataDefine.save_fileName_indexData, strOutput);
+        if (File.Exists(DataDefine.save_path))
+        {
+            File.WriteAllText(DataDefine.save_path, strOutput);
+        }
+        else
+        {
+            StreamWriter writer = new StreamWriter(DataDefine.save_path);
+            writer.Write(strOutput);
+            writer.Close();
+        }
     }
 
     public List<DataIndex> GetDatas(DataType _type)

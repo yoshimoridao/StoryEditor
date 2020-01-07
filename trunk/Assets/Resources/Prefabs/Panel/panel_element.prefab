@@ -596,6 +596,7 @@ MonoBehaviour:
   titleLabel: {fileID: 6283661336439146122}
   transLabelCont: {fileID: 5597673473371183034}
   testTag: {fileID: 2558818997201781559}
+  contentSize: 0.95
 --- !u!1 &5597673473371183035
 GameObject:
   m_ObjectHideFlags: 0
@@ -985,6 +986,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c9cd4c6087f61841b4402e2ff19e707, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isEditing: 0
 --- !u!1 &6437260227752082621
 GameObject:
   m_ObjectHideFlags: 0

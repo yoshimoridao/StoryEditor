@@ -596,6 +596,7 @@ MonoBehaviour:
   titleLabel: {fileID: 378178642503958889}
   transLabelCont: {fileID: 5597673473371183034}
   testTag: {fileID: 2558818997201781559}
+  contentSize: 0.95
 --- !u!1 &5597673473371183035
 GameObject:
   m_ObjectHideFlags: 0
@@ -985,6 +986,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c9cd4c6087f61841b4402e2ff19e707, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isEditing: 0
 --- !u!1 &6437260227752082621
 GameObject:
   m_ObjectHideFlags: 0
@@ -1250,7 +1252,7 @@ PrefabInstance:
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6749526799288186501, guid: 751c2599d98268b48bb2650cd0fc9f2d,
         type: 3}

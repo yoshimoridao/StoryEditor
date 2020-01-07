@@ -316,7 +316,7 @@ public class CursorMgr : Singleton<CursorMgr>
             {
                 ReactLabel hoverLabel = catchObj.GetComponent<ReactLabel>();
                 if (hoverLabel)
-                    hoverLabel.AddReferalPanel(dragPanel);
+                    hoverLabel.OnDragPanelInto(dragPanel);
             }
             // draging from a panel to panel
             else if (IsHoverObjs(out catchObj, DataDefine.tag_panel_common))

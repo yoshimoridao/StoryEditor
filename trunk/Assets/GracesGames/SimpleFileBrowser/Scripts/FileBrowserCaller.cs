@@ -42,7 +42,7 @@ namespace GracesGames.SimpleFileBrowser.Scripts
             fileBrowserScript.SetupFileBrowser(PortraitMode ? ViewMode.Portrait : ViewMode.Landscape);
             if (fileBrowserMode == FileBrowserMode.Save)
             {
-                fileBrowserScript.SaveFilePanel("DemoText", FileExtensions);
+                fileBrowserScript.SaveFilePanel(DataDefine.save_filename_default, FileExtensions);
                 // Subscribe to OnFileSelect event (call SaveFileUsingPath using path) 
                 fileBrowserScript.OnFileSelect += SaveFileUsingPath;
             }
@@ -55,25 +55,32 @@ namespace GracesGames.SimpleFileBrowser.Scripts
         }
 
         // Saves a file with the textToSave using a path
-        private void SaveFileUsingPath(string path)
+        private void SaveFileUsingPath(string _path)
         {
+            DataMgr.Instance.Save(_path);
+
             //// Make sure path and _textToSave is not null or empty
-            //if (!String.IsNullOrEmpty(path) && !String.IsNullOrEmpty(_textToSave)) {
-            //	BinaryFormatter bFormatter = new BinaryFormatter();
-            //	// Create a file using the path
-            //	FileStream file = File.Create(path);
-            //	// Serialize the data (textToSave)
-            //	bFormatter.Serialize(file, _textToSave);
-            //	// Close the created file
-            //	file.Close();
-            //} else {
-            //	Debug.Log("Invalid path or empty file given");
+            //if (!String.IsNullOrEmpty(_path))
+            //{
+            //    BinaryFormatter bFormatter = new BinaryFormatter();
+            //    // Create a file using the path
+            //    FileStream file = File.Create(_path);
+            //    // Serialize the data (textToSave)
+            //    bFormatter.Serialize(file, _textToSave);
+            //    // Close the created file
+            //    file.Close();
+            //}
+            //else
+            //{
+            //    Debug.Log("Invalid path or empty file given");
             //}
         }
 
         // Loads a file using a path
-        private void LoadFileUsingPath(string path)
+        private void LoadFileUsingPath(string _path)
         {
+            DataMgr.Instance.Load(_path);
+
             //if (path.Length != 0)
             //{
             //    BinaryFormatter bFormatter = new BinaryFormatter();

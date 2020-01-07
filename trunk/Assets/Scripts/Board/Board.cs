@@ -31,6 +31,15 @@ public class Board : MonoBehaviour
 
     }
 
+    private void OnDestroy()
+    {
+        foreach (Panel panel in panels)
+        {
+            // clear all register action
+            if (panel && panel.actOnDestroy != null)
+                panel.actOnDestroy -= RemovePanel;
+        }
+    }
     // ========================================= PUBLIC FUNCS =========================================
     public virtual void Init()
     {
@@ -40,6 +49,11 @@ public class Board : MonoBehaviour
             if (transPanelCont.GetChild(i) != transPlusPanel)
                 Destroy(transPanelCont.GetChild(i).gameObject);
         }
+    }
+
+    public virtual void Load()
+    {
+
     }
 
     public virtual Panel AddPanel(string _genKey) { return null; }
@@ -72,20 +86,4 @@ public class Board : MonoBehaviour
             CanvasMgr.Instance.RefreshCanvas();
         }
     }
-
-    //public void ClearAllPickedTestPanels()
-    //{
-    //    // get list of picked up panels from data
-    //    List<string> pickedPanel = DataMgr.Instance.GetTestCases();
-    //    // un-pick these panels
-    //    for (int i = 0; i < panels.Count; i++)
-    //    {
-    //        Panel panel = panels[i] as Panel;
-    //        // if panel in list
-    //        if (pickedPanel.FindIndex(x => x == panel.Title()) != -1 && panel.testTag)
-    //        {
-    //            panel.testTag.SetActiveTag(false);
-    //        }
-    //    }
-    //}
 }

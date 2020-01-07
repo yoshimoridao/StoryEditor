@@ -14,14 +14,9 @@ public class DataDefine
     public static string pref_path_result_row           = "Prefabs/result_row";
     
     // save
-    public static string save_path_dataFolder       = "Assets/Resources/Data/";
-    public static string save_path_outputFolder     = "SaveInfo/";
-    public static string save_fileName_storyData    = "story_data.txt";
-    public static string save_fileName_indexData    = "index_data.txt";
-
-    // player pref's key
-    public static string save_key_storyData     = "save_story_data";
-    public static string save_key_indexData     = "save_index_data";
+    public static string save_path                      = "Save/";
+    public static string save_filename_default          = "DemoText";
+    public static string save_filename_suffix_tracery   = "_tracery";
 
     // tag
     public static string tag_board_element      = "rootpanel_attribute";
@@ -33,8 +28,9 @@ public class DataDefine
     public static string tag_panel_origin       = "panel_origin";
     public static string tag_label_input        = "label_input";
 
-    // defaul name
+    // text
     public static string defaultLabelVar = "---";
     public static string default_name_element_panel = "element";
     public static string default_name_story_panel = "story";
+    public static string error_refer_text = "#error#";
 }

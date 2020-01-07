@@ -108,7 +108,7 @@ public class DataMgr : Singleton<DataMgr>
         }
 
         // export tracery file
-        ExportTraceryFile();
+        // ExportTraceryFile();
     }
 
     public void RemoveData(DataIndexer.DataType _type, string _key)
@@ -116,7 +116,7 @@ public class DataMgr : Singleton<DataMgr>
         dataIndexer.RemoveData(_type, _key);
 
         // export tracery file
-        ExportTraceryFile();
+        // ExportTraceryFile();
     }
 
     public void ReplaceTitle(DataIndexer.DataType _type, string _key, string _title)
@@ -124,7 +124,7 @@ public class DataMgr : Singleton<DataMgr>
         dataIndexer.ReplaceTitle(_type, _key, _title);
 
         // export tracery file
-        ExportTraceryFile();
+        // ExportTraceryFile();
     }
 
     public void SortIndexes(DataIndexer.DataType _type, List<Panel> _panels)
@@ -139,7 +139,7 @@ public class DataMgr : Singleton<DataMgr>
         dataIndexer.SortData(_type, panelKeys);
 
         // export tracery file
-        ExportTraceryFile();
+        // ExportTraceryFile();
     }
 
     public DataIndex FindData(string _key, bool _isFindByTitle) { return dataIndexer.FindData(_key, _isFindByTitle); }
@@ -164,7 +164,7 @@ public class DataMgr : Singleton<DataMgr>
         dataIndexer.AddElement(_type, _key, _val);
 
         // export tracery file
-        ExportTraceryFile();
+        // ExportTraceryFile();
     }
 
     public void RemoveElement(DataIndexer.DataType _type, string _key, int _eIndex)
@@ -172,7 +172,7 @@ public class DataMgr : Singleton<DataMgr>
         dataIndexer.RemoveElement(_type, _key, _eIndex);
 
         // export tracery file
-        ExportTraceryFile();
+        // ExportTraceryFile();
     }
 
     public void ReplaceElement(DataIndexer.DataType _type, string _key, int _eIndex, string _val)
@@ -180,7 +180,7 @@ public class DataMgr : Singleton<DataMgr>
         dataIndexer.ReplaceElement(_type, _key, _eIndex, _val);
 
         // export tracery file
-        ExportTraceryFile();
+        // ExportTraceryFile();
     }
 
     public void ReplaceElements(DataIndexer.DataType _type, string _key, List<string> _elements)
@@ -188,7 +188,7 @@ public class DataMgr : Singleton<DataMgr>
         dataIndexer.ReplaceElements(_type, _key, _elements);
 
         // export tracery file
-        ExportTraceryFile();
+        // ExportTraceryFile();
     }
 
     public void ReplaceTestingIndex(DataIndexer.DataType _type, string _key, List<int> _testElements)
@@ -209,7 +209,7 @@ public class DataMgr : Singleton<DataMgr>
             dataIndexer.RemoveTestCase(_key);
 
         // export tracery file
-        ExportTraceryFile();
+        // ExportTraceryFile();
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -230,13 +230,10 @@ public class DataMgr : Singleton<DataMgr>
     // ========================================= PUBLIC FUNCS =========================================
     public void Init()
     {
-        // load data indexer first
-        dataIndexer.Load();
     }
 
     public void ExportTraceryFile()
     {
-        //string output = dataStorage.ExportTracyFile().Replace("}", "");
         string output = "";
         // clear all dataStorage
         dataStorage.origin.Clear();
@@ -280,15 +277,6 @@ public class DataMgr : Singleton<DataMgr>
 
         output += "}";
 
-        // Parse pre-fix origin
-        // get title all of test case
-        //List<string> testCaseIds = new List<string>(TestCaseIds);
-        //for (int i = 0; i < testCaseIds.Count; i++)
-        //{
-        //    DataIndex tmpData = FindData(testCaseIds[i], false);
-        //    if (tmpData != null)
-        //        testCaseIds[i] = tmpData.Title;
-        //}
         // export test cases for origin part
         output = dataStorage.ExportTracyFile(TestCases).Replace("}", "") + output;
 
@@ -298,22 +286,17 @@ public class DataMgr : Singleton<DataMgr>
         Debug.Log("Export Tracery File = " + output);
 
         // --- Save ---
-#if (IN_UNITY_EDITOR)
-        // save to data folder (for only on editor)
-        if (!Directory.Exists(DataDefine.save_path_dataFolder))
-            Directory.CreateDirectory(DataDefine.save_path_dataFolder);
-        // write new content
-        File.WriteAllText(DataDefine.save_path_dataFolder + DataDefine.save_fileName_storyData, output);
-#else
-        // save to playerpref (for back up)
-        PlayerPrefs.SetString(DataDefine.save_key_storyData, output);
-#endif
-
-        // save to out-side folder (save to folder where user can reach)
-        if (!Directory.Exists(DataDefine.save_path_outputFolder))
-            Directory.CreateDirectory(DataDefine.save_path_outputFolder);
-
-        File.WriteAllText(DataDefine.save_path_outputFolder + DataDefine.save_fileName_storyData, output);
+        string savePath = DataDefine.save_path.Replace(".txt", DataDefine.save_filename_suffix_tracery + ".txt");
+        if (File.Exists(savePath))
+        {
+            File.WriteAllText(savePath, output);
+        }
+        else
+        {
+            StreamWriter writer = new StreamWriter(savePath);
+            writer.Write(output);
+            writer.Close();
+        }
     }
 
     public string MergeAllElements(DataIndex _dataIndex)
@@ -328,9 +311,35 @@ public class DataMgr : Singleton<DataMgr>
         return val;
     }
 
+    public void Load(string _path)
+    {
+        if (File.Exists(_path))
+        {
+            bool isConvertOldSave = false;
+            dataIndexer.Load(_path, out isConvertOldSave);
+            // re-load canvas's elements
+            CanvasMgr.Instance.Load();
+
+            // auto save new file
+            if (isConvertOldSave)
+            {
+                string savePath = _path.Replace(".txt", "_new.txt");
+                Save(savePath);
+            }
+        }
+    }
+
     public void Save()
     {
+        if (DataDefine.save_path.Length > 0)
+            Save(DataDefine.save_path);
+    }
+
+    public void Save(string _path)
+    {
         // save and export tracery file
+        DataDefine.save_path = _path;
+
         dataIndexer.Save();
         ExportTraceryFile();
     }

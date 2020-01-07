@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEditor;
+using System;
 
 [System.Serializable]
 public class Panel : MonoBehaviour
@@ -11,10 +13,10 @@ public class Panel : MonoBehaviour
     public Transform transLabelCont;
     public GameObject testTag;
 
+    public Action<Panel> actOnDestroy = null;
+
     protected RectTransform rt;
     protected Image image;
-
-    protected Board board;
 
     protected string key;
     protected string title;
@@ -30,7 +32,11 @@ public class Panel : MonoBehaviour
     protected DataIndexer.DataType dataType;
 
     // arrange panel
+    protected HorizontalLayoutGroup layoutRow;
     protected float baseWidth = 0;
+    [SerializeField]
+    protected float contentSize = 0.9f;
+    [SerializeField]
     protected bool isRefreshPanel;
     protected Vector2 refreshPanelDt = new Vector2(0, 0.5f);
 
@@ -104,7 +110,7 @@ public class Panel : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public virtual void Init(Board _board, string _key, string _title)
+    public virtual void Init(string _key, string _title)
     {
         // get component
         if (rt == null)
@@ -121,9 +127,8 @@ public class Panel : MonoBehaviour
 
         // load prefab
         prefRow = Resources.Load<GameObject>(DataDefine.pref_path_rowLabel);
+        layoutRow = prefRow.GetComponent<HorizontalLayoutGroup>();
 
-        // store parent
-        this.board = _board;
         // set key
         Key = _key;
         // set title 
@@ -131,15 +136,17 @@ public class Panel : MonoBehaviour
         {
             titleLabel.Init(this, "");  // init default
             titleLabel.actEditDone += OnTitleEdited;
-        }   
+        }
         Title = _title;
 
         // determine data type
         dataType = this is ElementPanel ? DataIndexer.DataType.Element : DataIndexer.DataType.Story;
 
         // calculate panel's zone
-        RectOffset boardPadding = this.board.GetComponent<VerticalLayoutGroup>().padding;
-        baseWidth = (this.transform as RectTransform).sizeDelta.x - (boardPadding.left + boardPadding.right);
+        baseWidth = rt.sizeDelta.x;
+        if (layoutRow)
+            baseWidth -= (layoutRow.padding.left + layoutRow.padding.right);
+        baseWidth *= contentSize;
 
         // arrange panel
         RefreshPanel();
@@ -251,7 +258,9 @@ public class Panel : MonoBehaviour
 
     public void SelfDestroy()
     {
-        board.RemovePanel(this);
+        if (actOnDestroy != null)
+            actOnDestroy.Invoke(this);
+
         Destroy(gameObject);
     }
 
@@ -264,27 +273,38 @@ public class Panel : MonoBehaviour
         for (int i = 0; i <= labels.Count; i++)
         {
             Label label = null;
+            float labelW = 0;
             if (i < labels.Count)
             {
                 label = labels[i];
-                rowW += (label.transform as RectTransform).sizeDelta.x;
+                // get label's width
+                labelW = (label.transform as RectTransform).sizeDelta.x;
+                if (layoutRow)
+                    labelW += layoutRow.spacing;
+                // calculate row's width
+                rowW += labelW;
             }
 
             // if the width of content over size
             if (rowW > baseWidth || (i == labels.Count))
             {
                 Transform addingRow = null;
+                // get next row
                 if (rowCounter < rows.Count)
                     addingRow = rows[rowCounter];
                 else
                     addingRow = AddNewRow();
 
-                foreach (Label eLabel in rowLabels)
+                // set child for next row
+                for (int j = 0; j < rowLabels.Count; j++)
+                {
+                    Label eLabel = rowLabels[j];
                     eLabel.transform.parent = addingRow;
+                    eLabel.transform.SetSiblingIndex(j);
+                }
 
                 rowLabels.Clear();
-                if (label != null)
-                    rowW = (label.transform as RectTransform).sizeDelta.x;
+                rowW = labelW;
                 rowCounter++;
             }
 

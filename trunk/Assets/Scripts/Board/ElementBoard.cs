@@ -24,34 +24,79 @@ public class ElementBoard : Board
         prefPanel = Resources.Load<GameObject>(DataDefine.pref_path_elementPanel);
 
         // load data
+        Load();
+    }
+
+    public override void Load()
+    {
+        base.Load();
+
+        // load data
         List<DataIndex> dataIndexes = DataMgr.Instance.Elements;
         for (int i = 0; i < dataIndexes.Count; i++)
         {
             DataIndex dataIndex = dataIndexes[i];
+
+            ElementPanel panel = null;
             // create panel
-            ElementPanel panel = AddPanel(dataIndex.genKey) as ElementPanel;
+            if (i >= panels.Count)
+                panel = AddPanel(dataIndex.genKey) as ElementPanel;
+            // get already exist panel
+            else
+                panel = panels[i] as ElementPanel;
 
             // create label elements
             if (panel)
             {
-                panel.Title = dataIndex.title;                          // load title
-                panel.Color = (ColorBar.ColorType)dataIndex.colorId;    // load color
-                panel.IsTesting = DataMgr.Instance.TestCases.Contains(dataIndex.genKey);                     // load testing flag
+                panel.Key = dataIndex.genKey;                                               // load gen key
+                panel.Title = dataIndex.title;                                              // load title
+                panel.Color = (ColorBar.ColorType)dataIndex.colorId;                        // load color
+                panel.IsTesting = DataMgr.Instance.TestCases.Contains(dataIndex.genKey);    // load testing flag
 
                 // gen labels
+                List<Label> labels = panel.Labels;
                 for (int j = 0; j < dataIndex.elements.Count; j++)
                 {
                     string var = dataIndex.elements[j];
-                    Label genLabel = panel.AddLabel(var);
+                    Label genLabel = null;
+                    // add new label
+                    if (j >= labels.Count)
+                    {
+                        genLabel = panel.AddLabel(var);
+                    }
+                    // or get exist label
+                    else
+                    {
+                        genLabel = labels[j];
+                        genLabel.PureText = var;
+                    }
 
                     // store testing elements
-                    if (dataIndex.testElements.Contains(j) && genLabel && genLabel is ElementLabel)
+                    if (genLabel && genLabel is ElementLabel && dataIndex.testElements.Contains(j))
                         panel.AddTestLabel(genLabel as ElementLabel);
                 }
 
                 // set active highlight for all testing labels
                 panel.ActiveTestLabels();
+
+                // delete excess labels
+                if (dataIndex.elements.Count < labels.Count)
+                {
+                    int beginId = dataIndex.elements.Count;
+                    for (int j = beginId; j < labels.Count; j++)
+                        Destroy(labels[j].gameObject);
+                    labels.RemoveRange(beginId, labels.Count - beginId);
+                }
             }
+        }
+
+        // delete excess panels
+        if (dataIndexes.Count < panels.Count)
+        {
+            int beginId = dataIndexes.Count;
+            for (int i = beginId; i < panels.Count; i++)
+                Destroy(panels[i].gameObject);
+            panels.RemoveRange(beginId, panels.Count - beginId);
         }
 
         // refresh canvas
@@ -68,7 +113,9 @@ public class ElementBoard : Board
         if (panel)
         {
             string title = DataDefine.default_name_element_panel;
-            panel.Init(this, _genKey, title);
+            panel.Init(_genKey, title);
+            // register action when panel is destroyed
+            panel.actOnDestroy += RemovePanel;
 
             panels.Add(panel);
 

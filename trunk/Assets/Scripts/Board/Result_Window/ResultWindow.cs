@@ -40,11 +40,18 @@ public class ResultWindow : Singleton<ResultWindow>
         if (resultZone)
             resultZone.Init();
 
-        // default de-active random mode
+        Load();
+
+        // add modified action for picking mode
+        DataMgr.Instance.ActModifiedTestCase += RefreshPickupAmountText;
+    }
+
+    public void Load()
+    {
         // Load testing mode
         isRandom = DataMgr.Instance.IsRandomTest;
 
-        // init switch btn
+        // active mode btn
         if (switchPickModeBtn)
             switchPickModeBtn.Init(!isRandom);
         if (switchRdModeBtn)
@@ -53,8 +60,8 @@ public class ResultWindow : Singleton<ResultWindow>
         // active panel
         ActivePanel();
 
-        // add modified action for picking mode
-        DataMgr.Instance.ActModifiedTestCase += RefreshPickupAmountText;
+        // refresh content
+        resultZone.ClearContent();
     }
 
     public void RefreshPickupAmountText()

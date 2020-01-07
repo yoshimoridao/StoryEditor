@@ -1,190 +1,178 @@
 {
-    "genKey": 33,
-    "elements": [
-        {
-            "genKey": "12",
-            "title": "e1xxx",
-            "colorId": 4,
-            "elements": [
-                "a",
-                "b",
-                "c"
-            ],
-            "testElements": [
-                1
-            ]
-        },
-        {
-            "genKey": "13",
-            "title": "e321aaaaaaa",
-            "colorId": 6,
-            "elements": [
-                "1",
-                "2",
-                "3"
-            ],
-            "testElements": []
-        },
-        {
-            "genKey": "14",
-            "title": "abc",
-            "colorId": 7,
-            "elements": [
-                "#<color=orange><b>e321aaaaaaa</b></color>##<color=green><b>e1xxx</b></color>#",
-                "#<color=green><b>e1xxx</b></color># #<color=orange><b>e321aaaaaaa</b></color>##<color=orange><b>e321aaaaaaa</b></color>##<color=green><b>e1xxx</b></color>#",
-                "dawwwwwwwwwdfsdsdsdasdfsd",
-                "fdsaaaaaaaaaaaaaaaaaaaaaaaa",
-                "fasddsssssssssssssssssdsdsdsdsdssssssssssss",
-                "asdfweeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeasdf",
-                "sdfweeeeeeeeeeeeeeeeeeeeeeeeeeeeeasdasd"
-            ],
-            "testElements": []
-        },
-        {
-            "genKey": "19",
-            "title": "element",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "20",
-            "title": "element",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "21",
-            "title": "element",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "22",
-            "title": "element",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "23",
-            "title": "element",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "24",
-            "title": "element",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "25",
-            "title": "element",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        }
-    ],
-    "stories": [
-        {
-            "genKey": "11",
-            "title": "s1",
-            "colorId": 6,
-            "elements": [
-                "#13#",
-                "#14#",
-                "abc",
-                "#12# #14#",
-                "---",
-                "---"
-            ],
-            "testElements": []
-        },
-        {
-            "genKey": "15",
-            "title": "s2",
-            "colorId": 0,
-            "elements": [
-                "def#13#"
-            ],
-            "testElements": []
-        },
-        {
-            "genKey": "16",
-            "title": "s3",
-            "colorId": 3,
-            "elements": [
-                "123123123123123123",
-                "#14##13##exxx#",
-                "#13#"
-            ],
-            "testElements": []
-        },
-        {
-            "genKey": "26",
-            "title": "story",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "27",
-            "title": "story",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "28",
-            "title": "story",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "29",
-            "title": "story",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "30",
-            "title": "story",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "31",
-            "title": "story",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "32",
-            "title": "story",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        },
-        {
-            "genKey": "33",
-            "title": "story",
-            "colorId": 0,
-            "elements": [],
-            "testElements": []
-        }
-    ],
-    "isRdTest": true,
-    "rdTestCaseAmount": 4,
-    "testCaseIds": [
-        "11"
-    ]
+	"elements": [
+		{
+			"key": "Toy_Name",
+			"elements": [
+				"Zebra",
+				"Gazelle",
+				"Liger",
+				"Little Cthulhu",
+				"Blue",
+				"Kawai Yog-sothoth"
+			],
+			"colorId": 6,
+			"isStoryElement": false,
+			"testingIndex": []
+		},
+		{
+			"key": "Avatar_Name",
+			"elements": [
+				"Fredsito",
+				"Emperatriz",
+				"Arman",
+				"Khoa",
+				"Trinh"
+			],
+			"colorId": 2,
+			"isStoryElement": false,
+			"testingIndex": [
+				1
+			]
+		},
+		{
+			"key": "Toy_name",
+			"elements": [
+				"Savannah",
+				"Ocean",
+				"vast emptiness of Space"
+			],
+			"colorId": 3,
+			"isStoryElement": false,
+			"testingIndex": [
+				1
+			]
+		},
+		{
+			"key": "Environment_Description",
+			"elements": [
+				" tallest grass you'll ever see ",
+				" shiniest stars around ",
+				" largest most colorful fish in the sea "
+			],
+			"colorId": 7,
+			"isStoryElement": false,
+			"testingIndex": []
+		},
+		{
+			"key": "Toy_Problematic_Emotion",
+			"elements": [
+				"sad as can be",
+				"huffing and puffing",
+				"sleepy as a Lion",
+				"hungry enough to eat a whale",
+				"with a bad case of the hickups"
+			],
+			"colorId": 0,
+			"isStoryElement": false,
+			"testingIndex": []
+		},
+		{
+			"key": "Problematic_Action",
+			"elements": [
+				"cries",
+				"yawns",
+				"grumbles",
+				"hicks"
+			],
+			"colorId": 2,
+			"isStoryElement": false,
+			"testingIndex": []
+		},
+		{
+			"key": "Toy_Problematic",
+			"elements": [
+				"am lost",
+				"am very sleepy",
+				"am very hungry",
+				"hick! hick! I can't speak! ",
+				"lost my ring"
+			],
+			"colorId": 4,
+			"isStoryElement": false,
+			"testingIndex": []
+		},
+		{
+			"key": "Problematic_solution",
+			"elements": [
+				"Get back to your bed",
+				"get rid of your hickups with a thrilling adventure",
+				"Cook a delicious meal in the kitchen",
+				"find your ring",
+				"get back to your home"
+			],
+			"colorId": 0,
+			"isStoryElement": false,
+			"testingIndex": []
+		},
+		{
+			"key": "Unique_Decoration",
+			"elements": [
+				"Gigantic Tree",
+				"Dying star",
+				"Funny looking fish"
+			],
+			"colorId": 3,
+			"isStoryElement": false,
+			"testingIndex": [
+				0,
+				1
+			]
+		}
+	],
+	"stories": [
+		{
+			"key": "story_abc",
+			"elements": [
+				"#Toy_name#",
+				" with the",
+				"#Environment_Description#",
+				"#Avatar_Name#",
+				" spots ",
+				"#Toy_Name#",
+				"#Toy_Problematic_Emotion#"
+			],
+			"colorId": 0,
+			"isStoryElement": true,
+			"testingIndex": []
+		},
+		{
+			"key": "story_1",
+			"elements": [
+				"I",
+				"---",
+				"#Toy_Problematic#",
+				"#Problematic_Action#",
+				"#Toy_Name#",
+				"by a",
+				"#Unique_Decoration#"
+			],
+			"colorId": 0,
+			"isStoryElement": true,
+			"testingIndex": []
+		},
+		{
+			"key": "story_2",
+			"elements": [
+				"It's ok",
+				"#Toy_Name#",
+				",",
+				"#Avatar_Name#",
+				"will help you",
+				"#Problematic_solution#",
+				"let's go!",
+				"#story_1#",
+				"a",
+				"a",
+				"a",
+				"a",
+				"a",
+				"a",
+				"a",
+				"---"
+			],
+			"colorId": 0,
+			"isStoryElement": true,
+			"testingIndex": []
+		}
+	]
 }
