@@ -6,11 +6,12 @@ using UnityEngine.UI;
 public class HighlighLabelMgr : MonoBehaviour
 {
     public float nailRange = 10.0f; // 20px
-    RectTransform rt;
+    private RectTransform rt;
+    private Image img;
 
-    Label referLabel;
-    Transform rowTrans = null;
-    int fstSiblingIndex = -1;
+    private Label referLabel;
+    private Transform rowTrans = null;
+    private int fstSiblingIndex = -1;
 
     // ========================================= GET/ SET =========================================
     public bool IsActive()
@@ -22,6 +23,7 @@ public class HighlighLabelMgr : MonoBehaviour
     private void Awake()
     {
         rt = GetComponent<RectTransform>();
+        img = GetComponent<Image>();
     }
 
     void Start()
@@ -37,15 +39,15 @@ public class HighlighLabelMgr : MonoBehaviour
             // in case: mouse drops on same panel
             if (IsDropOnSamePanel(out catchPanel))
             {
-                GameObject element = CursorMgr.Instance.CatchElementHandleByMouse();
+                GameObject element = CursorMgr.Instance.CatchTopObjHandleByMouse();
                 if (element && element.GetComponent<Label>())
                 {
                     Label dropElement = element.GetComponent<Label>();
                     // if user drags to another label
-                    if (referLabel && dropElement.gameObject != referLabel.gameObject)
+                    if (referLabel && dropElement.gameObject != referLabel.gameObject && dropElement is ReactLabel)
                     {
                         // arrange label
-                        ArrangeLabel(dropElement);
+                        ArrangeLabel(dropElement as ReactLabel);
 
                         // arrange panel
                         //if (referLabel.Panel)
@@ -69,7 +71,9 @@ public class HighlighLabelMgr : MonoBehaviour
         transform.SetSiblingIndex(fstSiblingIndex);
         rt.sizeDelta = (referLabel.transform as RectTransform).sizeDelta;
 
-        gameObject.SetActive(true);
+        //gameObject.SetActive(true);
+        if (img)
+            img.enabled = true;
         // hide refer panel
         referLabel.gameObject.SetActive(false);
     }
@@ -95,8 +99,10 @@ public class HighlighLabelMgr : MonoBehaviour
         fstSiblingIndex = -1;
         rowTrans = null;
         // hide highlight obj
-        transform.parent = null;
-        gameObject.SetActive(false);
+        transform.parent = CanvasMgr.Instance.transform;
+        //gameObject.SetActive(false);
+        if (img)
+            img.enabled = false;
 
         // re-show refer panel
         if (referLabel)
@@ -110,27 +116,25 @@ public class HighlighLabelMgr : MonoBehaviour
         }
     }
 
-    public void ArrangeLabel(Label dropLabel)
+    public void ArrangeLabel(ReactLabel _dropLabel)
     {
-        // if match object -> return
-        //if (!referLabel ||
-        //    dropLabel.gameObject == referLabel.gameObject)
-        //    return;
-
         float mouseX = Input.mousePosition.x;
-        float labelX = referLabel.transform.position.x;
-        float dropX = dropLabel.transform.position.x;
+        float labelX = transform.position.x;
 
-        if (Mathf.Abs(dropX - mouseX) <= nailRange)
+        float dropX = _dropLabel.transform.position.x;
+
+        //if (Mathf.Abs(dropX - mouseX) <= nailRange)
+        if ((dropX < labelX && mouseX <= dropX)           // drag from right to left
+            || (labelX <= dropX && dropX <= mouseX))      // drag from left to right
         {
-            Transform transDropRow = dropLabel.gameObject.transform.parent;
-            int dropSiblingIndex = dropLabel.transform.GetSiblingIndex();
+            Transform transDropRow = _dropLabel.gameObject.transform.parent;
+            int dropSiblingIndex = _dropLabel.transform.GetSiblingIndex();
 
             // set parent, sibling index for referral label
             referLabel.transform.parent = transDropRow;
             referLabel.transform.SetSiblingIndex(dropSiblingIndex);
             // set parent, sibling index for highlight
-            transform.transform.parent = referLabel.transform.parent;
+            transform.parent = referLabel.transform.parent;
             transform.SetSiblingIndex(referLabel.transform.GetSiblingIndex());
             
             // update order of labels in the panel

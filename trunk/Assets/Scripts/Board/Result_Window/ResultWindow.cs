@@ -17,6 +17,7 @@ public class ResultWindow : Singleton<ResultWindow>
 
     [SerializeField]
     private bool isRandom = true;
+    private int oldRdCaseAmounts = -1;
 
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
@@ -44,6 +45,11 @@ public class ResultWindow : Singleton<ResultWindow>
 
         // add modified action for picking mode
         DataMgr.Instance.ActModifiedTestCase += RefreshPickupAmountText;
+
+        // scale height for all ratio
+        float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
+        RectTransform rt = transform as RectTransform;
+        rt.sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
     }
 
     public void Load()
@@ -62,6 +68,12 @@ public class ResultWindow : Singleton<ResultWindow>
 
         // refresh content
         resultZone.ClearContent();
+    }
+
+    public void OnDestroy()
+    {
+        // add modified action for picking mode
+        DataMgr.Instance.ActModifiedTestCase -= RefreshPickupAmountText;
     }
 
     public void RefreshPickupAmountText()
@@ -130,7 +142,10 @@ public class ResultWindow : Singleton<ResultWindow>
         DataMgr.Instance.RdTestCaseAmount += isPlusArrow ? 1 : -1;
 
         if (rdCaseAmountText)
+        {
             rdCaseAmountText.text = DataMgr.Instance.RdTestCaseAmount.ToString();
+            oldRdCaseAmounts = int.Parse(rdCaseAmountText.text);
+        }
 
         // refresh random mode text
         RefreshRdAmountText();
@@ -163,7 +178,15 @@ public class ResultWindow : Singleton<ResultWindow>
     // = Random mode panel =
     public void OnEditRdAmountTextDone()
     {
-        DataMgr.Instance.RdTestCaseAmount = int.Parse(rdCaseAmountText.text);
+        int inputAmount = -1;
+        if (rdCaseAmountText && int.TryParse(rdCaseAmountText.text, out inputAmount) && inputAmount != -1)
+        {
+            DataMgr.Instance.RdTestCaseAmount = inputAmount;
+        }
+        else
+        {
+            rdCaseAmountText.text = oldRdCaseAmounts.ToString();
+        }
     }
 
     // ========================================= PRIVATE FUNCS =========================================
@@ -189,6 +212,9 @@ public class ResultWindow : Singleton<ResultWindow>
     {
         // init text
         if (rdCaseAmountText)
+        {
             rdCaseAmountText.text = DataMgr.Instance.RdTestCaseAmount.ToString();
+            oldRdCaseAmounts = int.Parse(rdCaseAmountText.text);
+        }
     }
 }

@@ -48,6 +48,14 @@ public class ElementPanel : Panel
         return genLabel;
     }
 
+    public override void UpdateOrderLabels()
+    {
+        base.UpdateOrderLabels();
+
+        // save test labels (after order)
+        SaveTestLabels();
+    }
+
     public void OnLabelActiveTest(ElementLabel _label)
     {
         if (_label.IsTesting)
@@ -58,20 +66,8 @@ public class ElementPanel : Panel
         // set active highlight for all testing labels
         ActiveTestLabels();
 
-        // find all index of testing labels
-        List<int> tmpTestIds = new List<int>();
-        for (int i = 0; i < testLabels.Count; i++)
-        {
-            int findId = labels.FindIndex(x => x.gameObject == testLabels[i].gameObject);
-            if (findId != -1)
-                tmpTestIds.Add(findId);
-        }
-
-        if (tmpTestIds.Count > 0)
-            tmpTestIds.Sort();
-
-        // save index of testing labels
-        DataMgr.Instance.ReplaceTestingIndex(dataType, Key, tmpTestIds);
+        // save test labels
+        SaveTestLabels();
     }
 
     public void ActiveTestLabels()
@@ -101,5 +97,27 @@ public class ElementPanel : Panel
             testLabels.RemoveAt(findId);
     }
 
+    public void ClearTestLabels()
+    {
+        testLabels.Clear();
+    }
+
     // ========================================= PRIVATE FUNCS =========================================
+    protected void SaveTestLabels()
+    {
+        // find all index of testing labels
+        List<int> tmpTestIds = new List<int>();
+        for (int i = 0; i < testLabels.Count; i++)
+        {
+            int findId = labels.FindIndex(x => x.gameObject == testLabels[i].gameObject);
+            if (findId != -1)
+                tmpTestIds.Add(findId);
+        }
+
+        if (tmpTestIds.Count > 0)
+            tmpTestIds.Sort();
+
+        // save index of testing labels
+        DataMgr.Instance.ReplaceTestingIndex(dataType, Key, tmpTestIds);
+    }
 }

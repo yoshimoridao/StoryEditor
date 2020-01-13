@@ -6,7 +6,7 @@ using UnityEngine.UI;
 [System.Serializable]
 public class SelectAbleElement : MonoBehaviour
 {
-    public Image highlightNode;
+    public Image highlightImg;
 
     bool isSelect = false;
 
@@ -35,7 +35,7 @@ public class SelectAbleElement : MonoBehaviour
     // ========================================= PUBLIC FUNCS =========================================
     private void ActiveHighlight(bool isActive)
     {
-        if (highlightNode)
-            highlightNode.gameObject.SetActive(isActive);
+        if (highlightImg)
+            highlightImg.gameObject.SetActive(isActive);
     }
 }

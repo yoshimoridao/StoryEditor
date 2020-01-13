@@ -20,25 +20,53 @@ namespace GracesGames.SimpleFileBrowser.Scripts
 
         public bool PortraitMode;
 
+        private Action callback;
+        [SerializeField]
+        private Image bgImg;
+        private FileBrowser fileBrowserScript;
+
         // Find the input field, label objects and add a onValueChanged listener to the input field
         private void Start()
         {
+            // default hide bg
+            ActiveBg(false);
         }
 
         // Open the file browser using boolean parameter so it can be called in GUI
+        public void OpenFileBrowser(bool saving, Action _callback)
+        {
+            // store call back func
+            if (_callback != null)
+                callback = _callback;
+
+            OpenFileBrowser(saving);
+        }
+
         public void OpenFileBrowser(bool saving)
         {
             OpenFileBrowser(saving ? FileBrowserMode.Save : FileBrowserMode.Load);
         }
 
+        public void OnFileBrowserDestroy()
+        {
+            // hide bg
+            ActiveBg(false);
+
+            fileBrowserScript.actOnDestroy -= OnFileBrowserDestroy;
+            fileBrowserScript = null;
+        }
+
         // Open a file browser to save and load files
         private void OpenFileBrowser(FileBrowserMode fileBrowserMode)
         {
+            // show bg
+            ActiveBg(true);
+
             // Create the file browser and name it
             GameObject fileBrowserObject = Instantiate(FileBrowserPrefab, transform);
             fileBrowserObject.name = "FileBrowser";
             // Set the mode to save or load
-            FileBrowser fileBrowserScript = fileBrowserObject.GetComponent<FileBrowser>();
+            fileBrowserScript = fileBrowserObject.GetComponent<FileBrowser>();
             fileBrowserScript.SetupFileBrowser(PortraitMode ? ViewMode.Portrait : ViewMode.Landscape);
             if (fileBrowserMode == FileBrowserMode.Save)
             {
@@ -52,12 +80,25 @@ namespace GracesGames.SimpleFileBrowser.Scripts
                 // Subscribe to OnFileSelect event (call LoadFileUsingPath using path) 
                 fileBrowserScript.OnFileSelect += LoadFileUsingPath;
             }
+
+            // register action destroy
+            fileBrowserScript.actOnDestroy += OnFileBrowserDestroy;
         }
 
         // Saves a file with the textToSave using a path
         private void SaveFileUsingPath(string _path)
         {
+            // do call back
+            if (callback != null)
+            {
+                callback.Invoke();
+                callback = null;
+            }
+
             DataMgr.Instance.Save(_path);
+
+            // hide bg
+            ActiveBg(false);
 
             //// Make sure path and _textToSave is not null or empty
             //if (!String.IsNullOrEmpty(_path))
@@ -79,7 +120,17 @@ namespace GracesGames.SimpleFileBrowser.Scripts
         // Loads a file using a path
         private void LoadFileUsingPath(string _path)
         {
+            // do call back
+            if (callback != null)
+            {
+                callback.Invoke();
+                callback = null;
+            }
+
             DataMgr.Instance.Load(_path);
+
+            // hide bg
+            ActiveBg(false);
 
             //if (path.Length != 0)
             //{
@@ -97,6 +148,12 @@ namespace GracesGames.SimpleFileBrowser.Scripts
             //{
             //    Debug.Log("Invalid path given");
             //}
+        }
+
+        private void ActiveBg(bool _isEnable)
+        {
+            if (bgImg)
+                bgImg.enabled = _isEnable;
         }
     }
 }

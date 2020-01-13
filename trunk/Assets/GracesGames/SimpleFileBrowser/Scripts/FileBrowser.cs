@@ -86,6 +86,8 @@ namespace GracesGames.SimpleFileBrowser.Scripts
         // Unity Action Event for selecting a file
         public event Action<string> OnFileSelect = delegate { };
 
+        public event Action actOnDestroy;
+
         // ----- METHODS -----
 
         // Method used to setup the file browser
@@ -112,6 +114,10 @@ namespace GracesGames.SimpleFileBrowser.Scripts
                 Debug.LogError("Make sure there is a canvas GameObject present in the Hierarcy (Create UI/Canvas)");
             }
 
+            // load previous save path
+            if (DataMgr.Instance.LastLoadPath.Length > 0)
+                startPath = DataMgr.Instance.LastLoadPath;
+
             SetupPath(startPath);
         }
 
@@ -121,16 +127,19 @@ namespace GracesGames.SimpleFileBrowser.Scripts
         {
             if (!String.IsNullOrEmpty(startPath) && Directory.Exists(startPath))
             {
-                _currentPath = startPath;
+                //_currentPath = startPath;
+                ChangeCurrentPath(startPath);
             }
             else if (IsAndroidPlatform())
             {
                 SetupAndroidVariables();
-                _currentPath = _rootAndroidPath;
+                //_currentPath = _rootAndroidPath;
+                ChangeCurrentPath(_rootAndroidPath);
             }
             else
             {
-                _currentPath = Directory.GetCurrentDirectory();
+                //_currentPath = Directory.GetCurrentDirectory();
+                ChangeCurrentPath(Directory.GetCurrentDirectory());
             }
         }
 
@@ -191,7 +200,8 @@ namespace GracesGames.SimpleFileBrowser.Scripts
             if (backPath != null)
             {
                 // Set path and update the file browser
-                _currentPath = backPath;
+                //_currentPath = backPath;
+                ChangeCurrentPath(backPath);
                 UpdateFileBrowser();
             }
         }
@@ -211,7 +221,8 @@ namespace GracesGames.SimpleFileBrowser.Scripts
             if (forwardPath != null)
             {
                 // Set path and update the file browser
-                _currentPath = forwardPath;
+                //_currentPath = forwardPath;
+                ChangeCurrentPath(forwardPath);
                 UpdateFileBrowser();
             }
         }
@@ -223,7 +234,8 @@ namespace GracesGames.SimpleFileBrowser.Scripts
             _backwardStack.Push(_currentPath);
             if (!IsTopLevelReached())
             {
-                _currentPath = Directory.GetParent(_currentPath).FullName;
+                //_currentPath = Directory.GetParent(_currentPath).FullName;
+                ChangeCurrentPath(Directory.GetParent(_currentPath).FullName);
                 UpdateFileBrowser();
             }
             else
@@ -280,6 +292,9 @@ namespace GracesGames.SimpleFileBrowser.Scripts
         // Then destroys the file browser
         private void SendFileSelectEvent(string path)
         {
+            // save last file
+            DataMgr.Instance.LastSaveFile = path;
+
             Destroy();
             OnFileSelect(path);
         }
@@ -337,7 +352,8 @@ namespace GracesGames.SimpleFileBrowser.Scripts
                 }
                 else if (IsAndroidPlatform())
                 {
-                    _currentPath = _rootAndroidPath;
+                    //_currentPath = _rootAndroidPath;
+                    ChangeCurrentPath(_rootAndroidPath);
                     directories = Directory.GetDirectories(_currentPath);
                 }
             }
@@ -427,7 +443,8 @@ namespace GracesGames.SimpleFileBrowser.Scripts
             // Else check each file extension in file extensions array
             foreach (string fileExtension in _fileExtensions)
             {
-                if (file.EndsWith("." + fileExtension))
+                if (file.EndsWith("." + fileExtension) 
+                    && !file.Contains(DataDefine.save_filename_suffix_tracery))     // also exclude tracery file (which contain suffix tracery)
                 {
                     return true;
                 }
@@ -442,7 +459,8 @@ namespace GracesGames.SimpleFileBrowser.Scripts
         public void DirectoryClick(string path)
         {
             _backwardStack.Push(_currentPath.Clone() as string);
-            _currentPath = path;
+            //_currentPath = path;
+            ChangeCurrentPath(path);
             UpdateFileBrowser();
         }
 
@@ -514,6 +532,17 @@ namespace GracesGames.SimpleFileBrowser.Scripts
             _isOpen = false;
             Destroy(GameObject.Find("FileBrowserUI"));
             Destroy(GameObject.Find("FileBrowser"));
+
+            if (actOnDestroy != null)
+                actOnDestroy.Invoke();
+        }
+
+        private void ChangeCurrentPath(string _path)
+        {
+            _currentPath = _path;
+
+            // save last loading path
+            DataMgr.Instance.LastLoadPath = _currentPath;
         }
     }
 }

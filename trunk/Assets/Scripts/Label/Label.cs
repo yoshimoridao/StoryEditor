@@ -13,10 +13,11 @@ public class Label : MonoBehaviour
     // prop
     protected Image image;
     protected InputField inputField;
-    protected ContentSizeFitter contentSize;
+    //protected ContentSizeFitter contentSize;
+    protected RectTransform rt;
 
-    // var
     [SerializeField]
+    protected Vector2 sizeOffset = new Vector2(7, 2);
     protected bool isEditing;
     protected string pureText;
     protected Panel panel;
@@ -67,11 +68,20 @@ public class Label : MonoBehaviour
             image = GetComponent<Image>();
         if (inputField == null)
             inputField = GetComponent<InputField>();
-        if (contentSize == null)
-            contentSize = GetComponent<ContentSizeFitter>();
+        if (rt == null)
+            rt = GetComponent<RectTransform>();
+        //if (contentSize == null)
+        //{
+        //    contentSize = GetComponent<ContentSizeFitter>();
+        //    contentSize.enabled = false;
+        //}
     }
 
     public void Update()
+    {
+    }
+
+    public void OnDestroy()
     {
     }
 
@@ -82,8 +92,13 @@ public class Label : MonoBehaviour
             image = GetComponent<Image>();
         if (inputField == null)
             inputField = GetComponent<InputField>();
-        if (contentSize == null)
-            contentSize = GetComponent<ContentSizeFitter>();
+        if (rt == null)
+            rt = GetComponent<RectTransform>();
+        //if (contentSize == null)
+        //{
+        //    contentSize = GetComponent<ContentSizeFitter>();
+        //    contentSize.enabled = false;
+        //}
 
         panel = _panel;
         // set default text of label
@@ -113,8 +128,8 @@ public class Label : MonoBehaviour
 
     public void OnEditing()
     {
-        if (!contentSize)
-            return;
+        //if (!contentSize)
+        //    return;
 
         if (!isEditing)
             isEditing = true;
@@ -132,11 +147,18 @@ public class Label : MonoBehaviour
             panel.RemoveLabel(this);
         Destroy(gameObject);
     }
-    // ========================================= PROTECTED FUNCS =========================================
-    protected void RefreshContentSize()
+
+    public void RefreshContentSize()
     {
         // to refresh size of content
-        contentSize.enabled = false;
-        contentSize.enabled = true;
+        //contentSize.enabled = false;
+        //contentSize.enabled = true;
+
+        if (inputField)
+        {
+            rt.sizeDelta = new Vector2(inputField.preferredWidth + sizeOffset.x * 2, inputField.preferredHeight + sizeOffset.y * 2);
+        }
     }
+
+    // ========================================= PROTECTED FUNCS =========================================
 }

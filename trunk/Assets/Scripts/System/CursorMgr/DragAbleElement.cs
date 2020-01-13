@@ -18,7 +18,7 @@ public class DragAbleElement : MonoBehaviour
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public virtual Label GetLabelObj()
+    public Label GetLabelObj()
     {
         if (titleLabel)
             return titleLabel;

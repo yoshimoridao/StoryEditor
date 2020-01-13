@@ -58,12 +58,17 @@ public class DataMgr : Singleton<DataMgr>
         }
     }
 
-    DataStorage dataStorage = new DataStorage();
-    DataIndexer dataIndexer = new DataIndexer();
+    private DataStorage dataStorage = new DataStorage();
+    private DataIndexer dataIndexer = new DataIndexer();
+    private bool isModified = true;
 
     // ========================================= GET/ SET =========================================
     public List<DataIndex> Stories { get { return dataIndexer.stories; } }
     public List<DataIndex> Elements { get { return dataIndexer.elements; } }
+    public bool IsModified
+    {
+        get { return isModified; }
+    }
 
     // ================== Index ==================
     public string GenNewKey()
@@ -89,6 +94,24 @@ public class DataMgr : Singleton<DataMgr>
                 value = 1;
             dataIndexer.RdTestCaseAmount = value;
         }
+    }
+
+    public int NormalFontSize
+    {
+        get { return dataIndexer.normalFontSize; }
+        set { dataIndexer.normalFontSize = value; }
+    }
+
+    public string LastLoadPath
+    {
+        get { return dataIndexer.LastLoadPath; }
+        set { dataIndexer.LastLoadPath = value; }
+    }
+
+    public string LastSaveFile
+    {
+        get { return dataIndexer.LastSaveFile; }
+        set { dataIndexer.LastSaveFile = value; }
     }
 
     // ====== Data Indexer ======
@@ -286,7 +309,7 @@ public class DataMgr : Singleton<DataMgr>
         Debug.Log("Export Tracery File = " + output);
 
         // --- Save ---
-        string savePath = DataDefine.save_path.Replace(".txt", DataDefine.save_filename_suffix_tracery + ".txt");
+        string savePath = LastSaveFile.Replace(".txt", DataDefine.save_filename_suffix_tracery + ".txt");
         if (File.Exists(savePath))
         {
             File.WriteAllText(savePath, output);
@@ -319,6 +342,8 @@ public class DataMgr : Singleton<DataMgr>
             dataIndexer.Load(_path, out isConvertOldSave);
             // re-load canvas's elements
             CanvasMgr.Instance.Load();
+            // show notice text
+            NoticeBarMgr.Instance.ShowText(DataDefine.notice_load_done);
 
             // auto save new file
             if (isConvertOldSave)
@@ -331,17 +356,20 @@ public class DataMgr : Singleton<DataMgr>
 
     public void Save()
     {
-        if (DataDefine.save_path.Length > 0)
-            Save(DataDefine.save_path);
+        if (LastSaveFile.Length > 0)
+        {
+            Save(LastSaveFile);
+        }
     }
 
     public void Save(string _path)
     {
         // save and export tracery file
-        DataDefine.save_path = _path;
-
         dataIndexer.Save();
         ExportTraceryFile();
+
+        // show notice text
+        NoticeBarMgr.Instance.ShowText(DataDefine.notice_save_done);
     }
 
     // ========================================= PRIVATE FUNCS =========================================

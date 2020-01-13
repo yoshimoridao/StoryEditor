@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class ReactLabel : Label, IPointerClickHandler
 {
     protected List<DataIndex> referPanels = new List<DataIndex>();
+    [SerializeField]
+    protected Text text;
 
     // ========================================= PROPERTIES =========================================
     public override string PureText
@@ -36,24 +38,38 @@ public class ReactLabel : Label, IPointerClickHandler
     {
         // clear all refer panels
         ClearAllReferPanels();
+
+        // un-register font size button's action
+        ToolbarMgr.Instance.fontSizeButton.actOnModifyVal -= OnChangeFontSize;
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         // convert show text to form editing (which without rich text <b><color>,...) 
-        ConvertToEditText();
+        //ConvertToEditText();
     }
 
     // ========================================= PUBLIC FUNCS =========================================
     public override void Init(Panel _panel, string _text)
     {
         base.Init(_panel, _text);
+
+        // set default font size
+        ChangeFontSize(DataMgr.Instance.NormalFontSize);
+        // register font size button's action
+        ToolbarMgr.Instance.fontSizeButton.actOnModifyVal += OnChangeFontSize;
     }
 
     public override void OnEditDone()
     {
         if (!isEditing || !gameObject.active)
             return;
+
+        if (inputField.text.Length == 0)
+        {
+            SelfDestroy();
+            return;
+        }
 
         // convert input text to pure text
         string parseText = inputField.text;
@@ -154,7 +170,27 @@ public class ReactLabel : Label, IPointerClickHandler
         }
     }
 
-    // ========================================= PRIVATE FUNCS =========================================
+    /// <summary>
+    /// convert pure text to editing text (which remove all rich text <b></b> <color></color>)
+    /// </summary>
+    public void ConvertToEditText()
+    {
+        if (!inputField)
+            return;
+
+        string editText = pureText;
+
+        for (int i = 0; i < referPanels.Count; i++)
+        {
+            DataIndex referPanel = referPanels[i];
+            // replace refer panel part of show off text
+            editText = editText.Replace("#" + referPanel.genKey + "#", "#" + referPanel.title + "#");
+        }
+
+        // show text
+        inputField.text = editText;
+    }
+
     /// <summary>
     /// convert pure text to show text (which contain rich text <b></b> <color></color>)
     /// </summary>
@@ -196,27 +232,18 @@ public class ReactLabel : Label, IPointerClickHandler
         inputField.text = showOffText;
     }
 
-    /// <summary>
-    /// convert pure text to editing text (which remove all rich text <b></b> <color></color>)
-    /// </summary>
-    protected void ConvertToEditText()
+    public bool IsContainReferPanel(string _panelKey)
     {
-        if (!inputField)
-            return;
+        int findId = referPanels.FindIndex(x => x.genKey == _panelKey);
 
-        string editText = pureText;
-
-        for (int i = 0; i < referPanels.Count; i++)
-        {
-            DataIndex referPanel = referPanels[i];
-            // replace refer panel part of show off text
-            editText = editText.Replace("#" + referPanel.genKey + "#", "#" + referPanel.title + "#");
-        }
-
-        // show text
-        inputField.text = editText;
+        return findId != -1;
     }
 
+    public void OnChangeFontSize(int _val)
+    {
+        ChangeFontSize(_val);
+    }
+    // ========================================= PRIVATE FUNCS =========================================
     /// <summary>
     /// this func to update list refer panels (call when pure text is modified)
     /// </summary>
@@ -243,13 +270,6 @@ public class ReactLabel : Label, IPointerClickHandler
         ConvertoShowText();
     }
 
-    public bool IsContainReferPanel(string _panelKey)
-    {
-        int findId = referPanels.FindIndex(x => x.genKey == _panelKey);
-
-        return findId != -1;
-    }
-
     protected void ClearAllReferPanels()
     {
         // un-register action
@@ -263,5 +283,18 @@ public class ReactLabel : Label, IPointerClickHandler
         }
 
         referPanels.Clear();
+    }
+
+    protected void ChangeFontSize(int _val)
+    {
+        if (text)
+        {
+            text.fontSize = _val;
+            RefreshContentSize();
+
+            // refresh panel
+            if (panel)
+                panel.RefreshPanelDt();
+        }
     }
 }

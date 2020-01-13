@@ -18,14 +18,14 @@ public class CursorMgr : Singleton<CursorMgr>
 
     RectTransform rt;
 
-    GameObject selectObj = null;
     Vector2 startPos = Vector2.zero;
     float holdDt = 0;
     DragBehavior dragBehavior = DragBehavior.CONNECT;
     SelectBehavior selectBehavior = SelectBehavior.SINGLE;
 
     DragAbleElement dragingObj = null;
-    List<SelectAbleElement> selectObjs = new List<SelectAbleElement>();
+    private List<SelectAbleElement> selectObjs = new List<SelectAbleElement>();
+    private GameObject selectObj = null;
 
     // ========================================= GET/ SET =========================================
     public DragBehavior DragMode
@@ -45,8 +45,14 @@ public class CursorMgr : Singleton<CursorMgr>
         return selectObjs;
     }
 
-    public void ClearAllSelectedObjs()
+    public void ClearSelectedObjs(bool isIncludeCurObj = false)
     {
+        if (isIncludeCurObj)
+            selectObj = null;
+
+        if (selectObjs.Count == 0)
+            return;
+
         foreach (var element in selectObjs)
             element.Select = false;
 
@@ -101,6 +107,20 @@ public class CursorMgr : Singleton<CursorMgr>
         return dragingObj != null;
     }
 
+    public bool IsHoverObjs(GameObject _obj)
+    {
+        // get ray cast all objs
+        var rayCast = GetRayCastResultsByMousePos();
+        for (int i = 0; i < rayCast.Count; i++)
+        {
+            if (rayCast[i].gameObject == _obj)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// checking cursor's selecting the elements.
     public bool IsHoverObjs(params string[] tags)
     {
@@ -148,7 +168,7 @@ public class CursorMgr : Singleton<CursorMgr>
         return false;
     }
 
-    public GameObject CatchElementHandleByMouse()
+    public GameObject CatchTopObjHandleByMouse()
     {
         // get ray cast all objs
         var rayCast = GetRayCastResultsByMousePos();
@@ -161,7 +181,15 @@ public class CursorMgr : Singleton<CursorMgr>
                 if (catchObj.GetComponent<Button>())
                     return null;
 
-                if (catchObj.GetComponent<DragAbleElement>() || catchObj.GetComponent<SelectAbleElement>())
+                if (catchObj.GetComponent<SelectAbleElement>())
+                {
+                    // ignore select when editing input
+                    if (catchObj.GetComponent<CustomInputField>() && catchObj.GetComponent<CustomInputField>().isFocused)
+                        break;
+
+                    return catchObj.gameObject;
+                }
+                else if (catchObj.GetComponent<DragAbleElement>())
                 {
                     return catchObj.gameObject;
                 }
@@ -176,7 +204,7 @@ public class CursorMgr : Singleton<CursorMgr>
     {
         if (selectObj == null)
         {
-            GameObject catchElement = CatchElementHandleByMouse();
+            GameObject catchElement = CatchTopObjHandleByMouse();
             if (catchElement)
             {
                 selectObj = catchElement;
@@ -240,14 +268,14 @@ public class CursorMgr : Singleton<CursorMgr>
                 else
                 {
                     // de-select obj (which already selected) 
-                    if (selectObjs.Count > 0 && selectObjs[0].gameObject == selectObj)
+                    if (selectObjs.Count > 0 && selectObjs[0].gameObject && selectObjs[0].gameObject == selectObj)
                     {
-                        ClearAllSelectedObjs();
+                        ClearSelectedObjs();
                     }
-                    // re-select another obj
+                    // select another obj
                     else
                     {
-                        ClearAllSelectedObjs();
+                        ClearSelectedObjs();
                         AddSelectedObj(selectObj.GetComponent<SelectAbleElement>());
                     }
                 }
@@ -256,7 +284,7 @@ public class CursorMgr : Singleton<CursorMgr>
         // non - action
         else if (!IsPressAnyButton())
         {
-            ClearAllSelectedObjs();
+            ClearSelectedObjs();
         }
 
         startPos = Vector2.zero;
@@ -349,7 +377,7 @@ public class CursorMgr : Singleton<CursorMgr>
         if (isActive)
         {
             // clear all selected objs
-            ClearAllSelectedObjs();
+            ClearSelectedObjs();
 
             if (dragingObj == null && selectObj && selectObj.GetComponent<DragAbleElement>())
             {

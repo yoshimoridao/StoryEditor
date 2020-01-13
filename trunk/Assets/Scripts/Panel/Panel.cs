@@ -36,8 +36,6 @@ public class Panel : MonoBehaviour
     protected float baseWidth = 0;
     [SerializeField]
     protected float contentSize = 0.9f;
-    [SerializeField]
-    protected bool isRefreshPanel;
     protected Vector2 refreshPanelDt = new Vector2(0, 0.5f);
 
     // ========================================= GET/ SET =========================================
@@ -102,13 +100,28 @@ public class Panel : MonoBehaviour
     public void Update()
     {
         // update dt for refresh panel
-        if (refreshPanelDt.x < refreshPanelDt.y)
-            refreshPanelDt.x += Time.deltaTime;
-
-        if (isRefreshPanel || refreshPanelDt.x < refreshPanelDt.y)
-            RefreshPanel();
+        if (refreshPanelDt.x > 0)
+        {
+            refreshPanelDt.x -= Time.deltaTime;
+            if (refreshPanelDt.x <= 0)
+                refreshPanelDt.x = 0;
+            else
+                RefreshPanel();
+        }
     }
 
+    public void OnDestroy()
+    {
+        for (int i = 0; i < labels.Count; i++)
+        {
+            Label label = labels[i];
+            if (label)
+            {
+                RemoveLabel(i);
+                i--;
+            }
+        }
+    }
     // ========================================= PUBLIC FUNCS =========================================
     public virtual void Init(string _key, string _title)
     {
@@ -149,7 +162,7 @@ public class Panel : MonoBehaviour
         baseWidth *= contentSize;
 
         // arrange panel
-        RefreshPanel();
+        RefreshPanelDt();
     }
 
     public virtual Label AddLabel(string _var)
@@ -165,7 +178,7 @@ public class Panel : MonoBehaviour
             if (genLabel)
             {
                 genLabel.Init(this, _var);
-                // add call back action
+                // register the Label's action
                 genLabel.actEditDone += OnChildLabelEdited;
                 genLabel.actEditing += OnChildLabelEditing;
 
@@ -182,19 +195,30 @@ public class Panel : MonoBehaviour
         return null;
     }
 
-    public virtual void RemoveLabel(Label _label)
+    public void RemoveLabel(Label _label)
     {
         int findId = labels.FindIndex(x => x.gameObject == _label.gameObject);
         if (findId != -1)
+            RemoveLabel(findId);
+    }
+
+    public void RemoveLabel(int _labelId)
+    {
+        if (_labelId >= 0 && _labelId < labels.Count)
         {
+            // un-register action
+            Label label = labels[_labelId];
+            label.actEditDone -= OnChildLabelEdited;
+            label.actEditing -= OnChildLabelEditing;
+
             // remove in list of row
-            labels.RemoveAt(findId);
+            labels.RemoveAt(_labelId);
 
             // refresh position of add button
             RefreshAddButtonPos();
 
             // remove in save data
-            DataMgr.Instance.RemoveElement(dataType, Key, findId);
+            DataMgr.Instance.RemoveElement(dataType, Key, _labelId);
             // refresh canvas
             CanvasMgr.Instance.RefreshCanvas();
         }
@@ -202,12 +226,12 @@ public class Panel : MonoBehaviour
 
     public void OnChildLabelEditing()
     {
-        isRefreshPanel = true;
+        RefreshPanelDt();
     }
 
     public void OnChildLabelEdited(Label _label)
     {
-        isRefreshPanel = false;
+        RefreshPanelDt();
 
         // remove label null
         if (_label.PureText.Length == 0)
@@ -264,6 +288,11 @@ public class Panel : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public void RefreshPanelDt()
+    {
+        refreshPanelDt.x = refreshPanelDt.y;
+    }
+
     public void RefreshPanel()
     {
         List<Label> rowLabels = new List<Label>();
@@ -315,7 +344,7 @@ public class Panel : MonoBehaviour
         RefreshAddButtonPos();
     }
 
-    public void UpdateOrderLabels()
+    public virtual void UpdateOrderLabels()
     {
         labels.Clear();
 

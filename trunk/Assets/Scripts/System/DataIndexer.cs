@@ -16,12 +16,18 @@ public class DataIndexer
     [SerializeField]
     public List<DataIndex> stories = new List<DataIndex>();
 
+    // test cases mode
     public bool isRdTest = true;
-    // random test mode
+    // amount of random test cases
     public int rdTestCaseAmount = 1;
-    // picking test cases mode
-    public Action actModifiedTestCase;
+    // list test cases
     public List<string> testCaseIds = new List<string>();
+
+    // toolbar
+    public int normalFontSize = 20;
+
+    // action
+    public Action actModifiedTestCase;
 
     // ============================================ PUBLIC ============================================
     public DataIndexer() { }
@@ -48,6 +54,34 @@ public class DataIndexer
 
             //// save
             //Save();
+        }
+    }
+
+    public string LastLoadPath
+    {
+        get
+        {
+            if (PlayerPrefs.HasKey(DataDefine.save_key_last_path))
+                return PlayerPrefs.GetString(DataDefine.save_key_last_path);
+            return "";
+        }
+        set
+        {
+            PlayerPrefs.SetString(DataDefine.save_key_last_path, value);
+        }
+    }
+
+    public string LastSaveFile
+    {
+        get
+        {
+            if (PlayerPrefs.HasKey(DataDefine.save_key_last_save_file))
+                return PlayerPrefs.GetString(DataDefine.save_key_last_save_file);
+            return "";
+        }
+        set
+        {
+            PlayerPrefs.SetString(DataDefine.save_key_last_save_file, value);
         }
     }
 
@@ -326,10 +360,12 @@ public class DataIndexer
                     elements = loadData.elements;
                     stories = loadData.stories;
 
-                    rdTestCaseAmount = loadData.rdTestCaseAmount;
                     isRdTest = loadData.isRdTest;
-
+                    rdTestCaseAmount = loadData.rdTestCaseAmount;
                     testCaseIds = loadData.testCaseIds;
+
+                    // toolbar
+                    normalFontSize = loadData.normalFontSize;
                 }
             }
         }
@@ -339,13 +375,13 @@ public class DataIndexer
     {
         string strOutput = JsonUtility.ToJson(this);
 
-        if (File.Exists(DataDefine.save_path))
+        if (File.Exists(LastSaveFile))
         {
-            File.WriteAllText(DataDefine.save_path, strOutput);
+            File.WriteAllText(LastSaveFile, strOutput);
         }
         else
         {
-            StreamWriter writer = new StreamWriter(DataDefine.save_path);
+            StreamWriter writer = new StreamWriter(LastSaveFile);
             writer.Write(strOutput);
             writer.Close();
         }

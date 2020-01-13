@@ -5,6 +5,8 @@ using UnityEngine;
 public class StoryBoard : Board
 {
     // ========================================= GET/ SET =========================================
+    [SerializeField]
+    private RectTransform panelviewRt;
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
@@ -25,6 +27,14 @@ public class StoryBoard : Board
 
         // load data
         Load();
+
+        // scale height for all ratio
+        float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
+        RectTransform rt = transform as RectTransform;
+        rt.sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
+        // scale height for panel's view
+        if (panelviewRt)
+            panelviewRt.sizeDelta = new Vector2(panelviewRt.sizeDelta.x, (panelviewRt.sizeDelta.y / 1080) * canvasHeight);
     }
 
     public override void Load()

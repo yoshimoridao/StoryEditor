@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using GracesGames.SimpleFileBrowser.Scripts;
 
 public class CanvasMgr : Singleton<CanvasMgr>
 {
-    private Vector2 refreshCanvasDt = new Vector2(0, 0.5f);
     public List<Board> boards = new List<Board>();
+
+    private Vector2 refreshCanvasDt = new Vector2(0, 0.5f);
+    [SerializeField]
+    private FileBrowserCaller fileBrowserCaller;
 
     // ========================================= GET/ SET =========================================
     public Board GetBoard<T>()
@@ -20,7 +24,7 @@ public class CanvasMgr : Singleton<CanvasMgr>
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
     {
-        instance = this;       
+        instance = this;
     }
 
     void Start()
@@ -37,6 +41,15 @@ public class CanvasMgr : Singleton<CanvasMgr>
 
         // init result window
         ResultWindow.Instance.Init();
+
+        // init tool bar
+        ToolbarMgr.Instance.Init();
+
+        // init notice bar
+        NoticeBarMgr.Instance.Init();
+
+        // init popup mgr
+        PopupMgr.Instance.Init();
 
         // refresh canvas
         RefreshCanvas();
@@ -72,6 +85,12 @@ public class CanvasMgr : Singleton<CanvasMgr>
     }
 
     // ========================================= PUBLIC FUNCS =========================================
+    public void OpenSaveBrowserAndExit()
+    {
+        if (fileBrowserCaller)
+            fileBrowserCaller.OpenFileBrowser(true, ExitApp);
+    }
+
     public bool IsRefreshCanvas()
     {
         return refreshCanvasDt.x > 0;
@@ -84,11 +103,20 @@ public class CanvasMgr : Singleton<CanvasMgr>
 
     public void OnExitBtnPress()
     {
-        Application.Quit();
+        // show popup confirm exit
+        if (DataMgr.Instance.IsModified)
+            PopupMgr.Instance.ShowPopup(PopupMgr.PopupType.SAVE);
+
+        //Application.Quit();
 
         // Save data
         //DataMgr.Instance.Save();
     }
+
+    public void ExitApp()
+    {
+        Application.Quit();
+    } 
 
     public void Load()
     {
@@ -98,6 +126,15 @@ public class CanvasMgr : Singleton<CanvasMgr>
 
         // load result window
         ResultWindow.Instance.Load();
+
+        // load tool bar
+        ToolbarMgr.Instance.Load();
+
+        // load notice bar
+        NoticeBarMgr.Instance.Load();
+
+        // init popup mgr
+        PopupMgr.Instance.Load();
 
         // refresh canvas
         RefreshCanvas();

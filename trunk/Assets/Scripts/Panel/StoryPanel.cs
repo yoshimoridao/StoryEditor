@@ -17,7 +17,7 @@ public class StoryPanel : Panel
     {
         base.Update();
     }
-
+    
     // ========================================= PUBLIC FUNCS =========================================
     public override void Init(string _key, string _title)
     {

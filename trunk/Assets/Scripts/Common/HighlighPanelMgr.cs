@@ -1,13 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HighlighPanelMgr : MonoBehaviour
 {
-    RectTransform rt;
+    private RectTransform rt;
+    private Image img;
 
-    Panel referPanel;
-    int fstSiblingIndex = -1;
+    private Panel referPanel;
+    private int fstSiblingIndex = -1;
 
     // ========================================= GET/ SET =========================================
     public bool IsActive()
@@ -19,6 +21,7 @@ public class HighlighPanelMgr : MonoBehaviour
     void Start()
     {
         rt = GetComponent<RectTransform>();
+        img = GetComponent<Image>();
     }
 
     void Update()
@@ -69,7 +72,9 @@ public class HighlighPanelMgr : MonoBehaviour
         transform.parent = referPanel.transform.parent;
         transform.SetSiblingIndex(fstSiblingIndex);
         rt.sizeDelta = (referPanel.transform as RectTransform).sizeDelta;
-        gameObject.SetActive(true);
+        //gameObject.SetActive(true);
+        if (img)
+            img.enabled = true;
 
         // hide refer panel
         referPanel.gameObject.SetActive(false);
@@ -102,8 +107,10 @@ public class HighlighPanelMgr : MonoBehaviour
         fstSiblingIndex = -1;
 
         // hide highlight obj
-        gameObject.SetActive(false);
-        transform.parent = null;
+        //gameObject.SetActive(false);
+        if (img)
+            img.enabled = false;
+        transform.parent = CanvasMgr.Instance.transform;
     }
 
     // ========================================= PRIVATE FUNCS =========================================
