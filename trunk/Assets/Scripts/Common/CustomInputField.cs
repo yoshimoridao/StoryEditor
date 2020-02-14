@@ -19,6 +19,10 @@ public class CustomInputField : InputField
 
                 CursorMgr.Instance.ClearSelectedObjs(true);
             }
+
+            // update editing text for intellisence
+            //if (GetComponent<InputField>())
+            //    Intellisence.Instance.OnSelectInputField(GetComponent<InputField>());
         }
     }
 

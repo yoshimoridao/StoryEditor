@@ -50,6 +50,13 @@ public class ResultWindow : Singleton<ResultWindow>
         float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
         RectTransform rt = transform as RectTransform;
         rt.sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
+
+        // set size for result zone
+        if (resultZone)
+        {
+            rt = (resultZone.transform as RectTransform);
+            (resultZone.transform as RectTransform).sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
+        }
     }
 
     public void Load()

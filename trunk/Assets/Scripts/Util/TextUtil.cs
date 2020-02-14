@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class TextUtil
 {
+    // bold tag
     public static string OpenBoldTag() { return "<b>"; }
     public static string CloseBoldTag() { return "</b>"; }
     public static string AddBoldTag(string _val)
@@ -11,43 +12,54 @@ public static class TextUtil
         return OpenBoldTag() + _val + CloseBoldTag();
     }
 
-    public static string OpenColorTag(ColorBar.ColorType _colorType)
+    // color tag
+    public static string OpenColorTag(Color _color)
     {
-        string val = "<color=";
-        switch (_colorType)
-        {
-            case ColorBar.ColorType.WHITE:
-                break;
-            case ColorBar.ColorType.BLACK:
-            case ColorBar.ColorType.RED:
-            case ColorBar.ColorType.CYAN:
-            case ColorBar.ColorType.GREEN:
-            case ColorBar.ColorType.BLUE:
-            case ColorBar.ColorType.ORANGE:
-            case ColorBar.ColorType.PURPLE:
-                val += _colorType.ToString().ToLower();
-                break;
-            default:
-                break;
-        }
+        string val = "<color=#" + ColorUtility.ToHtmlStringRGBA(_color) + ">";
+        //switch (_color)
+        //{
+        //    case ColorMenu.ColorType.WHITE:
+        //        break;
+        //    case ColorMenu.ColorType.BLACK:
+        //    case ColorMenu.ColorType.RED:
+        //    case ColorMenu.ColorType.CYAN:
+        //    case ColorMenu.ColorType.GREEN:
+        //    case ColorMenu.ColorType.BLUE:
+        //    case ColorMenu.ColorType.ORANGE:
+        //    case ColorMenu.ColorType.PURPLE:
+        //        val += _color.ToString().ToLower();
+        //        break;
+        //    default:
+        //        break;
+        //}
 
-        val += ">";
+        //val += ">";
 
         return val;
     }
-
     public static string CloseColorTag() { return "</color>"; }
-    public static string AddColorTag(ColorBar.ColorType _colorType, string _val)
+    public static string AddColorTag(Color _color, string _val)
     {
-        return OpenColorTag(_colorType) + _val + CloseColorTag();
+        return OpenColorTag(_color) + _val + CloseColorTag();
     }
 
-    public static string AddBoldColorTag(ColorBar.ColorType _colorType, string _val)
+    // bold + color tag
+    public static string AddBoldColorTag(Color _color, string _val)
     {
         string result = AddBoldTag(_val);
-        if (_colorType != ColorBar.ColorType.WHITE)
-            result = AddColorTag(_colorType, _val);
+        if (_color != Color.white)
+            result = AddColorTag(_color, _val);
 
         return result;
+    }
+
+    // escape character
+    public static string ReplaceEscapeCharacter(string _val)
+    {
+        string val = _val;
+        val = val.Replace("\\n", "\n");
+        val = val.Replace("\\t", "\t");
+
+        return val;
     }
 }

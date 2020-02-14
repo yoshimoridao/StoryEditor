@@ -10,6 +10,7 @@ public class DataIndexer
 {
     public enum DataType { Element, Story, Count };
 
+    // --- store data ---
     public int genKey = 0;
     [SerializeField]
     public List<DataIndex> elements = new List<DataIndex>();
@@ -26,22 +27,25 @@ public class DataIndexer
     // toolbar
     public int normalFontSize = 20;
 
-    // action
+    // event tags
+    public int tagGenKey = 0;
+    [SerializeField]
+    public List<EventTagId> eventTagIds = new List<EventTagId>();
+
+    // --- action ---
     public Action actModifiedTestCase;
+    private string lastLoadFile = "";
 
     // ============================================ PUBLIC ============================================
     public DataIndexer() { }
 
-    // ====== system ======
+    // ====== Getter/ Setter ======
     public int RdTestCaseAmount
     {
         get { return rdTestCaseAmount; }
         set
         {
             rdTestCaseAmount = value;
-
-            //// save
-            //Save();
         }
     }
 
@@ -51,9 +55,6 @@ public class DataIndexer
         set
         {
             isRdTest = value;
-
-            //// save
-            //Save();
         }
     }
 
@@ -71,21 +72,24 @@ public class DataIndexer
         }
     }
 
-    public string LastSaveFile
+    public string LastLoadFile
     {
-        get
-        {
-            if (PlayerPrefs.HasKey(DataDefine.save_key_last_save_file))
-                return PlayerPrefs.GetString(DataDefine.save_key_last_save_file);
-            return "";
-        }
-        set
-        {
-            PlayerPrefs.SetString(DataDefine.save_key_last_save_file, value);
-        }
+        //get
+        //{
+        //    if (PlayerPrefs.HasKey(DataDefine.save_key_last_load_file))
+        //        return PlayerPrefs.GetString(DataDefine.save_key_last_load_file);
+        //    return "";
+        //}
+        //set
+        //{
+        //    PlayerPrefs.SetString(DataDefine.save_key_last_load_file, value);
+        //}
+
+        get { return lastLoadFile; }
+        set { lastLoadFile = value; }
     }
 
-    // ====== data ======
+    // ====== Data ======
     public DataIndex GetData(DataType _type, string _key, bool _isFindByTitle = false)
     {
         List<DataIndex> datas = GetDatas(_type);
@@ -108,9 +112,6 @@ public class DataIndexer
     {
         List<DataIndex> datas = GetDatas(_type);
         datas.Add(_data);
-
-        //// save
-        //Save();
     }
 
     public void RemoveData(DataType _type, string _key)
@@ -125,9 +126,6 @@ public class DataIndexer
 
             datas.RemoveAt(findId);
         }
-
-        //// save
-        //Save();
     }
 
     public void ReplaceTitle(DataType _type, string _key, string _title)
@@ -140,9 +138,6 @@ public class DataIndexer
             // replace key of the index
             datas[findId].Title = _title;
         }
-
-        //// export save file
-        //Save();
     }
 
     public void SortData(DataType _type, List<string> _keys)
@@ -163,9 +158,6 @@ public class DataIndexer
             else if (_type == DataType.Element)
                 elements = sortList;
         }
-
-        //// export save file
-        //Save();
     }
 
     public DataIndex FindData(string _key, bool _isFindByTitle)
@@ -207,75 +199,16 @@ public class DataIndexer
         return false;
     }
 
-    public void SetColor(DataType _type, string _key, ColorBar.ColorType _color)
+    // ====== Color ======
+    public void SetColor(DataType _type, string _key, Color _color)
     {
         DataIndex dataIndex = GetData(_type, _key);
 
         if (dataIndex != null)
-            dataIndex.Color = (int)_color;
-
-        //// export save file
-        //Save();
+            dataIndex.SetColor(_color);
     }
 
-    // ====== element ======
-    public void AddElement(DataType _type, string _key, string _val)
-    {
-        DataIndex dataIndex = GetData(_type, _key);
-        if (dataIndex != null)
-            dataIndex.AddElement(_val);
-
-        //// export save file
-        //Save();
-    }
-
-    public void ReplaceElement(DataType _type, string _key, int _eIndex, string _val)
-    {
-        DataIndex dataIndex = GetData(_type, _key);
-        if (dataIndex != null)
-            dataIndex.ReplaceElement(_eIndex, _val);
-
-        //// export save file
-        //Save();
-    }
-
-    public void ReplaceElements(DataType _type, string _key, List<string> _elements)
-    {
-        DataIndex dataIndex = GetData(_type, _key);
-        // replace list of elements of data index
-        if (dataIndex != null)
-            dataIndex.elements = _elements;
-
-        //// export save file
-        //Save();
-    }
-
-    public void RemoveElement(DataType _type, string _key, int _eIndex)
-    {
-        DataIndex dataIndex = GetData(_type, _key);
-
-        if (dataIndex != null)
-            dataIndex.RemoveElement(_eIndex);
-
-        //// export save file
-        //Save();
-    }
-
-    public void ReplaceTestElements(DataType _type, string _key, List<int> _testElements)
-    {
-        DataIndex dataIndex = GetData(_type, _key);
-
-        if (dataIndex != null)
-        {
-            dataIndex.testElements.Clear();
-            dataIndex.testElements = new List<int>(_testElements);
-        }
-
-        //// export save file
-        //Save();
-    }
-
-    // ====== pick test case ======
+    // ====== Test Case ======
     public List<string> TestCases
     {
         get { return testCaseIds; }
@@ -291,9 +224,6 @@ public class DataIndexer
             testCaseIds.Add(_key);
             InvokeTestCaseAct();
         }
-
-        //// save
-        //Save();
     }
 
     public void RemoveTestCase(string _key)
@@ -303,25 +233,137 @@ public class DataIndexer
             testCaseIds.Remove(_key);
             InvokeTestCaseAct();
         }
-
-        //// save
-        //Save();
     }
 
     public void ClearTestCases()
     {
         testCaseIds.Clear();
         InvokeTestCaseAct();
-
-        //// save
-        //Save();
     }
 
-    // ====== util ======
-    public void Load(string _path, out bool _isConvertOldSave)
+    private void InvokeTestCaseAct()
     {
-        _isConvertOldSave = false;
+        if (actModifiedTestCase != null)
+            actModifiedTestCase();
+    }
 
+    // ====== Tag ======
+    public EventTagId GetEventTag(string _genKey)
+    {
+        int findId = eventTagIds.FindIndex(x => x.genKey == _genKey);
+
+        if (findId != -1)
+        {
+            return new EventTagId(eventTagIds[findId]);
+        }
+
+        return null;
+    }
+
+    public EventTagId AddEventTag(string _val)
+    {
+        // gen new key
+        string newKey = "@" + tagGenKey;
+        tagGenKey++;
+
+        // gen new tag
+        EventTagId genTag = new EventTagId();
+        genTag.genKey = newKey;
+        genTag.value = _val;
+
+        eventTagIds.Add(genTag);
+
+        return genTag;
+    }
+
+    public void RemoveEventTag(string _genKey)
+    {
+        int findId = eventTagIds.FindIndex(x => x.genKey == _genKey);
+
+        if (findId != -1)
+        {
+            eventTagIds.RemoveAt(findId);
+        }
+    }
+
+    public void ChangeEventTagVal(string _genKey, string _val)
+    {
+        int findId = eventTagIds.FindIndex(x => x.genKey == _genKey);
+
+        if (findId != -1)
+        {
+            eventTagIds[findId].value = _val;
+        }
+    }
+
+
+
+    // ====== Element's elements ======
+    // --- elements ---
+    public void AddElement(DataType _type, string _key, string _val)
+    {
+        DataIndex dataIndex = GetData(_type, _key);
+        if (dataIndex != null)
+            dataIndex.AddElement(_val);
+    }
+
+    public void ReplaceElement(DataType _type, string _key, int _eIndex, string _val)
+    {
+        DataIndex dataIndex = GetData(_type, _key);
+        if (dataIndex != null)
+            dataIndex.ReplaceElement(_eIndex, _val);
+    }
+
+    public void ReplaceElements(DataType _type, string _key, List<string> _elements)
+    {
+        DataIndex dataIndex = GetData(_type, _key);
+        // replace list of elements of data index
+        if (dataIndex != null)
+            dataIndex.elements = _elements;
+    }
+
+    public void RemoveElement(DataType _type, string _key, int _eIndex)
+    {
+        DataIndex dataIndex = GetData(_type, _key);
+
+        if (dataIndex != null)
+            dataIndex.RemoveElement(_eIndex);
+    }
+
+    // --- Test elements ---
+    public void ReplaceTestElements(DataType _type, string _key, List<int> _testElements)
+    {
+        DataIndex dataIndex = GetData(_type, _key);
+
+        if (dataIndex != null)
+        {
+            dataIndex.testElements.Clear();
+            dataIndex.testElements = new List<int>(_testElements);
+        }
+    }
+
+    // --- Event tags elements ---
+    public void ReplaceEventTagElement(DataType _type, string _key, int _eIndex, List<string> _tagIds)
+    {
+        DataIndex dataIndex = GetData(_type, _key);
+
+        if (dataIndex != null)
+        {
+            string tagIds = "";
+            foreach (string tagId in _tagIds)
+            {
+                tagIds += tagId + ",";
+            }
+            // remove comma at last
+            tagIds = tagIds.Substring(0, tagIds.Length - 1);
+
+            dataIndex.ReplaceEventTagElement(_eIndex, tagIds);
+        }
+    }
+
+    // ====== Util ======
+    public void Load(string _path)
+    {
         string content = File.ReadAllText(_path);
 
         // clone data
@@ -333,55 +375,47 @@ public class DataIndexer
             if (Util.IsOldSaveFormat(content))
             {
                 loadData = Util.ConvertOldSaveFileToLastest(content);
-
-                // clone data
-                if (loadData != null)
-                {
-                    elements = loadData.elements;
-                    stories = loadData.stories;
-                    _isConvertOldSave = true;
-
-                    // replace all link titles to link keys
-                    loadData = Util.ReplaceLinkTitlesToLinkKeys(loadData);
-                }
             }
-            // new format
             else
             {
+                // new format
                 loadData = JsonUtility.FromJson<DataIndexer>(content);
+            }
 
-                // clone data
-                if (loadData != null)
-                {
-                    // just clone key from lastest save format
-                    if (!_isConvertOldSave)
-                        genKey = loadData.genKey;
+            // ***** CLONE data *****
+            if (loadData != null)
+            {
+                // just clone key from lastest save format
+                genKey = loadData.genKey;
 
-                    elements = loadData.elements;
-                    stories = loadData.stories;
+                elements = loadData.elements;
+                stories = loadData.stories;
 
-                    isRdTest = loadData.isRdTest;
-                    rdTestCaseAmount = loadData.rdTestCaseAmount;
-                    testCaseIds = loadData.testCaseIds;
+                isRdTest = loadData.isRdTest;
+                rdTestCaseAmount = loadData.rdTestCaseAmount;
+                testCaseIds = loadData.testCaseIds;
 
-                    // toolbar
-                    normalFontSize = loadData.normalFontSize;
-                }
+                // toolbar
+                normalFontSize = loadData.normalFontSize;
+
+                // event tags
+                tagGenKey = loadData.tagGenKey;
+                eventTagIds = loadData.eventTagIds;
             }
         }
     }
 
-    public void Save()
+    public void Save(string _path)
     {
         string strOutput = JsonUtility.ToJson(this);
 
-        if (File.Exists(LastSaveFile))
+        if (File.Exists(_path))
         {
-            File.WriteAllText(LastSaveFile, strOutput);
+            File.WriteAllText(_path, strOutput);
         }
         else
         {
-            StreamWriter writer = new StreamWriter(LastSaveFile);
+            StreamWriter writer = new StreamWriter(_path);
             writer.Write(strOutput);
             writer.Close();
         }
@@ -402,11 +436,5 @@ public class DataIndexer
                 break;
         }
         return datas;
-    }
-
-    private void InvokeTestCaseAct()
-    {
-        if (actModifiedTestCase != null)
-            actModifiedTestCase();
     }
 }

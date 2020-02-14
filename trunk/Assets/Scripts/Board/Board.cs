@@ -17,7 +17,7 @@ public class Board : MonoBehaviour
     // ========================================= GET/ SET =========================================
     public Panel GetPanel(string _key)
     {
-        return panels.Find(x => x.Key == _key);
+        return panels.Find(x => x.Genkey == _key);
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -59,14 +59,14 @@ public class Board : MonoBehaviour
     public virtual Panel AddPanel(string _genKey) { return null; }
     public virtual void RemovePanel(Panel _panel)
     {
-        int panelId = panels.FindIndex(x => x.Key == _panel.Key);
+        int panelId = panels.FindIndex(x => x.Genkey == _panel.Genkey);
         // remove panel
         if (panelId > -1 && panelId < panels.Count)
         {
             panels.RemoveAt(panelId);
 
             // remove in data storage
-            DataMgr.Instance.RemoveData(boardType == BoardType.Element ? DataIndexer.DataType.Element : DataIndexer.DataType.Story, _panel.Key);
+            DataMgr.Instance.RemoveData(boardType == BoardType.Element ? DataIndexer.DataType.Element : DataIndexer.DataType.Story, _panel.Genkey);
             // also refresh canvas
             CanvasMgr.Instance.RefreshCanvas();
         }

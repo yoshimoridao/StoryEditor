@@ -11,7 +11,7 @@ public class SelectAbleElement : MonoBehaviour
     bool isSelect = false;
 
     // ========================================= GET/ SET =========================================
-    public bool Select
+    public bool IsSelect
     {
         get { return isSelect; }
         set
@@ -24,7 +24,7 @@ public class SelectAbleElement : MonoBehaviour
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        Select = false;
+        IsSelect = false;
     }
 
     void Update()

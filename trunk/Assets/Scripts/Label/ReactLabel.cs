@@ -84,7 +84,7 @@ public class ReactLabel : Label, IPointerClickHandler
                 // add refer panel
                 if (!IsContainReferPanel(findData.genKey))
                     AddReferPanel(findData);
-                    
+
                 parseText = parseText.Replace("#" + findData.title + "#", "#" + findData.genKey + "#");
             }
         }
@@ -99,11 +99,11 @@ public class ReactLabel : Label, IPointerClickHandler
 
     public void OnDragPanelInto(Panel _panel)
     {
-        pureText = pureText + "#" + _panel.Key + "#";
+        pureText = pureText + "#" + _panel.Genkey + "#";
         // add refer panel
-        if (!IsContainReferPanel(_panel.Key))
+        if (!IsContainReferPanel(_panel.Genkey))
         {
-            DataIndex findData = DataMgr.Instance.FindData(_panel.Key, false);
+            DataIndex findData = DataMgr.Instance.FindData(_panel.Genkey, false);
             if (findData != null)
             {
                 AddReferPanel(findData);
@@ -206,15 +206,15 @@ public class ReactLabel : Label, IPointerClickHandler
         {
             DataIndex referPanel = referPanels[i];
             string referStr = "";
-            ColorBar.ColorType referColor = (ColorBar.ColorType)referPanel.colorId;
+            Color referColor = referPanel.GetColor();
             // add prefix color tag
-            if (referColor != ColorBar.ColorType.WHITE)
+            if (referColor != Color.white)
                 referStr += TextUtil.OpenColorTag(referColor);
             // remove hash
             referStr += TextUtil.OpenBoldTag() + referPanel.title + TextUtil.CloseBoldTag();
 
             // close color tag
-            if (referColor != ColorBar.ColorType.WHITE)
+            if (referColor != Color.white)
                 referStr += TextUtil.CloseColorTag();
 
             // replace refer panel part of show off text
@@ -224,7 +224,7 @@ public class ReactLabel : Label, IPointerClickHandler
         // highlight link error text
         if (showOffText.Contains(DataDefine.error_refer_text))
         {
-            string errorText = TextUtil.OpenColorTag(ColorBar.ColorType.RED) + DataDefine.error_refer_text + TextUtil.CloseColorTag();
+            string errorText = TextUtil.OpenColorTag(Color.red) + DataDefine.error_refer_text + TextUtil.CloseColorTag();
             showOffText = showOffText.Replace(DataDefine.error_refer_text, errorText);
         }
 
@@ -243,6 +243,12 @@ public class ReactLabel : Label, IPointerClickHandler
     {
         ChangeFontSize(_val);
     }
+
+    public override void RefreshContentSize()
+    {
+        base.RefreshContentSize();
+    }
+
     // ========================================= PRIVATE FUNCS =========================================
     /// <summary>
     /// this func to update list refer panels (call when pure text is modified)

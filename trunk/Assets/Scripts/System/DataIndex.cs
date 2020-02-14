@@ -6,15 +6,19 @@ using System;
 [System.Serializable]
 public class DataIndex
 {
+    // generated key
     public string genKey;
     public string title;
-    public int colorId;
-    public List<string> elements = new List<string>();
-    public List<int> testElements = new List<int>();
+    public string rgbaColor;
 
-    public Action actModifyData;
+    // this for more VALUES of ELEMENT but merge ONE for STORY's element
+    public List<DataElementIndex> elements = new List<DataElementIndex>();
+
+    // --- these actions don't save ---
+    public Action actModifyData;    // modifying title || color
     public Action<string> actOnDestroy;
 
+    // === getter/ setter ===
     public string Title
     {
         get { return title; }
@@ -26,24 +30,18 @@ public class DataIndex
         }
     }
 
-    public int Color
+    public Color RGBAColor
     {
-        get { return colorId; }
+        get { return Util.ParseTextToColor(rgbaColor); }
         set
         {
-            colorId = value;
+            rgbaColor = Util.ParseColorToText(value);
             if (actModifyData != null)
                 actModifyData();
         }
     }
 
     public DataIndex() { }
-    public DataIndex(Panel _panel)
-    {
-        genKey = _panel.Key;
-        title = _panel.Title;
-        colorId = (int)_panel.Color;
-    }
 
     public void OnDestroy()
     {
@@ -51,7 +49,7 @@ public class DataIndex
             actOnDestroy(genKey);
     }
 
-    // === element ===
+    // === Element ===
     public void AddElement(string _val)
     {
         elements.Add(_val);

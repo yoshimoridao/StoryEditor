@@ -1,0 +1,1 @@
+{"genKey":1,"elements":[{"genKey":"@0","title":"Element","rgbaColor":"r:1,g:1,b:1,a:1","elements":["---","---"],"testElements":[],"eventTagKeys":[]}],"stories":[],"isRdTest":true,"rdTestCaseAmount":1,"testCaseIds":[],"normalFontSize":20,"tagGenKey":1,"eventTagIds":[{"genKey":"@0","value":"new event tag"}]}

@@ -32,7 +32,7 @@ public class ElementPanel : Panel
         DataIndex dataIndex = DataMgr.Instance.GetData(dataType, _key);
         if (dataIndex != null)
         {
-            Color = ((ColorBar.ColorType)dataIndex.colorId);
+            RGBAColor = dataIndex.GetColor();
         }
 
         // refresh position of add button
@@ -43,7 +43,10 @@ public class ElementPanel : Panel
     {
         Label genLabel = base.AddLabel(_var);
         if (genLabel && genLabel is ElementLabel)
-            (genLabel as ElementLabel).actOnActive += OnLabelActiveTest;
+        {
+            (genLabel as ElementLabel).actOnActiveTest += OnLabelActiveTest;
+            (genLabel as ElementLabel).actOnToggleEventTag += OnChildElementChangeEventTag;
+        }
 
         return genLabel;
     }
@@ -56,6 +59,7 @@ public class ElementPanel : Panel
         SaveTestLabels();
     }
 
+    // ===== Testing =====
     public void OnLabelActiveTest(ElementLabel _label)
     {
         if (_label.IsTesting)
@@ -102,6 +106,17 @@ public class ElementPanel : Panel
         testLabels.Clear();
     }
 
+    // ===== Event Tag =====
+    public void OnChildElementChangeEventTag(ElementLabel _childLabel)
+    {
+        int findId = labels.FindIndex(x => x.gameObject == _childLabel.gameObject);
+
+        if (findId != -1)
+        {
+            DataMgr.Instance.ReplaceEventTagElement(dataType, genKey, findId, _childLabel.EventTagKeys);
+        }
+    }
+
     // ========================================= PRIVATE FUNCS =========================================
     protected void SaveTestLabels()
     {
@@ -118,6 +133,6 @@ public class ElementPanel : Panel
             tmpTestIds.Sort();
 
         // save index of testing labels
-        DataMgr.Instance.ReplaceTestingIndex(dataType, Key, tmpTestIds);
+        DataMgr.Instance.ReplaceTestingIndex(dataType, Genkey, tmpTestIds);
     }
 }

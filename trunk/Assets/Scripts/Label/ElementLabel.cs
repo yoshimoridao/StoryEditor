@@ -7,9 +7,18 @@ using System;
 
 public class ElementLabel : ReactLabel
 {
-    // ========================================= PROPERTIES =========================================
     public Image hlTesting;
-    public Action<ElementLabel> actOnActive;
+    public Action<ElementLabel> actOnActiveTest;
+
+    // event tag
+    public Action<ElementLabel> actOnToggleEventTag;
+    private List<string> eventTagKeys = new List<string>();
+
+    // ========================================= PROPERTIES =========================================
+    public List<string> EventTagKeys
+    {
+        get { return eventTagKeys; }
+    }
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
@@ -38,7 +47,7 @@ public class ElementLabel : ReactLabel
                 hlTesting.gameObject.SetActive(value);
 
                 // callback action
-                actOnActive(this);
+                actOnActiveTest(this);
             }
         }
     }
@@ -51,5 +60,26 @@ public class ElementLabel : ReactLabel
     public override void Init(Panel _panel, string _text)
     {
         base.Init(_panel, _text);
+    }
+
+    // ======================= Event Tag =======================
+    public void OnToggleEventTag(string _eventTagKey)
+    {
+        int findId = eventTagKeys.FindIndex(x => x == _eventTagKey);
+
+        // remove if exist
+        if (findId != -1)
+        {
+            eventTagKeys.RemoveAt(findId);
+        }
+        // add if not
+        else
+        {
+            eventTagKeys.Add(_eventTagKey);
+        }
+
+        // call back
+        if (actOnToggleEventTag != null)
+            actOnToggleEventTag.Invoke(this);
     }
 }

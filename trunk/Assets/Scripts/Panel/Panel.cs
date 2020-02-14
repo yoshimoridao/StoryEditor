@@ -18,10 +18,11 @@ public class Panel : MonoBehaviour
     protected RectTransform rt;
     protected Image image;
 
-    protected string key;
+    protected string genKey;
     protected string title;
     protected bool isTesting;
-    protected ColorBar.ColorType color = ColorBar.ColorType.WHITE;
+    [SerializeField]
+    protected Color rgbaColor;
 
     protected GameObject prefRow;
     protected GameObject prefLabel;
@@ -39,10 +40,10 @@ public class Panel : MonoBehaviour
     protected Vector2 refreshPanelDt = new Vector2(0, 0.5f);
 
     // ========================================= GET/ SET =========================================
-    public string Key
+    public string Genkey
     {
-        get { return key; }
-        set { key = value; }
+        get { return genKey; }
+        set { genKey = value; }
     }
 
     public string Title
@@ -67,13 +68,14 @@ public class Panel : MonoBehaviour
         }
     }
 
-    public ColorBar.ColorType Color
+    public Color RGBAColor
     {
-        get { return color; }
+        get { return rgbaColor; }
         set
         {
-            color = value;
-            image.color = ColorBar.Instance.GetColor(color);
+            rgbaColor = value;
+            image.color = rgbaColor;
+            //image.color = ColorMenu.Instance.GetColor(rgbaColor);
         }
     }
 
@@ -135,7 +137,13 @@ public class Panel : MonoBehaviour
         if (transLabelCont)
         {
             for (int i = 0; i < transLabelCont.childCount; i++)
-                Destroy(transLabelCont.GetChild(i).gameObject);
+            {
+                GameObject childObj = transLabelCont.GetChild(i).gameObject;
+                if (childObj == addBtn.gameObject)
+                    continue;
+                else
+                    Destroy(childObj);
+            }
         }
 
         // load prefab
@@ -143,7 +151,7 @@ public class Panel : MonoBehaviour
         layoutRow = prefRow.GetComponent<HorizontalLayoutGroup>();
 
         // set key
-        Key = _key;
+        Genkey = _key;
         // set title 
         if (titleLabel)
         {
@@ -151,6 +159,8 @@ public class Panel : MonoBehaviour
             titleLabel.actEditDone += OnTitleEdited;
         }
         Title = _title;
+        // set default color
+        rgbaColor = Color.white;
 
         // determine data type
         dataType = this is ElementPanel ? DataIndexer.DataType.Element : DataIndexer.DataType.Story;
@@ -218,7 +228,7 @@ public class Panel : MonoBehaviour
             RefreshAddButtonPos();
 
             // remove in save data
-            DataMgr.Instance.RemoveElement(dataType, Key, _labelId);
+            DataMgr.Instance.RemoveElement(dataType, Genkey, _labelId);
             // refresh canvas
             CanvasMgr.Instance.RefreshCanvas();
         }
@@ -229,7 +239,7 @@ public class Panel : MonoBehaviour
         RefreshPanelDt();
     }
 
-    public void OnChildLabelEdited(Label _label)
+    public virtual void OnChildLabelEdited(Label _label)
     {
         RefreshPanelDt();
 
@@ -245,7 +255,7 @@ public class Panel : MonoBehaviour
             if (labelIndex != -1)
             {
                 // replace value of label in storage
-                DataMgr.Instance.ReplaceElement(dataType, Key, labelIndex, _label.PureText);
+                DataMgr.Instance.ReplaceElement(dataType, Genkey, labelIndex, _label.PureText);
                 // refresh canvas
                 CanvasMgr.Instance.RefreshCanvas();
             }
@@ -260,20 +270,20 @@ public class Panel : MonoBehaviour
 
         title = titleLabel.PureText;
 
-        DataMgr.Instance.ReplaceTitle(dataType, key, Title);
+        DataMgr.Instance.ReplaceTitle(dataType, genKey, Title);
 
         // refresh canvas
         CanvasMgr.Instance.RefreshCanvas();
     }
 
-    public void OnAddButtonPress()
+    public virtual void OnAddButtonPress()
     {
         Label genLabel = AddLabel("");
 
         if (genLabel)
         {
             // save
-            DataMgr.Instance.AddElement(dataType, key, genLabel.PureText);
+            DataMgr.Instance.AddElement(dataType, genKey, genLabel.PureText);
 
             // refresh canvas
             CanvasMgr.Instance.RefreshCanvas();
@@ -356,7 +366,7 @@ public class Panel : MonoBehaviour
             eLabels.Add(eLabel.PureText);
 
         // save 
-        DataMgr.Instance.ReplaceElements(DataType, Key, eLabels);
+        DataMgr.Instance.ReplaceElements(DataType, Genkey, eLabels);
     }
 
     // ========================================= PRIVATE FUNCS =========================================
@@ -383,6 +393,11 @@ public class Panel : MonoBehaviour
             AddNewRow();
 
         return null;
+    }
+
+    protected int FindLabelIndex(Label _label)
+    {
+        return labels.FindIndex(x => x.gameObject == _label.gameObject);
     }
 
     // === ADD BUTTON ===

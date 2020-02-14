@@ -1,0 +1,352 @@
+{
+	"genKey": 29,
+	"elements": [
+		{
+			"genKey": "@0",
+			"title": "Problematic toy",
+			"rgbaColor": "r:1,g:0,b:1,a:1",
+			"elements": [
+				"Spinny "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@1",
+			"title": "Avatar Comma",
+			"rgbaColor": "r:0,g:1,b:0,a:1",
+			"elements": [
+				"Lucas, "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@2",
+			"title": "Avatar",
+			"rgbaColor": "r:1,g:0.5,b:0,a:1",
+			"elements": [
+				"Lucas "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@3",
+			"title": "Environments",
+			"rgbaColor": "r:1,g:1,b:1,a:1",
+			"elements": [
+				"safari",
+				"cloud kingdom",
+				"ocean",
+				"space"
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@4",
+			"title": "Environment Variable (MEMORY NEEDED)",
+			"rgbaColor": "r:0,g:1,b:0,a:1",
+			"elements": [
+				"the great old tree! ",
+				"the bright blue star! ",
+				"the beautiful coral reefs! ",
+				"the huuuge cloud castle! "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@5",
+			"title": "Page 2 Intro",
+			"rgbaColor": "r:1,g:0,b:0,a:1",
+			"elements": [
+				"Hidden ",
+				"Somewhere ",
+				"Lost "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@6",
+			"title": "Environment Page 2 Intro",
+			"rgbaColor": "r:1,g:0.5,b:0,a:1",
+			"elements": [
+				"in the wild safari, ",
+				"under the ocean, ",
+				"way up in the cloud kingdom, ",
+				"in the grand galaxy, "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@7",
+			"title": "Page 1 Avatar Dialogue intro",
+			"rgbaColor": "r:1,g:0,b:1,a:1",
+			"elements": [
+				"\"Hey Spinny! Don't be sad,\" says ",
+				"\"Spinny, it's ok,\" says ",
+				"\"Spinny! Don't worry,\" says "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@8",
+			"title": "Page 1 Avatar Dialogue end",
+			"rgbaColor": "r:1,g:1,b:1,a:1",
+			"elements": [
+				"\"I'll help!\"",
+				"\"We'll fix this together!\"",
+				"\"We got this!\""
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@9",
+			"title": "Duo Name",
+			"rgbaColor": "r:1,g:0.5,b:0,a:1",
+			"elements": [
+				"the pair ",
+				"the friends ",
+				"the duo ",
+				"the adventurers "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@10",
+			"title": "Event Character Intro (Wheels)",
+			"rgbaColor": "r:1,g:0,b:1,a:1",
+			"elements": [
+				"Mr. Plane, the coolest plane around, ",
+				"Buggy, a big red dune buggy, ",
+				"the hot rod, Big Blue, ",
+				"the motor-crocodile, Crocco, ",
+				"Panther, the monster truck, ",
+				"MotoEagle, the motorcycle, "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@11",
+			"title": "Event Character Intro Action",
+			"rgbaColor": "r:0,g:1,b:0,a:1",
+			"elements": [
+				"VROOM-ing into view! ",
+				"ready to race! ",
+				"down to diesel! ",
+				"ch-ch-chugging along! "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@13",
+			"title": "Event Character Intro Dialogue",
+			"rgbaColor": "r:1,g:0,b:0,a:1",
+			"elements": [
+				"\"Rev those engines! I'm here to help!\"",
+				"\"I can help, too! Let's ride!\" "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@14",
+			"title": "Event Character Personal Reference",
+			"rgbaColor": "r:1,g:0.5,b:0,a:1",
+			"elements": [
+				"\"I'm the fastest around,\" ",
+				"\"Problems can't catch me,\" ",
+				"\"This will be easy, breezy,\" "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@15",
+			"title": "Event Character says (MEMORY NEEDED)",
+			"rgbaColor": "r:1,g:0,b:1,a:1",
+			"elements": [
+				"says Mr. Plane, ",
+				"says Buggy, ",
+				"says Big Blue, ",
+				"says Crocco, ",
+				"says Panther, ",
+				"says MotoEagle, "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@16",
+			"title": "Minigames Quote",
+			"rgbaColor": "r:0,g:1,b:0,a:1",
+			"elements": [
+				"play hide and seek!\" ",
+				"explore the world!\" ",
+				"run a race!\" ",
+				"dig up fossils!\" ",
+				"play music!\" ",
+				"drive around!\" ",
+				"go an adventure!\" "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@17",
+			"title": "toy problematic Reaction",
+			"rgbaColor": "r:1,g:1,b:1,a:1",
+			"elements": [
+				"\"That was great,\" says Spinny! ",
+				"\"Thanks for the help,\" says Spinny! ",
+				"\"That was so fun,\" says Spinny! ",
+				"\"Wow,\" exclaims Spinny! ",
+				"\"I learned so much,\" says Spinny! "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@18",
+			"title": "Event Character Conclusion Pt 1",
+			"rgbaColor": "r:0,g:1,b:0,a:1",
+			"elements": [
+				"Thanks to ",
+				"With the help of "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@19",
+			"title": "Event Character Name Only (Wheels)",
+			"rgbaColor": "r:1,g:0,b:1,a:1",
+			"elements": [
+				"Mr. Plane, ",
+				"Buggy, ",
+				"Big Blue, ",
+				"Crocco, ",
+				"Panther, ",
+				"MotoEagle, "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@20",
+			"title": "Event Character Conclusion Pt 2",
+			"rgbaColor": "r:1,g:0.5,b:0,a:1",
+			"elements": [
+				"was so excited to ",
+				"had the courage to ",
+				"was ready to "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@21",
+			"title": "Page 5 Conclusion Pt 3",
+			"rgbaColor": "r:1,g:0,b:0,a:1",
+			"elements": [
+				"help his friend ",
+				"assist his friend ",
+				"support his buddy "
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@22",
+			"title": "Problematic toy !",
+			"rgbaColor": "r:1,g:0,b:1,a:1",
+			"elements": [
+				"Spinny!"
+			],
+			"testElements": []
+		}
+	],
+	"stories": [
+		{
+			"genKey": "@12",
+			"title": "Title Page (Written)",
+			"rgbaColor": "r:1,g:1,b:1,a:1",
+			"elements": [
+				"The Friendless Fidget"
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@23",
+			"title": "Page 1 - Toy & Problematic Intro (Isolated Written)",
+			"rgbaColor": "r:1,g:1,b:1,a:1",
+			"elements": [
+				"Spinny, the lil fidget spinner with a heart of gold, has a problem! ",
+				"All his friends moved away, and he wants to write them a letter today!"
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@24",
+			"title": "Page 2 - Meet environment, avatar + toy, call to action",
+			"rgbaColor": "r:1,g:1,b:1,a:1",
+			"elements": [
+				"#@5#",
+				"#@6#",
+				"#@0#",
+				"finds ",
+				"#@2#",
+				"next to ",
+				"#@4#",
+				"#@7#",
+				"#@1#",
+				"#@8#"
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@25",
+			"title": "Page 3 - Meet event character",
+			"rgbaColor": "r:1,g:1,b:1,a:1",
+			"elements": [
+				"Just then ",
+				"#@9#",
+				"see ",
+				"#@10#",
+				"#@11#",
+				"#@13#"
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@26",
+			"title": "Page 4 - Intro to minigame",
+			"rgbaColor": "r:1,g:1,b:1,a:1",
+			"elements": [
+				"#@14#",
+				"#@15#",
+				"\"I'll show you the way to play! ",
+				"Let's ",
+				"#@16#"
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@27",
+			"title": "Page 5 - EvChar + Mini wrap up",
+			"rgbaColor": "r:1,g:1,b:1,a:1",
+			"elements": [
+				"#@18#",
+				"#@19#",
+				"#@2#",
+				"#@20#",
+				"#@21#",
+				"#@22#"
+			],
+			"testElements": []
+		},
+		{
+			"genKey": "@28",
+			"title": "Page 6 - Morale Conclusion (Isolated Written)",
+			"rgbaColor": "r:1,g:1,b:1,a:1",
+			"elements": [
+				"\"I sent the letter and got one back! Look!\" ",
+				"Spinny is so happy his old friends wrote him back! ",
+				"Great job, Lucas! "
+			],
+			"testElements": []
+		}
+	],
+	"isRdTest": true,
+	"rdTestCaseAmount": 6,
+	"testCaseIds": [],
+	"normalFontSize": 20
+}

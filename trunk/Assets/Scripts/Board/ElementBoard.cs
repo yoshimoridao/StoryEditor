@@ -58,9 +58,9 @@ public class ElementBoard : Board
             // create label elements
             if (panel)
             {
-                panel.Key = dataIndex.genKey;                                               // load gen key
+                panel.Genkey = dataIndex.genKey;                                               // load gen key
                 panel.Title = dataIndex.title;                                              // load title
-                panel.Color = (ColorBar.ColorType)dataIndex.colorId;                        // load color
+                panel.RGBAColor = dataIndex.GetColor();                                     // load color
                 panel.IsTesting = DataMgr.Instance.TestCases.Contains(dataIndex.genKey);    // load testing flag
 
                 // clear all of test labels

@@ -1,11 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PopupMgr : Singleton<PopupMgr>
 {
-    public enum PopupType { NONE, SAVE };
+    public enum PopupType { NONE, SAVE, CHANGELANGUAGE };
 
     [SerializeField]
     private Image overlayImg;
@@ -16,6 +17,9 @@ public class PopupMgr : Singleton<PopupMgr>
     [SerializeField]
     private Text content;
     private PopupType popupType = PopupType.NONE;
+
+    private bool isActive;
+    private Action actCallback;
 
     private void Awake()
     {
@@ -33,6 +37,11 @@ public class PopupMgr : Singleton<PopupMgr>
     }
 
     // ========================================== PUBLIC ==========================================
+    public bool IsActive()
+    {
+        return isActive;
+    }
+
     public void Init()
     {
         Load();
@@ -43,14 +52,16 @@ public class PopupMgr : Singleton<PopupMgr>
         SetActive(false);
     }
 
-    public void ShowPopup(PopupType _popupType)
+    public void ShowPopup(PopupType _popupType, Action _actCallback = null)
     {
+        actCallback = _actCallback;
+
         // set title & content popup
         string strTitle = "";
         string strContent = "";
 
         popupType = _popupType;
-        if (_popupType == PopupType.SAVE)
+        if (_popupType == PopupType.SAVE || _popupType == PopupType.CHANGELANGUAGE)
         {
             strTitle = DataDefine.popup_title_save;
             strContent = DataDefine.popup_content_save;
@@ -83,6 +94,8 @@ public class PopupMgr : Singleton<PopupMgr>
     // ========================================== PRIVATE ==========================================
     private void SetActive(bool _isActive)
     {
+        isActive = _isActive;
+
         if (overlayImg)
             overlayImg.gameObject.SetActive(_isActive);
         if (bgImg)
@@ -94,28 +107,31 @@ public class PopupMgr : Singleton<PopupMgr>
         if (popupType == PopupType.SAVE)
         {
             if (_isConfirm)
+                CanvasMgr.Instance.OpenSaveBrowserAndExit();
+            else
+                CanvasMgr.Instance.ExitApp();   // quit
+        }
+        else if (popupType == PopupType.CHANGELANGUAGE)
+        {
+            if (_isConfirm)
             {
-                // save for first time
-                if (DataMgr.Instance.LastSaveFile.Length == 0)
+                // auto override current file
+                if (!DataMgr.Instance.SaveLastFile())
                 {
-                    CanvasMgr.Instance.OpenSaveBrowserAndExit();
-                }
-                // if already save => override the save file
-                else
-                {
-                    DataMgr.Instance.Save();
-                    CanvasMgr.Instance.ExitApp();
+                    // or asking where to save file if save fail
+                    CanvasMgr.Instance.OpenSaveBrowser(actCallback);
                 }
             }
             else
             {
-                // quit
-                CanvasMgr.Instance.ExitApp();
+                //DataMgr.Instance.LoadLastFile();
             }
-        }
-        else
-        {
 
+            if (actCallback != null)
+            {
+                actCallback.Invoke();
+                actCallback = null;
+            }
         }
     }
 }

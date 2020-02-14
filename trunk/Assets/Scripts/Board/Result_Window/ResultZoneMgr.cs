@@ -68,7 +68,7 @@ public class ResultZoneMgr : MonoBehaviour
             if (dataIndex == null)
                 continue;
 
-            string val = TextUtil.AddBoldColorTag((ColorBar.ColorType)dataIndex.Color, dataIndex.title);
+            string val = TextUtil.AddBoldColorTag(dataIndex.GetColor(), dataIndex.title);
             val += " = " + ParseToText(dataIndex, dataType, false);
 
             if (i < rows.Count)
@@ -109,10 +109,12 @@ public class ResultZoneMgr : MonoBehaviour
             return "";
 
         string val = "";
+        // merge all val to text (for Story element)
         if (_dataType == DataIndexer.DataType.Story)
         {
             val += DataMgr.Instance.MergeAllElements(_dataIndex);
         }
+        // pick random value (for Element)
         else
         {
             List<string> pickedElements = _dataIndex.GetTestElements();
@@ -138,13 +140,15 @@ public class ResultZoneMgr : MonoBehaviour
         }
 
         // add bold tag && color tag for refer object
-        if (_isRefer && !isContainLinkObj && ((ColorBar.ColorType)_dataIndex.Color) != ColorBar.ColorType.WHITE)
+        if (_isRefer && !isContainLinkObj && (_dataIndex.GetColor() != Color.white))
         {
             //val = TextUtil.OpenBoldTag() + val + TextUtil.CloseBoldTag();
             //val = TextUtil.OpenColorTag((ColorBar.ColorType)dataIndex.Color) + val + TextUtil.CloseColorTag();
 
-            val = TextUtil.AddBoldColorTag((ColorBar.ColorType)_dataIndex.Color, val);
+            val = TextUtil.AddBoldColorTag(_dataIndex.GetColor(), val);
         }
+
+        val = TextUtil.ReplaceEscapeCharacter(val);
 
         return val;
     }

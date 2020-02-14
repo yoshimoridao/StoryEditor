@@ -30,10 +30,49 @@ public class StoryPanel : Panel
         DataIndex dataIndex = DataMgr.Instance.GetData(dataType, _key);
         if (dataIndex != null)
         {
-            Color = ((ColorBar.ColorType)dataIndex.colorId);
+            RGBAColor = dataIndex.GetColor();
         }
 
         // refresh position of add button
         RefreshAddButtonPos();
+    }
+
+    public override void OnAddButtonPress()
+    {
+        // auto add space for story element
+        if (labels.Count > 0 && labels[labels.Count - 1].PureText != " ")
+            AddSpaceMark();
+
+        base.OnAddButtonPress();
+    }
+
+    public override void OnChildLabelEdited(Label _label)
+    {
+        // auto add space mark if last character = space mark
+        //string labelVal = _label.PureText;
+        //if (labelVal.Length > 0 && labelVal[labelVal.Length - 1] == ' ')
+        //{
+        //}
+
+        base.OnChildLabelEdited(_label);
+    }
+
+    // ========================================= PRIVATE FUNCS =========================================
+    private void AddSpaceMark(int _index)
+    {
+        if (_index != -1)
+        {
+
+        }
+        AddLabel(" ");
+        // save
+        DataMgr.Instance.AddElement(dataType, genKey, " ");
+    }
+
+    private void AddSpaceMark()
+    {
+        AddLabel(" ");
+        // save
+        DataMgr.Instance.AddElement(dataType, genKey, " ");
     }
 }

@@ -21,7 +21,7 @@ public class Label : MonoBehaviour
     protected bool isEditing;
     protected string pureText;
     protected Panel panel;
-    protected ColorBar.ColorType color = ColorBar.ColorType.WHITE;
+    protected Color rgbaColor;
 
     // ========================================= GET/ SET =========================================
     public Panel Panel
@@ -51,13 +51,14 @@ public class Label : MonoBehaviour
         return GetComponentInChildren<Text>();
     }
 
-    public ColorBar.ColorType Color
+    public Color RGBAColor
     {
-        get { return color; }
+        get { return rgbaColor; }
         set
         {
-            color = value;
-            image.color = ColorBar.Instance.GetColor(color);
+            rgbaColor = value;
+            image.color = rgbaColor;
+            //image.color = ColorMenu.Instance.GetColor(color);
         }
     }
 
@@ -104,6 +105,8 @@ public class Label : MonoBehaviour
         // set default text of label
         if (_text.Length == 0)
             _text = DataDefine.defaultLabelVar;
+        // set default color
+        rgbaColor = Color.white;
 
         PureText = _text;
 
@@ -148,7 +151,7 @@ public class Label : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void RefreshContentSize()
+    public virtual void RefreshContentSize()
     {
         // to refresh size of content
         //contentSize.enabled = false;

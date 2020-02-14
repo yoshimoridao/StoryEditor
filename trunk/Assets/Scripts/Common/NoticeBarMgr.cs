@@ -9,7 +9,9 @@ public class NoticeBarMgr : Singleton<NoticeBarMgr>
     private float showFieldTime = 3;
 
     [SerializeField]
-    private InputField inputField;
+    private Text fileText;
+    [SerializeField]
+    private InputField noticeField;
     private float showFieldDt = 0;
 
     private void Awake()
@@ -31,7 +33,7 @@ public class NoticeBarMgr : Singleton<NoticeBarMgr>
             if (showFieldDt <= 0)
             {
                 showFieldDt = 0;
-                gameObject.SetActive(false);
+                ActiveNoticeField(false);
             }
         }
     }
@@ -39,19 +41,47 @@ public class NoticeBarMgr : Singleton<NoticeBarMgr>
     public void Init()
     {
         Load();
+
+        // default file name empty
+        if (fileText)
+            fileText.text = "";
     }
 
     public void Load()
     {
-        gameObject.SetActive(false);
+        ActiveNoticeField(false);
     }
 
-    public void ShowText(string _val)
+    public void UpdateFileName()
     {
-        // active obj
-        gameObject.SetActive(true);
+        if (fileText)
+        {
+            string fileName = DataMgr.Instance.LastLoadFile;
+            var nameSplit = fileName.Split('\\');
+            if (nameSplit.Length > 0)
+            {
+                fileText.text = nameSplit[nameSplit.Length - 1];
+            }
+        }
+    }
 
-        inputField.text = _val;
+    public void ShowNotice(string _val)
+    {
+        if (!noticeField)
+            return;
+
+        ActiveNoticeField(true);
+
+        noticeField.text = _val;
         showFieldDt = showFieldTime;
+    }
+
+    private void ActiveNoticeField(bool _isActive)
+    {
+        if (!noticeField)
+            return;
+
+        // active notice field
+        noticeField.gameObject.SetActive(_isActive);
     }
 }

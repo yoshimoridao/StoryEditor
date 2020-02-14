@@ -9,6 +9,21 @@ public class DataMgr : Singleton<DataMgr>
 {
     // ===== store element info =====
     [System.Serializable]
+    public class ElementExportGame
+    {
+        public string title;
+        [SerializeField]
+        public List<string> elements = new List<string>();
+    }
+
+    [System.Serializable]
+    public class DataExportGame
+    {
+        [SerializeField]
+        public List<ElementExportGame> elements = new List<ElementExportGame>();
+    }
+
+    [System.Serializable]
     public class DataElement
     {
         [SerializeField]
@@ -61,6 +76,8 @@ public class DataMgr : Singleton<DataMgr>
     private DataStorage dataStorage = new DataStorage();
     private DataIndexer dataIndexer = new DataIndexer();
     private bool isModified = true;
+    [SerializeField]
+    private bool isExportGameSave = false;
 
     // ========================================= GET/ SET =========================================
     public List<DataIndex> Stories { get { return dataIndexer.stories; } }
@@ -68,6 +85,11 @@ public class DataMgr : Singleton<DataMgr>
     public bool IsModified
     {
         get { return isModified; }
+    }
+
+    public bool IsExportGameSave
+    {
+        set { isExportGameSave = value; }
     }
 
     // ================== Index ==================
@@ -108,10 +130,10 @@ public class DataMgr : Singleton<DataMgr>
         set { dataIndexer.LastLoadPath = value; }
     }
 
-    public string LastSaveFile
+    public string LastLoadFile
     {
-        get { return dataIndexer.LastSaveFile; }
-        set { dataIndexer.LastSaveFile = value; }
+        get { return dataIndexer.LastLoadFile; }
+        set { dataIndexer.LastLoadFile = value; }
     }
 
     // ====== Data Indexer ======
@@ -156,7 +178,7 @@ public class DataMgr : Singleton<DataMgr>
         foreach (Panel panel in _panels)
         {
             if (panel)
-                panelKeys.Add(panel.Key);
+                panelKeys.Add(panel.Genkey);
         }
 
         dataIndexer.SortData(_type, panelKeys);
@@ -180,6 +202,32 @@ public class DataMgr : Singleton<DataMgr>
     }
 
     public void ClearTestCases() { dataIndexer.ClearTestCases(); }
+
+    // ===== TAG =====
+    public List<EventTagId> GetEventTags()
+    {
+        return new List<EventTagId>(dataIndexer.eventTagIds);
+    }
+
+    public EventTagId GetEventTag(string _genKey)
+    {
+        return dataIndexer.GetEventTag(_genKey);
+    }
+
+    public EventTagId AddEventTag(string _val)
+    {
+        return dataIndexer.AddEventTag(_val);
+    }
+
+    public void RemoveEventTag(string _genKey)
+    {
+        dataIndexer.RemoveEventTag(_genKey);
+    }
+
+    public void ChangeEventTagVal(string _genKey, string _val)
+    {
+        dataIndexer.ChangeEventTagVal(_genKey, _val);
+    }
 
     // ================== Element ==================
     public void AddElement(DataIndexer.DataType _type, string _key, string _val)
@@ -219,9 +267,9 @@ public class DataMgr : Singleton<DataMgr>
         dataIndexer.ReplaceTestElements(_type, _key, _testElements);
     }
 
-    public void SetColorIndexData(DataIndexer.DataType _type, string _Key, ColorBar.ColorType _colorType)
+    public void SetColorIndexData(DataIndexer.DataType _type, string _Key, Color _color)
     {
-        dataIndexer.SetColor(_type, _Key, _colorType);
+        dataIndexer.SetColor(_type, _Key, _color);
     }
 
     public void SetTestPanel(DataIndexer.DataType _type, string _key, bool _isTest)
@@ -233,6 +281,12 @@ public class DataMgr : Singleton<DataMgr>
 
         // export tracery file
         // ExportTraceryFile();
+    }
+
+    // ===== Tag =====
+    public void ReplaceEventTagElement(DataIndexer.DataType _type, string _key, int _eIndex, List<string> _tagIds)
+    {
+        dataIndexer.ReplaceEventTagElement(_type, _key, _eIndex, _tagIds);
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -255,7 +309,7 @@ public class DataMgr : Singleton<DataMgr>
     {
     }
 
-    public void ExportTraceryFile()
+    public void ExportTraceryFile(string _path)
     {
         string output = "";
         // clear all dataStorage
@@ -309,7 +363,66 @@ public class DataMgr : Singleton<DataMgr>
         Debug.Log("Export Tracery File = " + output);
 
         // --- Save ---
-        string savePath = LastSaveFile.Replace(".txt", DataDefine.save_filename_suffix_tracery + ".txt");
+        string savePath = _path.Replace(".txt", DataDefine.save_filename_suffix_tracery + ".txt");
+        if (File.Exists(savePath))
+        {
+            File.WriteAllText(savePath, output);
+        }
+        else
+        {
+            StreamWriter writer = new StreamWriter(savePath);
+            writer.Write(output);
+            writer.Close();
+        }
+    }
+
+    public void ExportForGameFile(string _path)
+    {
+        if (!isExportGameSave)
+            return;
+
+        DataExportGame dataExportGame = new DataExportGame();
+
+        for (int i = 0; i < 2; i++)
+        {
+            DataIndexer.DataType dataType = i == 0 ? DataIndexer.DataType.Story : DataIndexer.DataType.Element;
+            List<DataIndex> dataIndexes = dataIndexer.GetDatas(dataType);
+            for (int j = 0; j < dataIndexes.Count; j++)
+            {
+                DataIndex dataIndex = dataIndexes[j];
+
+                ElementExportGame tmpElement = new ElementExportGame();
+                tmpElement.title = (dataType == DataIndexer.DataType.Story ? "@Page_" + j + "@" : "") + dataIndex.title;
+                
+                // parse elements
+                if (dataType == DataIndexer.DataType.Story)
+                {
+                    tmpElement.elements = new List<string>();
+                    tmpElement.elements.Add(MergeAllElements(dataIndex));
+                }
+                else
+                {
+                    // clone elements
+                    tmpElement.elements = new List<string>(dataIndex.elements);
+                }
+
+                // add null to output is [""] -> fix bug read element wrong
+                if (tmpElement.elements.Count == 0)
+                    tmpElement.elements.Add("");
+
+                if (tmpElement != null)
+                    dataExportGame.elements.Add(tmpElement);
+
+            }
+        }
+
+        string output = JsonUtility.ToJson(dataExportGame);
+
+        // Replace all of keys to title of refer obj
+        output = ReplaceTitleOfHashKey(output);
+
+        // --- Save ---
+        string savePath = _path.Replace(".txt", DataDefine.save_filename_suffix_game + ".txt");
         if (File.Exists(savePath))
         {
             File.WriteAllText(savePath, output);
@@ -334,42 +447,48 @@ public class DataMgr : Singleton<DataMgr>
         return val;
     }
 
+    public void LoadLastFile()
+    {
+        if (LastLoadFile.Length > 0)
+            Load(LastLoadFile);
+    }
+
     public void Load(string _path)
     {
         if (File.Exists(_path))
         {
-            bool isConvertOldSave = false;
-            dataIndexer.Load(_path, out isConvertOldSave);
+            // save loaded file
+            LastLoadFile = _path;
+
+            dataIndexer.Load(_path);
             // re-load canvas's elements
             CanvasMgr.Instance.Load();
-            // show notice text
-            NoticeBarMgr.Instance.ShowText(DataDefine.notice_load_done);
 
-            // auto save new file
-            if (isConvertOldSave)
-            {
-                string savePath = _path.Replace(".txt", "_new.txt");
-                Save(savePath);
-            }
+            // show notice text && file name
+            NoticeBarMgr.Instance.UpdateFileName();
+            NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_load_done);
         }
     }
 
-    public void Save()
+    public bool SaveLastFile()
     {
-        if (LastSaveFile.Length > 0)
+        if (LastLoadFile.Length > 0 && File.Exists(LastLoadFile))
         {
-            Save(LastSaveFile);
+            Save(LastLoadFile);
+            return true;
         }
+        return false;
     }
 
     public void Save(string _path)
     {
         // save and export tracery file
-        dataIndexer.Save();
-        ExportTraceryFile();
+        dataIndexer.Save(_path);
+        ExportTraceryFile(_path);
+        ExportForGameFile(_path);
 
         // show notice text
-        NoticeBarMgr.Instance.ShowText(DataDefine.notice_save_done);
+        NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_save_done);
     }
 
     // ========================================= PRIVATE FUNCS =========================================

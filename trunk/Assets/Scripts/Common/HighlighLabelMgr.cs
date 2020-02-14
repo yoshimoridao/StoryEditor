@@ -39,7 +39,7 @@ public class HighlighLabelMgr : MonoBehaviour
             // in case: mouse drops on same panel
             if (IsDropOnSamePanel(out catchPanel))
             {
-                GameObject element = CursorMgr.Instance.CatchTopObjHandleByMouse();
+                GameObject element = CursorMgr.Instance.GetHandleObjOnTop();
                 if (element && element.GetComponent<Label>())
                 {
                     Label dropElement = element.GetComponent<Label>();
@@ -110,6 +110,9 @@ public class HighlighLabelMgr : MonoBehaviour
             // arrange panel
             if (referLabel.Panel)
                 referLabel.Panel.RefreshPanel();
+
+            // refresh canvas after arrange panel
+            CanvasMgr.Instance.RefreshCanvas();
 
             referLabel.gameObject.SetActive(true);
             referLabel = null;

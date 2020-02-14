@@ -1,0 +1,1 @@
+{"genKey":2,"elements":[{"genKey":"@1","title":"Element","rgbaColor":"r:0.6247287,g:0.2007115,b:0.2007115,a:1","elements":["ar"],"testElements":[]}],"stories":[{"genKey":"@0","title":"Story","rgbaColor":"r:1,g:1,b:1,a:1","elements":["ar"],"testElements":[]}],"isRdTest":true,"rdTestCaseAmount":1,"testCaseIds":[],"normalFontSize":20}

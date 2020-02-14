@@ -9,7 +9,7 @@ TagManager:
   - rootpanel_attribute
   - rootpanel_sentence
   - rootpanel_result
-  - color_bar
+  - color_menu
   - color_bar_btn
   - zone_top_board_element
   - zone_btm_board_element
@@ -17,6 +17,9 @@ TagManager:
   - zone_btm_board_story
   - label_input
   - button_toolbar
+  - color_bar
+  - color_menu_top_bar
+  - window_event_tag
   layers:
   - Default
   - TransparentFX

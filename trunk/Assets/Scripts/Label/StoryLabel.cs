@@ -24,4 +24,24 @@ public class StoryLabel : ReactLabel
     {
         base.Init(_panel, _text);
     }
+
+    public override void RefreshContentSize()
+    {
+        base.RefreshContentSize();
+
+        // set size & color for SPACE content only
+        if (inputField && inputField.text == " ")
+        {
+            if (rt)
+                rt.sizeDelta = Vector2.one * Mathf.Min(rt.sizeDelta.x, rt.sizeDelta.y);
+            if (image)
+                image.color = DataConfig.Instance.spaceMarkLabelColor;
+        }
+        else
+        {
+            // set size & color for not SPACE content
+            if (image)
+                image.color = DataConfig.Instance.normalLabelColor;
+        }
+    }
 }

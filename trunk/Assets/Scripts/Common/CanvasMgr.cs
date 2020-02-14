@@ -44,12 +44,17 @@ public class CanvasMgr : Singleton<CanvasMgr>
 
         // init tool bar
         ToolbarMgr.Instance.Init();
+        EventTagMgr.Instance.Init();
 
         // init notice bar
         NoticeBarMgr.Instance.Init();
 
         // init popup mgr
         PopupMgr.Instance.Init();
+        DisplayMgr.Instance.Init();
+
+        // init cursor
+        CursorMgr.Instance.Init();
 
         // refresh canvas
         RefreshCanvas();
@@ -85,6 +90,18 @@ public class CanvasMgr : Singleton<CanvasMgr>
     }
 
     // ========================================= PUBLIC FUNCS =========================================
+    public void OpenSaveBrowser()
+    {
+        if (fileBrowserCaller)
+            fileBrowserCaller.OpenFileBrowser(true);
+    }
+
+    public void OpenSaveBrowser(System.Action _callback)
+    {
+        if (fileBrowserCaller)
+            fileBrowserCaller.OpenFileBrowser(true, _callback);
+    }
+
     public void OpenSaveBrowserAndExit()
     {
         if (fileBrowserCaller)
@@ -116,7 +133,11 @@ public class CanvasMgr : Singleton<CanvasMgr>
     public void ExitApp()
     {
         Application.Quit();
-    } 
+
+        // clear last file path after exit application (dont cache last save file)
+        if (PlayerPrefs.HasKey(DataDefine.save_key_last_load_file))
+            PlayerPrefs.DeleteKey(DataDefine.save_key_last_load_file);
+    }
 
     public void Load()
     {
@@ -129,12 +150,16 @@ public class CanvasMgr : Singleton<CanvasMgr>
 
         // load tool bar
         ToolbarMgr.Instance.Load();
-
+        EventTagMgr.Instance.Load();
         // load notice bar
         NoticeBarMgr.Instance.Load();
 
-        // init popup mgr
+        // load popup mgr
         PopupMgr.Instance.Load();
+        DisplayMgr.Instance.Load();
+
+        // load cursor
+        CursorMgr.Instance.Load();
 
         // refresh canvas
         RefreshCanvas();

@@ -427,7 +427,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sizeOffset: {x: 7, y: 2}
-  rtRight: {fileID: 0}
-  rtLeft: {fileID: 0}
   text: {fileID: 8326000601356777561}
   hlTesting: {fileID: 8182589607482863894}
