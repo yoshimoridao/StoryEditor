@@ -29,6 +29,10 @@ public class ColorMenu : Singleton<ColorMenu>
 
         if (CursorMgr.Instance)
             CursorMgr.Instance.actOnRefreshSelectedObjs += RefreshReferPanels;
+
+        // register close btn event of fcp window
+        if (fcp && fcp.colorToolbar && fcp.colorToolbar.closeBtn)
+            fcp.colorToolbar.closeBtn.onClick.AddListener(OnFCPCloseBtnPress);
     }
     
     void Update()
@@ -47,7 +51,7 @@ public class ColorMenu : Singleton<ColorMenu>
                 {
                     panel.RGBAColor = fcp.color;
                     // save color
-                    DataMgr.Instance.SetColorIndexData(panel.DataType, panel.Genkey, panel.RGBAColor);
+                    //DataMgr.Instance.SetColorIndexData(panel.DataType, panel.Genkey, panel.RGBAColor);
                 }
 
                 oldfcpColor = fcp.color;
@@ -55,7 +59,7 @@ public class ColorMenu : Singleton<ColorMenu>
 
             // start dragging
             if (!isDragging && Input.GetMouseButton(0) && 
-                CursorMgr.Instance.GetHandleObjOnTop() == fcp.gameObject && CursorMgr.Instance.IsHoverObjs(DataDefine.tag_colormenu_topbar))
+                CursorMgr.Instance.GetHandleObjOnTop() == fcp.gameObject && Util.IsHoverObjs(DataDefine.tag_colormenu_topbar))
             {
                 isDragging = true;
                 mouseOffset = fcp.transform.position - Input.mousePosition;
@@ -90,6 +94,10 @@ public class ColorMenu : Singleton<ColorMenu>
         return fcp.gameObject.active;
     }
 
+    public void OnFCPCloseBtnPress()
+    {
+        SetActiveFCP(false);
+    }
     public void SetActiveFCP(bool isActive)
     {
         // active color menu first

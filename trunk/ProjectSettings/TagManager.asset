@@ -20,6 +20,7 @@ TagManager:
   - color_bar
   - color_menu_top_bar
   - window_event_tag
+  - tageditor_workspace_view
   layers:
   - Default
   - TransparentFX

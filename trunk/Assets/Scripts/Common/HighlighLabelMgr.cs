@@ -99,7 +99,9 @@ public class HighlighLabelMgr : MonoBehaviour
         fstSiblingIndex = -1;
         rowTrans = null;
         // hide highlight obj
-        transform.parent = CanvasMgr.Instance.transform;
+        //transform.parent = CanvasMgr.Instance.transform;
+        transform.parent = GameMgr.Instance.CurEditor;
+
         //gameObject.SetActive(false);
         if (img)
             img.enabled = false;
@@ -112,7 +114,7 @@ public class HighlighLabelMgr : MonoBehaviour
                 referLabel.Panel.RefreshPanel();
 
             // refresh canvas after arrange panel
-            CanvasMgr.Instance.RefreshCanvas();
+            GameMgr.Instance.RefreshCanvas();
 
             referLabel.gameObject.SetActive(true);
             referLabel = null;

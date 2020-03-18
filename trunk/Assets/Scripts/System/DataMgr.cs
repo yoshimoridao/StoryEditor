@@ -47,11 +47,11 @@ public class DataMgr : Singleton<DataMgr>
             ClearNullVals();
         }
 
-        public string ExportTracyFile(List<string> _testCases)
+        public string ExportTracyFile()
         {
             DataStorage clone = new DataStorage();
-            // get picked test case || origin list
-            clone.origin = new List<string>(_testCases.Count > 0 ? _testCases : origin);
+            clone.origin = origin;
+
             for (int i = 0; i < clone.origin.Count; i++)
             {
                 clone.origin[i] = "#" + clone.origin[i] + "#";
@@ -93,7 +93,7 @@ public class DataMgr : Singleton<DataMgr>
     }
 
     // ================== Index ==================
-    public string GenNewKey()
+    private string GenNewKey()
     {
         string newKey = "@" + dataIndexer.genKey;
         dataIndexer.genKey++;
@@ -101,20 +101,21 @@ public class DataMgr : Singleton<DataMgr>
     }
 
     // ===== Properties =====
+    #region properties
     public bool IsRandomTest
     {
-        get { return dataIndexer.IsRandomTest; }
-        set { dataIndexer.IsRandomTest = value; }
+        get { return dataIndexer.isRdTest; }
+        set { dataIndexer.isRdTest = value; }
     }
 
     public int RdTestCaseAmount
     {
-        get { return dataIndexer.RdTestCaseAmount; }
+        get { return dataIndexer.rdTestCaseAmount; }
         set
         {
             if (value < 1)
                 value = 1;
-            dataIndexer.RdTestCaseAmount = value;
+            dataIndexer.rdTestCaseAmount = value;
         }
     }
 
@@ -136,158 +137,95 @@ public class DataMgr : Singleton<DataMgr>
         set { dataIndexer.LastLoadFile = value; }
     }
 
+    public bool IsActiveSelectTest
+    {
+        get { return dataIndexer.isActiveSelectTest; }
+        set { dataIndexer.isActiveSelectTest = value; }
+    }
+    public bool IsActiveTagTest
+    {
+        get { return dataIndexer.isActiveTagTest; }
+        set { dataIndexer.isActiveTagTest = value; }
+    }
+    public bool IsActiveGroupTest
+    {
+        get { return dataIndexer.isActiveGroupTest; }
+        set { dataIndexer.isActiveGroupTest = value; }
+    }
+    public bool IsActiveGrammarTest
+    {
+        get { return dataIndexer.isActiveGrammarTest; }
+        set { dataIndexer.isActiveGrammarTest = value; }
+    }
+    #endregion
+
     // ====== Data Indexer ======
     public DataIndex GetData(DataIndexer.DataType _type, string _key) { return dataIndexer.GetData(_type, _key); }
 
-    public void AddData(DataIndexer.DataType _type, Panel _panel)
+    public DataIndex AddData(DataIndexer.DataType _type)
     {
-        DataIndex dataIndex = new DataIndex(_panel);
-        if (dataIndexer.IsContain(_type, dataIndex.genKey))
-        {
-            // WARNING match key
+        DataIndex genData = new DataIndex();
+        genData.genKey = GenNewKey();
+        dataIndexer.AddData(_type, genData);
 
-        }
-        else
-        {
-            dataIndexer.AddData(_type, dataIndex);
-        }
-
-        // export tracery file
-        // ExportTraceryFile();
+        return genData;
     }
 
     public void RemoveData(DataIndexer.DataType _type, string _key)
     {
         dataIndexer.RemoveData(_type, _key);
-
-        // export tracery file
-        // ExportTraceryFile();
-    }
-
-    public void ReplaceTitle(DataIndexer.DataType _type, string _key, string _title)
-    {
-        dataIndexer.ReplaceTitle(_type, _key, _title);
-
-        // export tracery file
-        // ExportTraceryFile();
     }
 
     public void SortIndexes(DataIndexer.DataType _type, List<Panel> _panels)
     {
-        List<string> panelKeys = new List<string>();
+        List<DataIndex> tmpDataIndexes = new List<DataIndex>();
+
         foreach (Panel panel in _panels)
         {
-            if (panel)
-                panelKeys.Add(panel.Genkey);
+            DataIndex dataIndex = panel.GetDataIndex();
+
+            if (dataIndex != null)
+                tmpDataIndexes.Add(dataIndex);
         }
 
-        dataIndexer.SortData(_type, panelKeys);
-
-        // export tracery file
-        // ExportTraceryFile();
+        dataIndexer.SortData(_type, tmpDataIndexes);
     }
 
-    public DataIndex FindData(string _key, bool _isFindByTitle) { return dataIndexer.FindData(_key, _isFindByTitle); }
     public DataIndex FindData(string _key, bool _isFindByTitle, out DataIndexer.DataType _dataType) { return dataIndexer.FindData(_key, _isFindByTitle, out _dataType); }
 
     // ===== Test Case =====
-    public Action ActModifiedTestCase
+    public List<string> GetTestingDataVals()
     {
-        get { return dataIndexer.actModifiedTestCase; }
-        set { dataIndexer.actModifiedTestCase += value; }
-    }
-    public List<string> TestCases
-    {
-        get { return dataIndexer.TestCases; }
-    }
+        List<string> dataVals = new List<string>();
+        for (int i = 0; i < 2; i++)
+        {
+            List<DataIndex> datas = i == 0 ? dataIndexer.elements : dataIndexer.stories;
+            foreach (DataIndex dataElement in datas)
+            {
+                if (dataElement.isTest)
+                    dataVals.Add(dataElement.genKey);
+            }
+        }
 
-    public void ClearTestCases() { dataIndexer.ClearTestCases(); }
+        return dataVals;
+    }
 
     // ===== TAG =====
-    public List<EventTagId> GetEventTags()
-    {
-        return new List<EventTagId>(dataIndexer.eventTagIds);
-    }
+    #region tag
+    public List<DataTagFlow> GetFlowsContainTag(string _tag) { return dataIndexer.dataEventTag.tagRelation.GetFlowsContainTag(_tag); }
+    public List<DataTagGroup> GetGroupsOfTag(string _tag) { return dataIndexer.dataEventTag.tagRelation.GetGroupsOfTag(_tag); }
+    public DataTagRelation GetDataTagRelation() { return dataIndexer.dataEventTag.tagRelation; }
+    public List<EventTagId> GetTestingEventTags() { return new List<EventTagId>(dataIndexer.dataEventTag.GetTestingTags()); }
+    public bool IsTestingTag(string _genKey) { return dataIndexer.dataEventTag.IsTestingTag(_genKey); }
 
-    public EventTagId GetEventTag(string _genKey)
-    {
-        return dataIndexer.GetEventTag(_genKey);
-    }
-
-    public EventTagId AddEventTag(string _val)
-    {
-        return dataIndexer.AddEventTag(_val);
-    }
-
-    public void RemoveEventTag(string _genKey)
-    {
-        dataIndexer.RemoveEventTag(_genKey);
-    }
-
-    public void ChangeEventTagVal(string _genKey, string _val)
-    {
-        dataIndexer.ChangeEventTagVal(_genKey, _val);
-    }
+    public List<EventTagId> GetEventTags() { return new List<EventTagId>(dataIndexer.dataEventTag.eventTagIds); }
+    public EventTagId GetEventTag(string _genKey) { return dataIndexer.dataEventTag.GetEventTag(_genKey); }
+    public EventTagId AddEventTag(string _val) { return dataIndexer.dataEventTag.AddEventTag(_val); }
+    public void RemoveEventTag(string _genKey) { dataIndexer.dataEventTag.RemoveEventTag(_genKey); }
+    #endregion
 
     // ================== Element ==================
-    public void AddElement(DataIndexer.DataType _type, string _key, string _val)
-    {
-        dataIndexer.AddElement(_type, _key, _val);
-
-        // export tracery file
-        // ExportTraceryFile();
-    }
-
-    public void RemoveElement(DataIndexer.DataType _type, string _key, int _eIndex)
-    {
-        dataIndexer.RemoveElement(_type, _key, _eIndex);
-
-        // export tracery file
-        // ExportTraceryFile();
-    }
-
-    public void ReplaceElement(DataIndexer.DataType _type, string _key, int _eIndex, string _val)
-    {
-        dataIndexer.ReplaceElement(_type, _key, _eIndex, _val);
-
-        // export tracery file
-        // ExportTraceryFile();
-    }
-
-    public void ReplaceElements(DataIndexer.DataType _type, string _key, List<string> _elements)
-    {
-        dataIndexer.ReplaceElements(_type, _key, _elements);
-
-        // export tracery file
-        // ExportTraceryFile();
-    }
-
-    public void ReplaceTestingIndex(DataIndexer.DataType _type, string _key, List<int> _testElements)
-    {
-        dataIndexer.ReplaceTestElements(_type, _key, _testElements);
-    }
-
-    public void SetColorIndexData(DataIndexer.DataType _type, string _Key, Color _color)
-    {
-        dataIndexer.SetColor(_type, _Key, _color);
-    }
-
-    public void SetTestPanel(DataIndexer.DataType _type, string _key, bool _isTest)
-    {
-        if (_isTest)
-            dataIndexer.AddTestCase(_key);
-        else
-            dataIndexer.RemoveTestCase(_key);
-
-        // export tracery file
-        // ExportTraceryFile();
-    }
-
     // ===== Tag =====
-    public void ReplaceEventTagElement(DataIndexer.DataType _type, string _key, int _eIndex, List<string> _tagIds)
-    {
-        dataIndexer.ReplaceEventTagElement(_type, _key, _eIndex, _tagIds);
-    }
 
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
@@ -297,7 +235,6 @@ public class DataMgr : Singleton<DataMgr>
 
     void Start()
     {
-        //PlayerPrefs.DeleteAll();
     }
 
     void Update()
@@ -332,8 +269,10 @@ public class DataMgr : Singleton<DataMgr>
                 }
                 else
                 {
-                    // clone elements
-                    dataElement.elements = new List<string>(dataIndex.elements);
+                    // clone element's value
+                    dataElement.elements = new List<string>();
+                    foreach (var tmp in dataIndex.elements)
+                        dataElement.elements.Add(tmp.value);
                 }
 
                 // add null to output is [""] -> fix bug read element wrong
@@ -355,7 +294,7 @@ public class DataMgr : Singleton<DataMgr>
         output += "}";
 
         // export test cases for origin part
-        output = dataStorage.ExportTracyFile(TestCases).Replace("}", "") + output;
+        output = dataStorage.ExportTracyFile().Replace("}", "") + output;
 
         // Replace all of keys to title of refer obj
         output = ReplaceTitleOfHashKey(output);
@@ -393,7 +332,7 @@ public class DataMgr : Singleton<DataMgr>
 
                 ElementExportGame tmpElement = new ElementExportGame();
                 tmpElement.title = (dataType == DataIndexer.DataType.Story ? "@Page_" + j + "@" : "") + dataIndex.title;
-                
+
                 // parse elements
                 if (dataType == DataIndexer.DataType.Story)
                 {
@@ -402,8 +341,10 @@ public class DataMgr : Singleton<DataMgr>
                 }
                 else
                 {
-                    // clone elements
-                    tmpElement.elements = new List<string>(dataIndex.elements);
+                    // clone element's value
+                    tmpElement.elements = new List<string>();
+                    foreach (var tmp in dataIndex.elements)
+                        tmpElement.elements.Add(tmp.value);
                 }
 
                 // add null to output is [""] -> fix bug read element wrong
@@ -440,8 +381,8 @@ public class DataMgr : Singleton<DataMgr>
         string val = "";
         if (_dataIndex != null)
         {
-            foreach (string element in _dataIndex.elements)
-                val += element;
+            foreach (var element in _dataIndex.elements)
+                val += element.value;
         }
 
         return val;
@@ -462,7 +403,7 @@ public class DataMgr : Singleton<DataMgr>
 
             dataIndexer.Load(_path);
             // re-load canvas's elements
-            CanvasMgr.Instance.Load();
+            GameMgr.Instance.Load();
 
             // show notice text && file name
             NoticeBarMgr.Instance.UpdateFileName();
@@ -497,9 +438,11 @@ public class DataMgr : Singleton<DataMgr>
         string result = _val;
         char[] splitter = { '#' };
         string[] eKeys = result.Split(splitter, StringSplitOptions.RemoveEmptyEntries);
+
         foreach (string eKey in eKeys)
         {
-            DataIndex eData = FindData(eKey, false);
+            DataIndexer.DataType findDataType;
+            DataIndex eData = FindData(eKey, false, out findDataType);
             if (eData != null)
                 result = result.Replace("#" + eData.genKey + "#", "#" + eData.title + "#");
         }

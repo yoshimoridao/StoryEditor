@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DataDefine
 {
-    // prefabs
+    // prefabs path
     public static string pref_path_storyPanel           = "Prefabs/Panel/panel_story";
     public static string pref_path_elementPanel         = "Prefabs/Panel/panel_element";
 
@@ -12,7 +12,10 @@ public class DataDefine
     public static string pref_path_element_label        = "Prefabs/Label/element_label";
     public static string pref_path_rowLabel             = "Prefabs/row_label";
     public static string pref_path_result_row           = "Prefabs/result_row";
-    
+    public static string pref_path_element_space        = "Prefabs/element_space";
+
+    public static string pref_tag_editor_field          = "Prefabs/TagEditors/TagEditorField";
+
     // save
     public static string save_filename_default          = "DemoText";
     public static string save_filename_suffix_tracery   = "_tracery";
@@ -34,12 +37,16 @@ public class DataDefine
     public static string tag_colormenu_topbar   = "color_menu_top_bar";
     public static string tag_window_event_tag   = "window_event_tag";
 
+    public static string tag_tageditor_workspace_view = "tageditor_workspace_view";
+
     // text
     public static string defaultLabelVar = "---";
     public static string default_name_element_panel = "Element";
     public static string default_name_story_panel = "Story";
     public static string default_event_tag_value = "new event tag";
     public static string error_refer_text = "#error#";
+    public static string default_new_group_tag = "new group";
+    public static string default_new_flow_tag = "new flow";
 
     // notice text
     public static string notice_load_done = "Load Success";
@@ -48,4 +55,9 @@ public class DataDefine
     // popup content
     public static string popup_title_save = "Save";
     public static string popup_content_save = "Do you want to save your change ?";
+
+    // highlight color
+    public static Color highlight_drop_zone_color = new Color(33 / 255.0f, 40 / 255.0f, 144 / 255.0f);
+    public static Color highlight_drag_obj_color = new Color(214 / 255.0f, 219 / 255.0f, 32 / 255.0f);
+    public static Color highlight_select_obj_color = new Color(0 / 255.0f, 0 / 255.0f, 0 / 255.0f, 130 / 255.0f);
 }

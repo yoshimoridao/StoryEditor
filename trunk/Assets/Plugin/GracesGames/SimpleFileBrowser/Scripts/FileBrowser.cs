@@ -98,7 +98,9 @@ namespace GracesGames.SimpleFileBrowser.Scripts
             ViewMode = newViewMode;
 
             // Find the canvas so UI elements can be added to it
-            GameObject uiCanvas = GameObject.Find("Canvas");
+            //GameObject uiCanvas = GameObject.Find("Canvas");
+            GameObject uiCanvas = GameMgr.Instance.CurEditor.gameObject;
+
             // Instantiate the file browser UI using the transform of the canvas
             // Then call the Setup method of the SetupUserInterface class to setup the User Interface using the set values
             if (uiCanvas != null)

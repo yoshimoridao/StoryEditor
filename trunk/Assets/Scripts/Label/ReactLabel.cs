@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class ReactLabel : Label, IPointerClickHandler
 {
+    protected DataElementIndex dataIndex = new DataElementIndex();
+
     protected List<DataIndex> referPanels = new List<DataIndex>();
     [SerializeField]
     protected Text text;
@@ -16,13 +18,31 @@ public class ReactLabel : Label, IPointerClickHandler
         get { return pureText; }
         set
         {
-            pureText = value;
+            SetPureText(value);
 
             // store all of refer panels
             ParseReferPanels();
         }
     }
 
+    public DataElementIndex GetDataElementIndex()
+    {
+        return dataIndex;
+    }
+
+    public virtual void SetDataElementIndex(DataElementIndex _data)
+    {
+        dataIndex = _data;
+
+        PureText = dataIndex.value;
+    }
+
+    private void SetPureText(string _val)
+    {
+        pureText = _val;
+        if (dataIndex != null)
+            dataIndex.value = pureText;
+    }
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
@@ -65,6 +85,7 @@ public class ReactLabel : Label, IPointerClickHandler
         if (!isEditing || !gameObject.active)
             return;
 
+        // remove content empty
         if (inputField.text.Length == 0)
         {
             SelfDestroy();
@@ -78,7 +99,8 @@ public class ReactLabel : Label, IPointerClickHandler
         for (int i = 0; i < tmp.Length; i++)
         {
             string splitVal = tmp[i];
-            DataIndex findData = DataMgr.Instance.FindData(splitVal, true);
+            DataIndexer.DataType findDataType;
+            DataIndex findData = DataMgr.Instance.FindData(splitVal, true, out findDataType);
             if (findData != null)
             {
                 // add refer panel
@@ -90,20 +112,25 @@ public class ReactLabel : Label, IPointerClickHandler
         }
 
         // override pure text
-        pureText = parseText;
+        //pureText = parseText;
+        SetPureText(parseText);
+
         // convert to show text
-        ConvertoShowText();
+        ConvertToShowText();
 
         base.OnEditDone();
     }
 
     public void OnDragPanelInto(Panel _panel)
     {
-        pureText = pureText + "#" + _panel.Genkey + "#";
+        string contentText = pureText + "#" + _panel.Genkey + "#";
+        SetPureText(contentText);
+
         // add refer panel
         if (!IsContainReferPanel(_panel.Genkey))
         {
-            DataIndex findData = DataMgr.Instance.FindData(_panel.Genkey, false);
+            DataIndexer.DataType findDataType;
+            DataIndex findData = DataMgr.Instance.FindData(_panel.Genkey, false, out findDataType);
             if (findData != null)
             {
                 AddReferPanel(findData);
@@ -111,7 +138,7 @@ public class ReactLabel : Label, IPointerClickHandler
         }
 
         // convert to show text
-        ConvertoShowText();
+        ConvertToShowText();
 
         RefreshContentSize();
 
@@ -128,10 +155,11 @@ public class ReactLabel : Label, IPointerClickHandler
             // remove the refer panel
             RemoveReferPanel(findId);
             // replace error text
-            pureText = pureText.Replace("#" + _dataKey + "#", DataDefine.error_refer_text);
+            string contentText = pureText.Replace("#" + _dataKey + "#", DataDefine.error_refer_text);
+            SetPureText(contentText);
 
             // convert to show text
-            ConvertoShowText();
+            ConvertToShowText();
         }
 
         RefreshContentSize();
@@ -147,7 +175,7 @@ public class ReactLabel : Label, IPointerClickHandler
         {
             referPanels.Add(_dataIndex);
             // register modifying action
-            _dataIndex.actModifyData += ConvertoShowText;
+            _dataIndex.actModifyData += ConvertToShowText;
             _dataIndex.actOnDestroy += OnReferPanelDestroy;
         }
     }
@@ -162,7 +190,7 @@ public class ReactLabel : Label, IPointerClickHandler
             // un-register modifying action
             if (dataIndex != null)
             {
-                dataIndex.actModifyData -= ConvertoShowText;
+                dataIndex.actModifyData -= ConvertToShowText;
                 dataIndex.actOnDestroy -= OnReferPanelDestroy;
             }
 
@@ -194,7 +222,7 @@ public class ReactLabel : Label, IPointerClickHandler
     /// <summary>
     /// convert pure text to show text (which contain rich text <b></b> <color></color>)
     /// </summary>
-    public void ConvertoShowText()
+    public virtual void ConvertToShowText()
     {
         if (!inputField)
             return;
@@ -206,7 +234,7 @@ public class ReactLabel : Label, IPointerClickHandler
         {
             DataIndex referPanel = referPanels[i];
             string referStr = "";
-            Color referColor = referPanel.GetColor();
+            Color referColor = referPanel.RGBAColor;
             // add prefix color tag
             if (referColor != Color.white)
                 referStr += TextUtil.OpenColorTag(referColor);
@@ -266,14 +294,15 @@ public class ReactLabel : Label, IPointerClickHandler
             if (parseKey.Length == 0)
                 continue;
 
-            DataIndex findData = DataMgr.Instance.FindData(parseKey, false);
+            DataIndexer.DataType findDataType;
+            DataIndex findData = DataMgr.Instance.FindData(parseKey, false, out findDataType);
             // add refer data
             if (findData != null && !IsContainReferPanel(findData.genKey))
                 AddReferPanel(findData);
         }
 
         // convert pure text to show text
-        ConvertoShowText();
+        ConvertToShowText();
     }
 
     protected void ClearAllReferPanels()

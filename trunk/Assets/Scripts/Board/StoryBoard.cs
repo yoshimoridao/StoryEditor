@@ -29,7 +29,9 @@ public class StoryBoard : Board
         Load();
 
         // scale height for all ratio
-        float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
+        //float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
+        float canvasHeight = (GameMgr.Instance.CurEditor as RectTransform).sizeDelta.y;
+
         RectTransform rt = transform as RectTransform;
         rt.sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
         // scale height for panel's view
@@ -50,35 +52,40 @@ public class StoryBoard : Board
             StoryPanel panel = null;
             // create panel
             if (i >= panels.Count)
-                panel = AddPanel(dataIndex.genKey) as StoryPanel;
+            {
+                panel = AddPanel(dataIndex) as StoryPanel;
+            }
             // get already exist panel
             else
+            {
                 panel = panels[i] as StoryPanel;
+                // re-load dataindex
+                panel.SetDataIndex(dataIndex);
+            }
 
             // create label elements
             if (panel)
             {
-                panel.Genkey = dataIndex.genKey;                                               // load gen key
-                panel.Title = dataIndex.title;                                              // load title
-                panel.RGBAColor = dataIndex.GetColor();                                     // load color
-                panel.IsTesting = DataMgr.Instance.TestCases.Contains(dataIndex.genKey);    // load testing flag
-
                 // gen labels
                 List<Label> labels = panel.Labels;
                 for (int j = 0; j < dataIndex.elements.Count; j++)
                 {
-                    string var = dataIndex.elements[j];
                     Label genLabel = null;
                     // add new label
                     if (j >= labels.Count)
                     {
-                        genLabel = panel.AddLabel(var);
+                        genLabel = panel.AddLabel("", false);
                     }
                     // or get exist label
                     else
                     {
                         genLabel = labels[j];
-                        genLabel.PureText = var;
+                    }
+
+                    if (genLabel && genLabel is ReactLabel)
+                    {
+                        DataElementIndex dataElementId = dataIndex.elements[j];
+                        (genLabel as ReactLabel).SetDataElementIndex(dataElementId);
                     }
                 }
 
@@ -103,10 +110,10 @@ public class StoryBoard : Board
         }
 
         // refresh canvas
-        CanvasMgr.Instance.RefreshCanvas();
+        GameMgr.Instance.RefreshCanvas();
     }
 
-    public override Panel AddPanel(string _genKey)
+    public override Panel AddPanel(DataIndex _dataIndex)
     {
         if (!prefPanel)
             return null;
@@ -115,8 +122,7 @@ public class StoryBoard : Board
         Panel panel = Instantiate(prefPanel, transPanelCont).GetComponent<Panel>();
         if (panel)
         {
-            string title = DataDefine.default_name_story_panel;
-            panel.Init(_genKey, title);
+            panel.Init(_dataIndex);
             // register action when panel is destroyed
             panel.actOnDestroy += RemovePanel;
 

@@ -5,20 +5,24 @@ using UnityEngine.UI;
 
 public class EventTagMgr : Singleton<EventTagMgr>
 {
-    [SerializeField]
-    private Transform eventTagMenu;
-    [SerializeField]
-    private Transform contTrans;
-    [SerializeField]
-    private EventTag prefEventTag;
-    [SerializeField]
-    private Button addTagBtn;
+    // tag menu
+    [SerializeField] private Transform tagMenu;
+    [SerializeField] private Transform contTrans;
+    [SerializeField] private EventTag prefEventTag;
+    [SerializeField] private Button addTagBtn;
     // tag objects've generated
     private List<EventTag> eventTags = new List<EventTag>();
 
     // these label're selected
-    [SerializeField]
     private List<Label> selectLabels = new List<Label>();
+    private bool isInit;
+
+    // test mode
+    [SerializeField] private Transform testModeMenu;
+    [SerializeField] private Toggle selectTestBtn;
+    [SerializeField] private Toggle tagTestBtn;
+    [SerializeField] private Toggle groupTestBtn;
+    [SerializeField] private Toggle grammarTestBtn;
 
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
@@ -32,6 +36,12 @@ public class EventTagMgr : Singleton<EventTagMgr>
 
     void Update()
     {
+    }
+
+    private void OnEnable()
+    {
+        if (isInit)
+            Load();
     }
 
     private void OnDestroy()
@@ -48,6 +58,8 @@ public class EventTagMgr : Singleton<EventTagMgr>
     // ========================================= PUBLIC FUNCS =========================================
     public void Init()
     {
+        isInit = true;
+
         // register event
         if (CursorMgr.Instance)
             CursorMgr.Instance.actOnRefreshSelectedObjs += OnRefreshSelectLabels;
@@ -73,30 +85,29 @@ public class EventTagMgr : Singleton<EventTagMgr>
         if (contTrans)
         {
             int turn = Mathf.Max(eventTags.Count, tagIds.Count);
-            for (int i = 0; i < turn; i++)
+            for (int i = 0; i < tagIds.Count; i++)
             {
-                EventTagId tagId = null;
-                if (i < tagIds.Count)
-                    tagId = tagIds[i];
-
-                if (tagId != null)
+                EventTagId tagId = tagIds[i];
+                // generate new tag
+                if (i >= eventTags.Count)
                 {
-                    // generate new tag
-                    if (i >= eventTags.Count)
-                    {
-                        GenNewEventTag(tagId);
-                    }
-                    // re-use existed tag
-                    else
-                    {
-                        eventTags[i].Init(tagId);
-                    }
+                    GenNewEventTag(tagId);
                 }
+                // re-use existed tag
                 else
                 {
-                    // surplus tag -> destroy
-                    if (tagIds.Count < eventTags.Count)
-                        DestroyEventTag(eventTags[tagIds.Count].TagId);
+                    eventTags[i].Init(tagId);
+                }
+            }
+
+            // remove surplus tags
+            if (tagIds.Count < eventTags.Count)
+            {
+                for (int i = tagIds.Count; i < eventTags.Count; i++)
+                {
+                    // if remove event tag success
+                    if (RemoveEventTag(i))
+                        i--;
                 }
             }
 
@@ -105,21 +116,10 @@ public class EventTagMgr : Singleton<EventTagMgr>
         }
     }
 
-    public void ToggleWindow(RectTransform _snailPos)
-    {
-        // set position window
-        bool isActive = !IsActive();
-
-        if (isActive)
-            eventTagMenu.transform.position = _snailPos.position;
-
-        SetActiveWindow(isActive);
-    }
-
     public bool IsActive()
     {
-        if (eventTagMenu)
-            return eventTagMenu.gameObject.active;
+        if (tagMenu)
+            return tagMenu.gameObject.active;
 
         return false;
     }
@@ -127,11 +127,11 @@ public class EventTagMgr : Singleton<EventTagMgr>
     public void SetActiveWindow(bool _isActive)
     {
         if (_isActive)
-            CanvasMgr.Instance.RefreshCanvas();
+            GameMgr.Instance.RefreshCanvas();
 
-        if (eventTagMenu)
+        if (tagMenu)
         {
-            eventTagMenu.gameObject.SetActive(_isActive);
+            tagMenu.gameObject.SetActive(_isActive);
         }
     }
 
@@ -145,23 +145,16 @@ public class EventTagMgr : Singleton<EventTagMgr>
         RefreshAddBtnPos();
 
         // refresh canvas
-        CanvasMgr.Instance.RefreshCanvas();
+        GameMgr.Instance.RefreshCanvas();
     }
 
     public void OnEraseBtnPress(EventTagId _tagId)
     {
-        // remove out of data
-        DataMgr.Instance.RemoveEventTag(_tagId.genKey);
-
         // remove out of mgr list
-        DestroyEventTag(_tagId);
-    }
-
-    public void OnValueChanged(EventTagId _tagId)
-    {
-        if (IsContainTag(_tagId))
+        int findId = eventTags.FindIndex(x => x.TagId == _tagId);
+        if (findId != -1)
         {
-            DataMgr.Instance.ChangeEventTagVal(_tagId.genKey, _tagId.value);
+            RemoveEventTag(findId);
         }
     }
 
@@ -183,6 +176,24 @@ public class EventTagMgr : Singleton<EventTagMgr>
                 selectLabels.Add(elementLabel);
             }
         }
+
+        // active apply toggle of event tag base on element
+        if (selectLabels.Count == 1)
+        {
+            DataElementIndex elementDataIndex = (selectLabels[0] as ElementLabel).GetDataElementIndex();
+
+            if (elementDataIndex != null)
+            {
+                for (int i = 0; i < eventTags.Count; i++)
+                {
+                    EventTag tmpEventTag = eventTags[i];
+                    if (tmpEventTag.TagId == null)
+                        continue;
+
+                    tmpEventTag.IsApplyTag = elementDataIndex.IsContainEventTag(tmpEventTag.TagId.genKey);
+                }
+            }
+        }
     }
 
     // ========================================= PRIVATE FUNCS =========================================
@@ -197,35 +208,30 @@ public class EventTagMgr : Singleton<EventTagMgr>
 
         // register events
         genEventTag.actOnErase += OnEraseBtnPress;
-        genEventTag.actOnValChange += OnValueChanged;
-
-        genEventTag.actOnToggleAply += OnToggleApplyTag;
-        genEventTag.actOnToggleVisible += OnToggleVisibleTag;
+        genEventTag.actOnToggleApply += OnToggleApplyTag;
 
         eventTags.Add(genEventTag);
     }
 
-    private void DestroyEventTag(EventTagId _eventTagId)
+    private bool RemoveEventTag(int _index)
     {
-        int findId = eventTags.FindIndex(x => x.TagId == _eventTagId);
-        if (findId != -1)
+        if (_index < eventTags.Count)
         {
             // destroy and remove out of mgr list
-            EventTag eventTag = eventTags[findId];
+            EventTag eventTag = eventTags[_index];
             // un-register action
             if (eventTag.actOnErase != null)
                 eventTag.actOnErase -= OnEraseBtnPress;
-            if (eventTag.actOnValChange != null)
-                eventTag.actOnValChange -= OnValueChanged;
+            if (eventTag.actOnToggleApply != null)
+                eventTag.actOnToggleApply -= OnToggleApplyTag;
 
-            if (eventTag.actOnToggleAply != null)
-                eventTag.actOnToggleAply -= OnToggleApplyTag;
-            if (eventTag.actOnToggleVisible != null)
-                eventTag.actOnToggleVisible -= OnToggleVisibleTag;
-
+            // destroy obj && remove in list obj
             Destroy(eventTag.gameObject);
-            eventTags.RemoveAt(findId);
+            eventTags.RemoveAt(_index);
+
+            return true;
         }
+        return false;
     }
 
     private void RefreshAddBtnPos()
@@ -234,15 +240,9 @@ public class EventTagMgr : Singleton<EventTagMgr>
         addTagBtn.transform.SetAsLastSibling();
     }
 
-    private bool IsContainTag(EventTagId _tagId)
-    {
-        int findId = eventTags.FindIndex(x => x.TagId == _tagId);
-
-        return findId != -1;
-    }
-
     // === Apply tag ===
-    public void OnToggleApplyTag(EventTag _eventTag)
+    #region event
+    public void OnToggleApplyTag(EventTag _eventTag, bool _isActive)
     {
         int findId = eventTags.FindIndex(x => x.gameObject == _eventTag.gameObject);
 
@@ -252,19 +252,56 @@ public class EventTagMgr : Singleton<EventTagMgr>
             for (int i = 0; i < selectLabels.Count; i++)
             {
                 ElementLabel label = selectLabels[i] as ElementLabel;
-                label.OnToggleEventTag(_eventTag.TagId.genKey);
+                label.ActiveEventTag(_eventTag.TagId.genKey, _isActive);
             }
         }
     }
 
-    // === Visible tag ===
-    public void OnToggleVisibleTag(EventTag _eventTag)
+    public void OnToggleTagMenu(RectTransform _snailPos)
     {
-        int findId = eventTags.FindIndex(x => x.gameObject == _eventTag.gameObject);
+        // set position window
+        bool isActive = !IsActive();
 
-        if (findId != -1)
-        {
+        if (isActive)
+            tagMenu.transform.position = _snailPos.position;
 
-        }
+        SetActiveWindow(isActive);
     }
+
+    public void OnToggleTestModeMenu(RectTransform _snailPos)
+    {
+        // toggle enable
+        testModeMenu.gameObject.SetActive(!testModeMenu.gameObject.active);
+
+        // set position window
+        testModeMenu.position = _snailPos.position;
+
+        // toggle btn
+        selectTestBtn.isOn = DataMgr.Instance.IsActiveSelectTest;
+        tagTestBtn.isOn = DataMgr.Instance.IsActiveTagTest;
+        groupTestBtn.isOn = DataMgr.Instance.IsActiveGroupTest;
+        grammarTestBtn.isOn = DataMgr.Instance.IsActiveGrammarTest;
+
+        GameMgr.Instance.RefreshCanvas();
+    }
+
+    public void OnToggleSelectTest(bool _isOn)
+    {
+        DataMgr.Instance.IsActiveSelectTest = _isOn;
+    }
+    public void OnToggleTagTest(bool _isOn)
+    {
+        DataMgr.Instance.IsActiveTagTest = _isOn;
+    }
+    public void OnToggleGroupTest(bool _isOn)
+    {
+        DataMgr.Instance.IsActiveGroupTest = _isOn;
+    }
+    public void OnToggleGrammarTest(bool _isOn)
+    {
+        DataMgr.Instance.IsActiveGrammarTest = _isOn;
+    }
+    #endregion
+
+    // === Visible tag ===
 }

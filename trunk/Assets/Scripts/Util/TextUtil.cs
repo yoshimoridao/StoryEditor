@@ -4,44 +4,20 @@ using UnityEngine;
 
 public static class TextUtil
 {
-    // bold tag
+    // --- bold tag
     public static string OpenBoldTag() { return "<b>"; }
     public static string CloseBoldTag() { return "</b>"; }
-    public static string AddBoldTag(string _val)
-    {
-        return OpenBoldTag() + _val + CloseBoldTag();
-    }
+    public static string AddBoldTag(string _val) { return OpenBoldTag() + _val + CloseBoldTag(); }
 
-    // color tag
-    public static string OpenColorTag(Color _color)
-    {
-        string val = "<color=#" + ColorUtility.ToHtmlStringRGBA(_color) + ">";
-        //switch (_color)
-        //{
-        //    case ColorMenu.ColorType.WHITE:
-        //        break;
-        //    case ColorMenu.ColorType.BLACK:
-        //    case ColorMenu.ColorType.RED:
-        //    case ColorMenu.ColorType.CYAN:
-        //    case ColorMenu.ColorType.GREEN:
-        //    case ColorMenu.ColorType.BLUE:
-        //    case ColorMenu.ColorType.ORANGE:
-        //    case ColorMenu.ColorType.PURPLE:
-        //        val += _color.ToString().ToLower();
-        //        break;
-        //    default:
-        //        break;
-        //}
-
-        //val += ">";
-
-        return val;
-    }
+    // --- color tag
+    public static string OpenColorTag(Color _color) { return "<color=#" + ColorUtility.ToHtmlStringRGBA(_color) + ">"; }
     public static string CloseColorTag() { return "</color>"; }
-    public static string AddColorTag(Color _color, string _val)
-    {
-        return OpenColorTag(_color) + _val + CloseColorTag();
-    }
+    public static string AddColorTag(Color _color, string _val) { return OpenColorTag(_color) + _val + CloseColorTag(); }
+
+    // --- size tag
+    public static string OpenSizeTag(int _size) { return "<size=" + _size + ">"; }
+    public static string CloseSizeTag() { return "</size>"; }
+    public static string AddSizeTag(int _size, string _val) { return OpenSizeTag(_size) + _val + CloseSizeTag(); }
 
     // bold + color tag
     public static string AddBoldColorTag(Color _color, string _val)

@@ -1,1 +1,1 @@
-{"origin":["#Story#"],"Story":["pt"],"Element":["pt"]}
+{"origin":["#Story#"],"Story":["pt"],"Element":["pt"],"Story":["pt"]}

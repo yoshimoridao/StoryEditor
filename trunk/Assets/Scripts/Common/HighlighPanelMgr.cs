@@ -90,7 +90,7 @@ public class HighlighPanelMgr : MonoBehaviour
                 string boardTag = (referPanel is StoryPanel) ? DataDefine.tag_board_story : DataDefine.tag_board_element;
 
                 // set sibling index of panel
-                if (CursorMgr.Instance.IsHoverObjs(boardTag))
+                if (Util.IsHoverObjs(boardTag))
                     referPanel.transform.SetSiblingIndex(transform.GetSiblingIndex());
                 // revert index in case user drag to another board
                 else
@@ -110,7 +110,8 @@ public class HighlighPanelMgr : MonoBehaviour
         //gameObject.SetActive(false);
         if (img)
             img.enabled = false;
-        transform.parent = CanvasMgr.Instance.transform;
+        //transform.parent = CanvasMgr.Instance.transform;
+        transform.parent = GameMgr.Instance.CurEditor;
     }
 
     // ========================================= PRIVATE FUNCS =========================================

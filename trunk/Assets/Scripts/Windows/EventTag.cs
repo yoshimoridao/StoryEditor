@@ -5,34 +5,44 @@ using UnityEngine.UI;
 
 public class EventTag : MonoBehaviour
 {
+    // effected all elements
     public System.Action<EventTagId> actOnErase;
-    public System.Action<EventTagId> actOnValChange;
 
-    public System.Action<EventTag> actOnToggleAply;
-    public System.Action<EventTag> actOnToggleVisible;
+    // effect selected elements
+    public System.Action<EventTag, bool> actOnToggleApply;
 
     [SerializeField]
-    private Button eraseBtn;
+    private Toggle applyToggle;
+    
     [SerializeField]
     private InputField inputField;
-    private EventTagId tagId;
 
     [SerializeField]
     private Toggle visibleToggle;
     [SerializeField]
-    private bool isVisible;
+    private Toggle testToggle;
+    [SerializeField]
+    private Button eraseBtn;
 
-    [SerializeField]
-    private Toggle applyToggle;
-    [SerializeField]
+    private EventTagId tagId;
     private bool isApply;
 
+    // ========================================= PROPERTIES =========================================
     public EventTagId TagId
     {
         get { return tagId; }
         set { tagId = value; }
     }
 
+    // --- apply ---
+    public bool IsApplyTag
+    {
+        set
+        {
+            isApply = value;
+            applyToggle.isOn = isApply;
+        }
+    }
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
     {
@@ -42,25 +52,20 @@ public class EventTag : MonoBehaviour
     void Start()
     {
         // register events
-        if (visibleToggle)
-        {
-            isVisible = visibleToggle.isOn;
-            visibleToggle.onValueChanged.AddListener(OnToggleVisible);
-        }
         if (applyToggle)
         {
             isApply = applyToggle.isOn;
             applyToggle.onValueChanged.AddListener(OnToggleApply);
         }
-
-        if (eraseBtn)
-        {
-            eraseBtn.onClick.AddListener(OnEraseBtnPress);
-        }
+        
         if (inputField)
-        {
-            inputField.onValueChanged.AddListener(OnValueChanged);
-        }
+            inputField.onEndEdit.AddListener(OnTextValueChanged);
+        if (visibleToggle)
+            visibleToggle.onValueChanged.AddListener(OnToggleVisible);
+        if (testToggle)
+            testToggle.onValueChanged.AddListener(OnToggleTest);
+        if (eraseBtn)
+            eraseBtn.onClick.AddListener(OnEraseBtnPress);
     }
 
     void Update()
@@ -70,52 +75,47 @@ public class EventTag : MonoBehaviour
     public void Init(EventTagId _tagId)
     {
         tagId = _tagId;
-        inputField.text = tagId.value;
+
+        if (inputField)
+            inputField.text = tagId.value;
+        if (visibleToggle)
+            visibleToggle.isOn = tagId.IsVisible;
+        if (testToggle)
+            testToggle.isOn = tagId.isTest;
     }
     // ========================================= PUBLIC FUNCS =========================================
-    public void OnEraseBtnPress()
+    // --- apply selected btn ---
+    public void OnToggleApply(bool _val)
     {
-        if (actOnErase != null && tagId != null)
-            actOnErase.Invoke(tagId);
+        isApply = _val;
+
+        // call back event
+        if (actOnToggleApply != null && tagId != null)
+            actOnToggleApply.Invoke(this, isApply);
     }
 
-    public void OnValueChanged(string _val)
+    // --- apply all btns ---
+    public void OnTextValueChanged(string _val)
     {
         if (tagId == null)
             return;
 
-        tagId.value = _val;
-        if (actOnValChange != null)
-            actOnValChange.Invoke(tagId);
+        tagId.Value = _val;
     }
 
-    // --- visible ---
-    public void IsVisible(bool _isVisible)
+    public void OnToggleTest(bool _val)
     {
-        isVisible = _isVisible;
-        visibleToggle.isOn = isVisible;
+        tagId.isTest = _val;
     }
 
-    public void OnToggleVisible(bool _isActive)
+    public void OnToggleVisible(bool _val)
     {
-        isVisible = _isActive;
-
-        if (actOnToggleVisible != null)
-            actOnToggleVisible.Invoke(this);
+        tagId.IsVisible = _val;
     }
 
-    // --- apply ---
-    public void IsApplyTag(bool _isApply)
+    public void OnEraseBtnPress()
     {
-        isApply = _isApply;
-        applyToggle.isOn = isApply;
-    }
-
-    public void OnToggleApply(bool _isActive)
-    {
-        isApply = _isActive;
-
-        if (actOnToggleAply != null)
-            actOnToggleAply.Invoke(this);
+        if (actOnErase != null && tagId != null)
+            actOnErase.Invoke(tagId);
     }
 }

@@ -44,7 +44,7 @@ public class DisplayMgr : Singleton<DisplayMgr>
             infoPanel.SetActive(_isActive);
         }
 
-        CanvasMgr.Instance.RefreshCanvas();
+        GameMgr.Instance.RefreshCanvas();
     }
 
     public void DisplayCheatPanel()

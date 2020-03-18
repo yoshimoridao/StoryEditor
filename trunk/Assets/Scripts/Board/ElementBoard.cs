@@ -29,7 +29,8 @@ public class ElementBoard : Board
         Load();
 
         // scale height for all ratio
-        float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
+        //float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
+        float canvasHeight = (GameMgr.Instance.CurEditor as RectTransform).sizeDelta.y;
         RectTransform rt = transform as RectTransform;
         rt.sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
         // scale height for panel's view
@@ -50,46 +51,52 @@ public class ElementBoard : Board
             ElementPanel panel = null;
             // create panel
             if (i >= panels.Count)
-                panel = AddPanel(dataIndex.genKey) as ElementPanel;
+            {
+                panel = AddPanel(dataIndex) as ElementPanel;
+            }
             // get already exist panel
             else
+            {
                 panel = panels[i] as ElementPanel;
+                // re-load dataindex
+                panel.SetDataIndex(dataIndex);
+            }
 
             // create label elements
             if (panel)
             {
-                panel.Genkey = dataIndex.genKey;                                               // load gen key
-                panel.Title = dataIndex.title;                                              // load title
-                panel.RGBAColor = dataIndex.GetColor();                                     // load color
-                panel.IsTesting = DataMgr.Instance.TestCases.Contains(dataIndex.genKey);    // load testing flag
-
                 // clear all of test labels
-                panel.ClearTestLabels();
+                //panel.ClearTestLabels();
+
                 // gen labels
                 List<Label> labels = panel.Labels;
                 for (int j = 0; j < dataIndex.elements.Count; j++)
                 {
-                    string var = dataIndex.elements[j];
                     Label genLabel = null;
                     // add new label
                     if (j >= labels.Count)
                     {
-                        genLabel = panel.AddLabel(var);
+                        genLabel = panel.AddLabel("", false);
                     }
                     // or get exist label
                     else
                     {
                         genLabel = labels[j];
-                        genLabel.PureText = var;
                     }
 
-                    // store testing elements
-                    if (genLabel && genLabel is ElementLabel && dataIndex.testElements.Contains(j))
-                        panel.AddTestLabel(genLabel as ElementLabel);
+                    if (genLabel && genLabel is ReactLabel)
+                    {
+                        DataElementIndex dataElementId = dataIndex.elements[j];
+                        (genLabel as ReactLabel).SetDataElementIndex(dataElementId);
+                    }
+
+                    //// store testing elements
+                    //if (genLabel && genLabel is ElementLabel && dataIndex.testElements.Contains(j))
+                    //    panel.AddTestLabel(genLabel as ElementLabel);
                 }
 
                 // set active highlight for all testing labels
-                panel.ActiveTestLabels();
+                //panel.ActiveTestLabels();
 
                 // delete excess labels
                 if (dataIndex.elements.Count < labels.Count)
@@ -112,10 +119,10 @@ public class ElementBoard : Board
         }
 
         // refresh canvas
-        CanvasMgr.Instance.RefreshCanvas();
+        GameMgr.Instance.RefreshCanvas();
     }
 
-    public override Panel AddPanel(string _genKey)
+    public override Panel AddPanel(DataIndex _dataIndex)
     {
         if (!prefPanel)
             return null;
@@ -124,8 +131,7 @@ public class ElementBoard : Board
         Panel panel = Instantiate(prefPanel, transPanelCont).GetComponent<Panel>();
         if (panel)
         {
-            string title = DataDefine.default_name_element_panel;
-            panel.Init(_genKey, title);
+            panel.Init(_dataIndex);
             // register action when panel is destroyed
             panel.actOnDestroy += RemovePanel;
 

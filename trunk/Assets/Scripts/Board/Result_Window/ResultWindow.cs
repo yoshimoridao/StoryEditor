@@ -43,11 +43,10 @@ public class ResultWindow : Singleton<ResultWindow>
 
         Load();
 
-        // add modified action for picking mode
-        DataMgr.Instance.ActModifiedTestCase += RefreshPickupAmountText;
-
         // scale height for all ratio
-        float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
+        //float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
+        float canvasHeight = (GameMgr.Instance.CurEditor as RectTransform).sizeDelta.y;
+        
         RectTransform rt = transform as RectTransform;
         rt.sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
 
@@ -79,15 +78,15 @@ public class ResultWindow : Singleton<ResultWindow>
 
     public void OnDestroy()
     {
-        // add modified action for picking mode
-        DataMgr.Instance.ActModifiedTestCase -= RefreshPickupAmountText;
     }
 
     public void RefreshPickupAmountText()
     {
         // update text
         if (pickupAmountText)
-            pickupAmountText.text = DataMgr.Instance.TestCases.Count.ToString();
+        {
+            pickupAmountText.text = DataMgr.Instance.GetTestingDataVals().Count.ToString();
+        }
     }
 
     // ====== Event Button ======
@@ -119,7 +118,7 @@ public class ResultWindow : Singleton<ResultWindow>
         }
         else
         {
-            testCases = DataMgr.Instance.TestCases;
+            testCases = DataMgr.Instance.GetTestingDataVals();
         }
 
         resultZone.ShowResult(testCases, isRandom);
@@ -160,26 +159,7 @@ public class ResultWindow : Singleton<ResultWindow>
 
     public void OnClearAllBtnPress()
     {
-        // disable all testing panels
-        Board storyBoard = CanvasMgr.Instance.GetBoard<StoryBoard>();
-        Board elementBoard = CanvasMgr.Instance.GetBoard<ElementBoard>();
-
-        List<string> testCaseIds = DataMgr.Instance.TestCases;
-        for (int i = 0; i < testCaseIds.Count; i++)
-        {
-            string testKey = testCaseIds[i];
-            // find panel
-            Panel testingPanel = storyBoard.GetPanel(testKey);
-            if (testingPanel == null)
-                testingPanel = elementBoard.GetPanel(testKey);
-
-            // change testing flag
-            if (testingPanel)
-                testingPanel.IsTesting = false;
-        }
-
-        // clear all in data
-        DataMgr.Instance.ClearTestCases();
+        GameMgr.Instance.ClearAllTestCases();
     }
 
     // = Random mode panel =

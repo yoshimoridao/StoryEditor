@@ -3,23 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class OldDataIndex
-{
-    public string genKey;
-    public string title;
-    public int colorId;
-    public List<string> elements = new List<string>();
-    public List<int> testElements = new List<int>();
-}
-
-[System.Serializable]
 public class OldSaveFormater
 {
     public int genKey = 0;
-    [SerializeField]
-    public List<OldDataIndex> elements = new List<OldDataIndex>();
-    [SerializeField]
-    public List<OldDataIndex> stories = new List<OldDataIndex>();
 
     // test cases mode
     public bool isRdTest = true;
@@ -30,4 +16,42 @@ public class OldSaveFormater
 
     // toolbar
     public int normalFontSize = 20;
+}
+
+[System.Serializable]
+public class OldDataIndexV001
+{
+    public string genKey;
+    public string title;
+    public int colorId;
+    public List<string> elements = new List<string>();
+    public List<int> testElements = new List<int>();
+}
+
+[System.Serializable]
+public class OldSaveFormaterV001 : OldSaveFormater
+{
+    [SerializeField]
+    public List<OldDataIndexV001> elements = new List<OldDataIndexV001>();
+    [SerializeField]
+    public List<OldDataIndexV001> stories = new List<OldDataIndexV001>();
+}
+
+[System.Serializable]
+public class OldDataIndexV002
+{
+    public string genKey;
+    public string title;
+    public string rgbaColor;
+    public List<string> elements = new List<string>();
+    public List<int> testElements = new List<int>();
+}
+
+[System.Serializable]
+public class OldSaveFormaterV002 : OldSaveFormater
+{
+    [SerializeField]
+    public List<OldDataIndexV002> elements = new List<OldDataIndexV002>();
+    [SerializeField]
+    public List<OldDataIndexV002> stories = new List<OldDataIndexV002>();
 }

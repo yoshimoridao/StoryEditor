@@ -21,7 +21,6 @@ public class Label : MonoBehaviour
     protected bool isEditing;
     protected string pureText;
     protected Panel panel;
-    protected Color rgbaColor;
 
     // ========================================= GET/ SET =========================================
     public Panel Panel
@@ -49,17 +48,6 @@ public class Label : MonoBehaviour
     public Text GetTextObject()
     {
         return GetComponentInChildren<Text>();
-    }
-
-    public Color RGBAColor
-    {
-        get { return rgbaColor; }
-        set
-        {
-            rgbaColor = value;
-            image.color = rgbaColor;
-            //image.color = ColorMenu.Instance.GetColor(color);
-        }
     }
 
     // ========================================= UNITY FUNCS =========================================
@@ -102,11 +90,9 @@ public class Label : MonoBehaviour
         //}
 
         panel = _panel;
-        // set default text of label
-        if (_text.Length == 0)
-            _text = DataDefine.defaultLabelVar;
-        // set default color
-        rgbaColor = Color.white;
+        //// set default text of label
+        //if (_text.Length == 0)
+        //    _text = DataDefine.defaultLabelVar;
 
         PureText = _text;
 

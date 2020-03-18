@@ -5,25 +5,65 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System;
 
-public class ElementLabel : ReactLabel
+public class ElementLabel : ReactLabel, IDragElement, ISelectElement
 {
     public Image hlTesting;
-    public Action<ElementLabel> actOnActiveTest;
+
+    public Color originColor { get; set; }
 
     // event tag
-    public Action<ElementLabel> actOnToggleEventTag;
-    private List<string> eventTagKeys = new List<string>();
+    //public Action<ElementLabel> actOnToggleEventTag;
+    //private List<string> eventTagKeys = new List<string>();
 
     // ========================================= PROPERTIES =========================================
-    public List<string> EventTagKeys
+    public bool IsTesting
     {
-        get { return eventTagKeys; }
+        get
+        {
+            if (dataIndex != null)
+                return dataIndex.isTest;
+
+            return false;
+        }
+        set
+        {
+            if (dataIndex == null)
+                return;
+            dataIndex.isTest = value;
+
+            if (hlTesting)
+                hlTesting.gameObject.SetActive(value);
+        }
+    }
+
+    public override void SetDataElementIndex(DataElementIndex _data)
+    {
+        base.SetDataElementIndex(_data);
+
+        if (dataIndex == null)
+            return;
+
+        // is test
+        IsTesting = dataIndex.isTest;
+
+        // register event tag's event 
+        if (dataIndex.eventTagKeys.Length > 0)
+        {
+            List<string> tagKeys = dataIndex.GetEventTagKeys();
+            foreach (string tagKey in tagKeys)
+            {
+                RegisterEventTagEvent(tagKey, true);
+            }
+        }
     }
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
         base.Start();
+
+        if (inputField)
+            originColor = inputField.GetComponent<Image>().color;
     }
 
     public void Update()
@@ -31,55 +71,157 @@ public class ElementLabel : ReactLabel
         base.Update();
     }
 
+    #region interface
+    public void OnSelect()
+    {
+        if (inputField)
+            inputField.GetComponent<Image>().color = DataDefine.highlight_select_obj_color;
+    }
+
+    public void OnEndSelect()
+    {
+        if (inputField)
+            inputField.GetComponent<Image>().color = originColor;
+    }
+
+    public void OnDragging()
+    {
+        if (inputField)
+            inputField.GetComponent<Image>().color = DataDefine.highlight_drag_obj_color;
+    }
+
+    public void OnEndDrag()
+    {
+        if (inputField)
+            inputField.GetComponent<Image>().color = originColor;
+    }
+    #endregion
     // ========================================= PUBLIC FUNCS =========================================
-    public bool IsTesting
-    {
-        get
-        {
-            if (hlTesting)
-                return hlTesting.gameObject.active;
-            return false;
-        }
-        set
-        {
-            if (hlTesting)
-            {
-                hlTesting.gameObject.SetActive(value);
 
-                // callback action
-                actOnActiveTest(this);
-            }
-        }
-    }
 
-    public void ActiveTesting(bool _isActive)
-    {
-        hlTesting.gameObject.SetActive(_isActive);
-    }
+    //public void ActiveTesting(bool _isActive)
+    //{
+    //    hlTesting.gameObject.SetActive(_isActive);
+    //}
 
     public override void Init(Panel _panel, string _text)
     {
         base.Init(_panel, _text);
     }
 
-    // ======================= Event Tag =======================
-    public void OnToggleEventTag(string _eventTagKey)
+    public override void ConvertToShowText()
     {
-        int findId = eventTagKeys.FindIndex(x => x == _eventTagKey);
+        base.ConvertToShowText();
 
-        // remove if exist
-        if (findId != -1)
+        // show text
+        if (inputField == null)
+            return;
+
+        // add tag key before show text
+        string eventText = GetEventTagText();
+        if (eventText.Length > 0)
         {
-            eventTagKeys.RemoveAt(findId);
+            string showText = eventText + " " + inputField.text;
+            inputField.text = showText;
         }
-        // add if not
+    }
+
+    // ======================= Event Tag =======================
+    public void ActiveEventTag(string _tagKey, bool _isActive)
+    {
+        if (dataIndex == null)
+            return;
+
+        // add event tag
+        if (_isActive)
+        {
+            dataIndex.AddEventTag(_tagKey);
+
+            // register event tag's event
+            RegisterEventTagEvent(_tagKey, _isActive);
+        }
+        // remove event tag
+        else if (dataIndex != null && dataIndex.IsContainEventTag(_tagKey))
+        {
+            RemoveEventTag(_tagKey);
+        }
+
+        ConvertToShowText();
+    }
+
+    private void RemoveEventTag(string _tagKey)
+    {
+        // un-register event tag's event
+        RegisterEventTagEvent(_tagKey, false);
+
+        // remove event tag in data
+        dataIndex.RemoveEventTag(_tagKey);
+    }
+
+    private void RegisterEventTagEvent(string _tagKey, bool _isRegister)
+    {
+        EventTagId eventTagId = DataMgr.Instance.GetEventTag(_tagKey);
+        if (eventTagId == null)
+            return;
+
+        if (_isRegister)
+        {
+            // register event tag's event
+            eventTagId.actOnModyingData += OnModifiedEventTag;
+            eventTagId.actOnDestroy += OnDestroyTag;
+        }
         else
         {
-            eventTagKeys.Add(_eventTagKey);
+            // un-register event tag's event
+            eventTagId.actOnModyingData -= OnModifiedEventTag;
+            eventTagId.actOnDestroy -= OnDestroyTag;
+        }
+    }
+
+    private string GetEventTagText()
+    {
+        if (dataIndex == null)
+            return "";
+
+        string result = "";
+
+        // get tag keys
+        List<string> tagKeys = dataIndex.GetEventTagKeys();
+        foreach (string tagKey in tagKeys)
+        {
+            // get event tag
+            EventTagId eventTagId = DataMgr.Instance.GetEventTag(tagKey);
+            if (eventTagId != null && eventTagId.IsVisible)
+            {
+                string tmp = TextUtil.AddColorTag(Color.blue, "@" + eventTagId.value);
+                result += tmp + " ";
+            }
         }
 
-        // call back
-        if (actOnToggleEventTag != null)
-            actOnToggleEventTag.Invoke(this);
+        // add size
+        if (result.Length > 0)
+            result = TextUtil.AddSizeTag(DataMgr.Instance.NormalFontSize - 5, result);
+
+        return result;
+    }
+
+    public void OnModifiedEventTag()
+    {
+        ConvertToShowText();
+    }
+
+    public void OnDestroyTag(string _tagKey)
+    {
+        if (dataIndex == null)
+            return;
+
+        List<string> tagKeys = dataIndex.GetEventTagKeys();
+        if (tagKeys.Contains(_tagKey))
+        {
+            RemoveEventTag(_tagKey);
+
+            // refresh show text
+            ConvertToShowText();
+        }
     }
 }

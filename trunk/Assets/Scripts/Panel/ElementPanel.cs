@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class ElementPanel : Panel
 {
-    protected List<ElementLabel> testLabels = new List<ElementLabel>();
-
     // ========================================= GET/ SET =========================================
 
     // ========================================= UNITY FUNCS =========================================
@@ -21,118 +19,23 @@ public class ElementPanel : Panel
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public override void Init(string _key, string _title)
+    public override void Init(DataIndex _dataIndex)
     {
         // load prefab label
         prefLabel = Resources.Load<GameObject>(DataDefine.pref_path_element_label);
 
-        base.Init(_key, _title);
+        base.Init(_dataIndex);
 
         // Load (color, index,...)
-        DataIndex dataIndex = DataMgr.Instance.GetData(dataType, _key);
-        if (dataIndex != null)
-        {
-            RGBAColor = dataIndex.GetColor();
-        }
+        //DataIndex dataIndex = DataMgr.Instance.GetData(dataType, _key);
+        //if (dataIndex != null)
+        //{
+        //    RGBAColor = dataIndex.GetColor();
+        //}
 
-        // refresh position of add button
-        RefreshAddButtonPos();
-    }
-
-    public override Label AddLabel(string _var)
-    {
-        Label genLabel = base.AddLabel(_var);
-        if (genLabel && genLabel is ElementLabel)
-        {
-            (genLabel as ElementLabel).actOnActiveTest += OnLabelActiveTest;
-            (genLabel as ElementLabel).actOnToggleEventTag += OnChildElementChangeEventTag;
-        }
-
-        return genLabel;
-    }
-
-    public override void UpdateOrderLabels()
-    {
-        base.UpdateOrderLabels();
-
-        // save test labels (after order)
-        SaveTestLabels();
-    }
-
-    // ===== Testing =====
-    public void OnLabelActiveTest(ElementLabel _label)
-    {
-        if (_label.IsTesting)
-            AddTestLabel(_label);
-        else
-            RemoveTestLabel(_label);
-
-        // set active highlight for all testing labels
-        ActiveTestLabels();
-
-        // save test labels
-        SaveTestLabels();
-    }
-
-    public void ActiveTestLabels()
-    {
-        foreach (ElementLabel eLabel in labels)
-            eLabel.ActiveTesting(testLabels.Contains(eLabel));
-    }
-
-    public void AddTestLabel(ElementLabel _label)
-    {
-        //if (!testLabels.Contains(_label))
-        //    testLabels.Add(_label);
-
-        // find label is the child of the panel
-        int findId = testLabels.FindIndex(x => x.gameObject == _label.gameObject);
-        if (findId == -1)
-            testLabels.Add(_label);
-    }
-
-    public void RemoveTestLabel(ElementLabel _label)
-    {
-        //if (testLabels.Contains(_label))
-        //    testLabels.Remove(_label);
-
-        int findId = testLabels.FindIndex(x => x.gameObject == _label.gameObject);
-        if (findId != -1)
-            testLabels.RemoveAt(findId);
-    }
-
-    public void ClearTestLabels()
-    {
-        testLabels.Clear();
-    }
-
-    // ===== Event Tag =====
-    public void OnChildElementChangeEventTag(ElementLabel _childLabel)
-    {
-        int findId = labels.FindIndex(x => x.gameObject == _childLabel.gameObject);
-
-        if (findId != -1)
-        {
-            DataMgr.Instance.ReplaceEventTagElement(dataType, genKey, findId, _childLabel.EventTagKeys);
-        }
+        //// refresh position of add button
+        //RefreshAddButtonPos();
     }
 
     // ========================================= PRIVATE FUNCS =========================================
-    protected void SaveTestLabels()
-    {
-        // find all index of testing labels
-        List<int> tmpTestIds = new List<int>();
-        for (int i = 0; i < testLabels.Count; i++)
-        {
-            int findId = labels.FindIndex(x => x.gameObject == testLabels[i].gameObject);
-            if (findId != -1)
-                tmpTestIds.Add(findId);
-        }
-
-        if (tmpTestIds.Count > 0)
-            tmpTestIds.Sort();
-
-        // save index of testing labels
-        DataMgr.Instance.ReplaceTestingIndex(dataType, Genkey, tmpTestIds);
-    }
 }

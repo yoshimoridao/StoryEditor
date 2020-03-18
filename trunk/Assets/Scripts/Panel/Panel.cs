@@ -18,14 +18,11 @@ public class Panel : MonoBehaviour
     protected RectTransform rt;
     protected Image image;
 
-    protected string genKey;
-    protected string title;
-    protected bool isTesting;
-    [SerializeField]
-    protected Color rgbaColor;
+    protected DataIndex dataIndex;
 
     protected GameObject prefRow;
     protected GameObject prefLabel;
+    protected GameObject prefElementSpace;
 
     protected List<Transform> rows = new List<Transform>();
     protected List<Label> labels = new List<Label>();
@@ -40,56 +37,74 @@ public class Panel : MonoBehaviour
     protected Vector2 refreshPanelDt = new Vector2(0, 0.5f);
 
     // ========================================= GET/ SET =========================================
-    public string Genkey
-    {
-        get { return genKey; }
-        set { genKey = value; }
-    }
-
+    #region getter/setter
+    public string Genkey { get { return dataIndex.genKey; } }
     public string Title
     {
-        get { return title; }
+        get { return dataIndex.title; }
         set
         {
-            title = value;
+            // set data 
+            if (dataIndex == null)
+                return;
+            dataIndex.title = value;
+
             if (titleLabel)
-                titleLabel.PureText = title;
+                titleLabel.PureText = dataIndex.title;
         }
     }
-
     public bool IsTesting
     {
-        get { return isTesting; }
+        get { return dataIndex.isTest; }
         set
         {
-            isTesting = value;
+            // set data 
+            if (dataIndex == null)
+                return;
+            dataIndex.isTest = value;
+
+            // active test tag
             if (testTag)
-                testTag.gameObject.SetActive(isTesting);
+                testTag.gameObject.SetActive(dataIndex.isTest);
+
+            // refresh testing text of result window
+            ResultWindow.Instance.RefreshPickupAmountText();
         }
     }
-
     public Color RGBAColor
     {
-        get { return rgbaColor; }
+        get { return dataIndex.RGBAColor; }
         set
         {
-            rgbaColor = value;
-            image.color = rgbaColor;
-            //image.color = ColorMenu.Instance.GetColor(rgbaColor);
+            // set data 
+            if (dataIndex == null)
+                return;
+            dataIndex.RGBAColor = value;
+
+            image.color = RGBAColor;
         }
     }
-
-    public DataIndexer.DataType DataType
+    public DataIndexer.DataType DataType { get { return dataType; } }
+    public List<Label> Labels { get { return labels; } }
+    public DataIndex GetDataIndex()
     {
-        get { return dataType; }
-    }
+        if (dataIndex != null)
+            return dataIndex;
 
-    public List<Label> Labels
-    {
-        get { return labels; }
+        return null;
     }
+    public void SetDataIndex(DataIndex _dataIndex)
+    {
+        dataIndex = _dataIndex;
+
+        Title = dataIndex.title;            // load title
+        RGBAColor = dataIndex.RGBAColor;    // load color
+        IsTesting = dataIndex.isTest;       // load testing flag
+    }
+    #endregion
 
     // ========================================= UNITY FUNCS =========================================
+    #region common
     public void Start()
     {
         // get component
@@ -124,8 +139,8 @@ public class Panel : MonoBehaviour
             }
         }
     }
-    // ========================================= PUBLIC FUNCS =========================================
-    public virtual void Init(string _key, string _title)
+
+    public virtual void Init(DataIndex _dataIndex)
     {
         // get component
         if (rt == null)
@@ -148,19 +163,23 @@ public class Panel : MonoBehaviour
 
         // load prefab
         prefRow = Resources.Load<GameObject>(DataDefine.pref_path_rowLabel);
+        prefElementSpace = Resources.Load<GameObject>(DataDefine.pref_path_element_space);
         layoutRow = prefRow.GetComponent<HorizontalLayoutGroup>();
 
-        // set key
-        Genkey = _key;
-        // set title 
+        // store data
+        dataIndex = _dataIndex;
+
+        // init title
         if (titleLabel)
         {
             titleLabel.Init(this, "");  // init default
             titleLabel.actEditDone += OnTitleEdited;
         }
-        Title = _title;
-        // set default color
-        rgbaColor = Color.white;
+
+        // load title, color
+        Title = dataIndex.title;
+        RGBAColor = dataIndex.RGBAColor;
+        IsTesting = dataIndex.isTest;
 
         // determine data type
         dataType = this is ElementPanel ? DataIndexer.DataType.Element : DataIndexer.DataType.Story;
@@ -171,14 +190,35 @@ public class Panel : MonoBehaviour
             baseWidth -= (layoutRow.padding.left + layoutRow.padding.right);
         baseWidth *= contentSize;
 
+        // refresh position of add button
+        RefreshAddButtonPos();
+
         // arrange panel
         RefreshPanelDt();
     }
 
-    public virtual Label AddLabel(string _var)
+    public void SelfDestroy()
+    {
+        if (actOnDestroy != null)
+            actOnDestroy.Invoke(this);
+
+        Destroy(gameObject);
+    }
+    #endregion
+
+    // ========================================= PUBLIC FUNCS =========================================
+    #region label
+    public Label AddLabel(string _val, bool _isGenData = true)
     {
         if (!prefLabel)
             return null;
+
+        // gen data
+        DataElementIndex genData = null;
+        if (_isGenData)
+        {
+            genData = dataIndex.AddElement(_val);
+        }
 
         Transform lastRow = GetLastRow();
         if (lastRow)
@@ -187,7 +227,14 @@ public class Panel : MonoBehaviour
             Label genLabel = Instantiate(prefLabel, lastRow.transform).GetComponent<Label>();
             if (genLabel)
             {
-                genLabel.Init(this, _var);
+                genLabel.Init(this, _val);
+
+                // set data for element
+                if (_isGenData && genData != null)
+                {
+                    (genLabel as ReactLabel).SetDataElementIndex(genData);
+                }
+
                 // register the Label's action
                 genLabel.actEditDone += OnChildLabelEdited;
                 genLabel.actEditing += OnChildLabelEditing;
@@ -217,7 +264,7 @@ public class Panel : MonoBehaviour
         if (_labelId >= 0 && _labelId < labels.Count)
         {
             // un-register action
-            Label label = labels[_labelId];
+            ReactLabel label = labels[_labelId] as ReactLabel;
             label.actEditDone -= OnChildLabelEdited;
             label.actEditing -= OnChildLabelEditing;
 
@@ -228,76 +275,16 @@ public class Panel : MonoBehaviour
             RefreshAddButtonPos();
 
             // remove in save data
-            DataMgr.Instance.RemoveElement(dataType, Genkey, _labelId);
-            // refresh canvas
-            CanvasMgr.Instance.RefreshCanvas();
-        }
-    }
-
-    public void OnChildLabelEditing()
-    {
-        RefreshPanelDt();
-    }
-
-    public virtual void OnChildLabelEdited(Label _label)
-    {
-        RefreshPanelDt();
-
-        // remove label null
-        if (_label.PureText.Length == 0)
-        {
-            RemoveLabel(_label);
-        }
-        else
-        {
-            // find index of label
-            int labelIndex = labels.FindIndex(x => x.gameObject == _label.gameObject);
-            if (labelIndex != -1)
-            {
-                // replace value of label in storage
-                DataMgr.Instance.ReplaceElement(dataType, Genkey, labelIndex, _label.PureText);
-                // refresh canvas
-                CanvasMgr.Instance.RefreshCanvas();
-            }
-        }
-    }
-
-    public void OnTitleEdited(Label _title)
-    {
-        // override new title
-        if (_title.gameObject != titleLabel.gameObject)
-            return;
-
-        title = titleLabel.PureText;
-
-        DataMgr.Instance.ReplaceTitle(dataType, genKey, Title);
-
-        // refresh canvas
-        CanvasMgr.Instance.RefreshCanvas();
-    }
-
-    public virtual void OnAddButtonPress()
-    {
-        Label genLabel = AddLabel("");
-
-        if (genLabel)
-        {
-            // save
-            DataMgr.Instance.AddElement(dataType, genKey, genLabel.PureText);
+            if (label.GetDataElementIndex() != null && dataIndex != null)
+                dataIndex.RemoveElement(_labelId);
 
             // refresh canvas
-            CanvasMgr.Instance.RefreshCanvas();
+            GameMgr.Instance.RefreshCanvas();
         }
     }
+    #endregion
 
-    public void SelfDestroy()
-    {
-        if (actOnDestroy != null)
-            actOnDestroy.Invoke(this);
-
-        Destroy(gameObject);
-    }
-
+    #region panel
     public void RefreshPanelDt()
     {
         refreshPanelDt.x = refreshPanelDt.y;
@@ -350,26 +337,89 @@ public class Panel : MonoBehaviour
             rowLabels.Add(label);
         }
 
+        // refresh space elements
+        RefreshRow();
+
         // refresh position of add button
         RefreshAddButtonPos();
     }
 
     public virtual void UpdateOrderLabels()
     {
-        labels.Clear();
+        if (dataIndex == null)
+            return;
 
+        labels.Clear();
         // update order of labels
         labels = new List<Label>(transform.GetComponentsInChildren<ReactLabel>(true));
 
-        List<string> eLabels = new List<string>();
-        foreach (Label eLabel in labels)
-            eLabels.Add(eLabel.PureText);
+        List<DataElementIndex> dataElementIds = new List<DataElementIndex>();
+        for (int i = 0; i < labels.Count; i++)
+        {
+            ReactLabel reactLabel = labels[i] as ReactLabel;
+            if (reactLabel.GetDataElementIndex() != null)
+            {
+                dataElementIds.Add(reactLabel.GetDataElementIndex());
+            }
+        }
 
-        // save 
-        DataMgr.Instance.ReplaceElements(DataType, Genkey, eLabels);
+        dataIndex.elements = dataElementIds;
+    }
+    #endregion
+
+    // ================= EVENT =================
+    #region event
+    public void OnChildLabelEditing()
+    {
+        RefreshPanelDt();
     }
 
-    // ========================================= PRIVATE FUNCS =========================================
+    public virtual void OnChildLabelEdited(Label _label)
+    {
+        RefreshPanelDt();
+
+        // remove label null
+        if (_label.PureText.Length == 0)
+        {
+            RemoveLabel(_label);
+        }
+        else
+        {
+            // refresh canvas
+            GameMgr.Instance.RefreshCanvas();
+        }
+    }
+
+    public void OnTitleEdited(Label _title)
+    {
+        // override new title
+        if (_title.gameObject != titleLabel.gameObject)
+            return;
+
+        dataIndex.title = titleLabel.PureText;
+
+        // refresh canvas
+        GameMgr.Instance.RefreshCanvas();
+    }
+
+    public virtual void OnAddButtonPress()
+    {
+        if (dataIndex == null)
+            return;
+
+        // gen label obj
+        Label genLabel = AddLabel(DataDefine.defaultLabelVar);
+
+        if (genLabel)
+        {
+            // refresh canvas
+            GameMgr.Instance.RefreshCanvas();
+        }
+    }
+    #endregion
+
+    // ================= ROW =================
+    #region row
     protected Transform AddNewRow()
     {
         if (prefRow)
@@ -394,13 +444,61 @@ public class Panel : MonoBehaviour
 
         return null;
     }
+    protected void RefreshRow()
+    {
+        for (int i = 0; i < rows.Count; i++)
+        {
+            Transform row = rows[i];
+            if (row.childCount == 0)
+                continue;
 
+            var eSpaces = GenSpaceElementForRow(row);
+            if (eSpaces == null)
+                continue;
+
+            for (int j = 0; j < eSpaces.Count; j++)
+            {
+                eSpaces[j].transform.SetSiblingIndex(2 * j);
+            }
+        }
+    }
+    protected List<ElementSpace> GenSpaceElementForRow(Transform _row)
+    {
+        List<ElementSpace> spaces = new List<ElementSpace>(_row.GetComponentsInChildren<ElementSpace>());
+        var childLabels = _row.GetComponentsInChildren<ReactLabel>();
+        if (childLabels.Length == 0)
+            return null;
+
+        var genAmount = childLabels.Length + 1;
+        // gen more objs
+        if (spaces.Count < genAmount)
+        {
+            genAmount -= spaces.Count;
+            for (int i = 0; i < genAmount; i++)
+            {
+                var genSpace = Instantiate(prefElementSpace, _row);
+                spaces.Add(genSpace.GetComponent<ElementSpace>());
+            }
+        }
+        // destroy surplus objs
+        else if (spaces.Count > genAmount)
+        {
+            for (int i = genAmount; i < spaces.Count; i++)
+                Destroy(spaces[i].gameObject);
+
+            spaces.RemoveRange(genAmount, spaces.Count - genAmount);
+        }
+        return spaces;
+    }
+    #endregion
+
+    // ================= UTIL =================
+    #region util
     protected int FindLabelIndex(Label _label)
     {
         return labels.FindIndex(x => x.gameObject == _label.gameObject);
     }
 
-    // === ADD BUTTON ===
     protected void RefreshAddButtonPos()
     {
         // get last row
@@ -412,4 +510,5 @@ public class Panel : MonoBehaviour
             addBtn.transform.SetSiblingIndex(row.transform.childCount);
         }
     }
+    #endregion
 }

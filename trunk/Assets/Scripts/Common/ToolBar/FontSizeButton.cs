@@ -70,6 +70,6 @@ public class FontSizeButton : MonoBehaviour
         if (actOnModifyVal != null)
             actOnModifyVal.Invoke(_val);
 
-        CanvasMgr.Instance.RefreshCanvas();
+        GameMgr.Instance.RefreshCanvas();
     }
 }

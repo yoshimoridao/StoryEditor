@@ -19,22 +19,22 @@ public class StoryPanel : Panel
     }
     
     // ========================================= PUBLIC FUNCS =========================================
-    public override void Init(string _key, string _title)
+    public override void Init(DataIndex _dataIndex)
     {
         // load prefab label
         prefLabel = Resources.Load<GameObject>(DataDefine.pref_path_story_label);
 
-        base.Init(_key, _title);
+        base.Init(_dataIndex);
 
         // Load (color, index,...)
-        DataIndex dataIndex = DataMgr.Instance.GetData(dataType, _key);
-        if (dataIndex != null)
-        {
-            RGBAColor = dataIndex.GetColor();
-        }
+        //DataIndex dataIndex = DataMgr.Instance.GetData(dataType, _key);
+        //if (dataIndex != null)
+        //{
+        //    RGBAColor = dataIndex.GetColor();
+        //}
 
-        // refresh position of add button
-        RefreshAddButtonPos();
+        //// refresh position of add button
+        //RefreshAddButtonPos();
     }
 
     public override void OnAddButtonPress()
@@ -58,21 +58,8 @@ public class StoryPanel : Panel
     }
 
     // ========================================= PRIVATE FUNCS =========================================
-    private void AddSpaceMark(int _index)
-    {
-        if (_index != -1)
-        {
-
-        }
-        AddLabel(" ");
-        // save
-        DataMgr.Instance.AddElement(dataType, genKey, " ");
-    }
-
     private void AddSpaceMark()
     {
         AddLabel(" ");
-        // save
-        DataMgr.Instance.AddElement(dataType, genKey, " ");
     }
 }

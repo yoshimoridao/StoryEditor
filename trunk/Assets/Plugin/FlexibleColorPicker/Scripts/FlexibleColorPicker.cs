@@ -12,6 +12,8 @@ public class FlexibleColorPicker : MonoBehaviour {
     * ----------------------------------------------------------
     */
 
+    public FlexibleColorToolbar colorToolbar;
+
     //Unity connections
     public Image[] pickerImages;
     private enum PickerType {
@@ -22,7 +24,16 @@ public class FlexibleColorPicker : MonoBehaviour {
 
     //public state
     public Color color {
-        get { return this.bufferedColor.color; }
+        get
+        {
+            // get standard color
+            if (colorToolbar && colorToolbar.pickColorType == FlexibleColorToolbar.PickColorType.Standard &&
+                colorToolbar.standardColor != Color.white)
+                return colorToolbar.standardColor;
+
+            // get custom color
+            return this.bufferedColor.color;
+        }
         set {
             this.bufferedColor.Set(value);
             UpdateMarkers();

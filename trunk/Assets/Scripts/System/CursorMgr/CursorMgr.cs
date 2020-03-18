@@ -29,6 +29,7 @@ public class CursorMgr : Singleton<CursorMgr>
     DragAbleElement dragingObj = null;
     private List<SelectAbleElement> selectObjs = new List<SelectAbleElement>();
     private GameObject selectObj = null;
+    private IDragZone dragZone = null;
 
     // ========================================= GET/ SET =========================================
     public DragBehavior DragMode
@@ -108,38 +109,6 @@ public class CursorMgr : Singleton<CursorMgr>
         return dragingObj != null;
     }
 
-    public bool IsHoverObjs(GameObject _obj)
-    {
-        // get ray cast all objs
-        var rayCast = GetRayCastResultsByMousePos();
-        for (int i = 0; i < rayCast.Count; i++)
-        {
-            if (rayCast[i].gameObject == _obj)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /// checking cursor's selecting the elements.
-    public bool IsHoverObjs(params string[] tags)
-    {
-        List<string> checkingTags = new List<string>(tags);
-
-        // get ray cast all objs
-        var rayCast = GetRayCastResultsByMousePos();
-        for (int i = 0; i < rayCast.Count; i++)
-        {
-            string touchedTag = rayCast[i].gameObject.tag;
-            if (checkingTags.Contains(touchedTag))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public bool IsHoverObjs(out GameObject obj, string catchingTag, params string[] tags)
     {
         obj = null;
@@ -181,8 +150,8 @@ public class CursorMgr : Singleton<CursorMgr>
                 GameObject catchObj = rayCast[i].gameObject;
 
                 // layer 1 (unity's ui)
-                if (catchObj.GetComponent<Button>() || catchObj.GetComponent<Dropdown>() || catchObj.GetComponent<InputField>() || 
-                    catchObj.GetComponent<Toggle>())
+                if (catchObj.GetComponent<Button>() || catchObj.GetComponent<Dropdown>() || catchObj.GetComponent<Toggle>())
+                    //|| catchObj.GetComponent<InputField>())
                 {
                     return catchObj.gameObject;
                 }
@@ -242,10 +211,26 @@ public class CursorMgr : Singleton<CursorMgr>
         holdDt += Time.deltaTime;
 
         // in case draging an element
-        if (dragingObj)
+        if (dragingObj != null)
         {
             // catch mouse position
             rt.position = Input.mousePosition;
+
+            // highlight hovering zone
+            IDragZone hoverZone = GetDragZone();
+            if (hoverZone != null)
+            {
+                if (hoverZone != dragZone)
+                {
+                    ReleaseDragZone();
+                    dragZone = hoverZone;
+                    dragZone.OnMouseIn(dragingObj.gameObject);
+                }
+            }
+            else if (dragZone != null)
+            {
+                ReleaseDragZone();
+            }
         }
         else
         {
@@ -312,16 +297,16 @@ public class CursorMgr : Singleton<CursorMgr>
     private void ActiveTitle(bool isActive)
     {
         dragingTitle.gameObject.SetActive(isActive);
-        if (isActive && dragingObj)
-        {
-            Label label = dragingObj.GetLabelObj();
+        //if (isActive && dragingObj)
+        //{
+        //    Label label = dragingObj.GetLabelObj();
 
-            // clone (text, font size, size delta) of draging object
-            Text labelTitle = label.GetTextObject();
-            dragingTitle.text = labelTitle.text;
-            dragingTitle.GetComponentInChildren<Text>().fontSize = labelTitle.fontSize;
-            (dragingTitle.transform as RectTransform).sizeDelta = (label.transform as RectTransform).sizeDelta;
-        }
+        //    // clone (text, font size, size delta) of draging object
+        //    Text labelTitle = label.GetTextObject();
+        //    dragingTitle.text = labelTitle.text;
+        //    dragingTitle.GetComponentInChildren<Text>().fontSize = labelTitle.fontSize;
+        //    (dragingTitle.transform as RectTransform).sizeDelta = (label.transform as RectTransform).sizeDelta;
+        //}
     }
 
     // === SELECT HANDLE ===
@@ -367,6 +352,30 @@ public class CursorMgr : Singleton<CursorMgr>
     }
 
     // === DRAG HANDLE ===
+    private IDragZone GetDragZone()
+    {
+        // get ray cast all objs
+        var rayCast = Util.GetRayCastResultsByMousePos();
+        if (rayCast != null && rayCast.Count > 0)
+        {
+            foreach (var catchObj in rayCast)
+            {
+                IDragZone comp = catchObj.gameObject.GetComponent<IDragZone>();
+                if (comp != null)
+                    return comp;
+            }
+        }
+
+        return null;
+    }
+    private void ReleaseDragZone()
+    {
+        if (dragZone == null)
+            return;
+        dragZone.OnMouseOut();
+        dragZone = null;
+    }
+
     private void ProcessDrag()
     {
         // process for Panel
@@ -391,10 +400,9 @@ public class CursorMgr : Singleton<CursorMgr>
                     // for link function
                     string labelVal = "#" + dragPanel.Genkey + "#";
                     hoverPanel.AddLabel(labelVal);
-                    // save
-                    DataMgr.Instance.AddElement(hoverPanel.DataType, hoverPanel.Genkey, labelVal);
+
                     // refresh canvas
-                    CanvasMgr.Instance.RefreshCanvas();
+                    GameMgr.Instance.RefreshCanvas();
                 }
             }
         }

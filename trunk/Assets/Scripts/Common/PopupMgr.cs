@@ -107,9 +107,9 @@ public class PopupMgr : Singleton<PopupMgr>
         if (popupType == PopupType.SAVE)
         {
             if (_isConfirm)
-                CanvasMgr.Instance.OpenSaveBrowserAndExit();
+                GameMgr.Instance.OpenSaveBrowserAndExit();
             else
-                CanvasMgr.Instance.ExitApp();   // quit
+                GameMgr.Instance.ExitApp();   // quit
         }
         else if (popupType == PopupType.CHANGELANGUAGE)
         {
@@ -119,7 +119,7 @@ public class PopupMgr : Singleton<PopupMgr>
                 if (!DataMgr.Instance.SaveLastFile())
                 {
                     // or asking where to save file if save fail
-                    CanvasMgr.Instance.OpenSaveBrowser(actCallback);
+                    GameMgr.Instance.OpenSaveBrowser(actCallback);
                 }
             }
             else

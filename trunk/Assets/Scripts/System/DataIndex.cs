@@ -7,15 +7,16 @@ using System;
 public class DataIndex
 {
     // generated key
-    public string genKey;
-    public string title;
-    public string rgbaColor;
+    public string genKey = "";
+    public string title = "";
+    public string rgbaColor = "r:1,g:1,b:1,a:1";
+    public bool isTest = false;
 
     // this for more VALUES of ELEMENT but merge ONE for STORY's element
     public List<DataElementIndex> elements = new List<DataElementIndex>();
 
     // --- these actions don't save ---
-    public Action actModifyData;    // modifying title || color
+    public Action actModifyData;            // modifying title || color (call back for other link labels)
     public Action<string> actOnDestroy;
 
     // === getter/ setter ===
@@ -32,7 +33,13 @@ public class DataIndex
 
     public Color RGBAColor
     {
-        get { return Util.ParseTextToColor(rgbaColor); }
+        get
+        {
+            if (rgbaColor.Length == 0)
+                return Color.white;
+
+            return Util.ParseTextToColor(rgbaColor);
+        }
         set
         {
             rgbaColor = Util.ParseColorToText(value);
@@ -50,42 +57,61 @@ public class DataIndex
     }
 
     // === Element ===
-    public void AddElement(string _val)
+    #region common
+    public DataElementIndex AddElement(string _val)
     {
-        elements.Add(_val);
+        DataElementIndex genElement = new DataElementIndex();
+        genElement.value = _val;
+        elements.Add(genElement);
+
+        return genElement;
     }
 
-    public void RemoveElement(int _index)
+    public void RemoveElement(int _id)
     {
-        if (_index >= 0 && _index < elements.Count)
-            elements.RemoveAt(_index);
+        if (_id < elements.Count)
+            elements.RemoveAt(_id);
     }
-
-    public void ReplaceElement(int _index, string _val)
-    {
-        if (_index >= 0 && _index < elements.Count)
-            elements[_index] = _val;
-    }
+    #endregion
 
     // === Testing Index ===
-    public List<string> GetTestElements()
+    #region test
+    /// <summary>
+    /// To get elements which picked to test by player
+    /// </summary>
+    /// <returns></returns>
+    public List<DataElementIndex> GetTestElements()
     {
-        List<string> tmp = new List<string>();
-
-        if (testElements.Count > 0)
+        List<DataElementIndex> vals = new List<DataElementIndex>();
+        for (int i = 0; i < elements.Count; i++)
         {
-            for (int i = 0; i < testElements.Count; i++)
+            var tmpElement = elements[i];
+            bool isTestElement = false;
+
+            // if element has any event tags
+            if (DataMgr.Instance.IsActiveTagTest)
             {
-                int testingId = testElements[i];
-                if (testingId < elements.Count)
-                    tmp.Add(elements[testingId]);
+                List<string> eventTags = tmpElement.GetEventTagKeys();
+                foreach (string eventTag in eventTags)
+                {
+                    // if event tag is enable test
+                    if (DataMgr.Instance.IsTestingTag(eventTag))
+                    {
+                        isTestElement = true;
+                        break;
+                    }
+                }
             }
-        }
-        else
-        {
-            return elements;
+
+            // if element is marked test
+            if (!isTestElement && tmpElement.isTest && DataMgr.Instance.IsActiveSelectTest)
+                isTestElement = true;
+
+            if (isTestElement)
+                vals.Add(tmpElement);
         }
 
-        return tmp;
+        return vals;
     }
+    #endregion
 }

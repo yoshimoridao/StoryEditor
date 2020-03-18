@@ -40,7 +40,7 @@ public class KeyboardMgr : MonoBehaviour
         {
             if (!DataMgr.Instance.SaveLastFile())
             {
-                CanvasMgr.Instance.OpenSaveBrowser();
+                GameMgr.Instance.OpenSaveBrowser();
             }
         }
     }

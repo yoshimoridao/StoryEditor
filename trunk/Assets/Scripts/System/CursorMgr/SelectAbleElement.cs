@@ -35,7 +35,7 @@ public class SelectAbleElement : MonoBehaviour
     // ========================================= PUBLIC FUNCS =========================================
     private void ActiveHighlight(bool isActive)
     {
-        if (highlightImg)
-            highlightImg.gameObject.SetActive(isActive);
+        //if (highlightImg)
+        //    highlightImg.gameObject.SetActive(isActive);
     }
 }

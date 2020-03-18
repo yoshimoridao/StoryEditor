@@ -10,13 +10,15 @@ public class ToolbarMgr : Singleton<ToolbarMgr>
     public Dropdown languageDropdown;
 
     // drop down
-    [SerializeField]
     private List<Localization.Language> lanCodeIds = new List<Localization.Language>();
-    [SerializeField]
     private int curLanguageId = -1;
+
     // path without Lan Code
     private string lastPathWithoutLan = "";
     private string nextLocFilePath = "";
+
+    [SerializeField]
+    private Button changeTagEditorBtn;
 
     public void Awake()
     {
@@ -25,7 +27,6 @@ public class ToolbarMgr : Singleton<ToolbarMgr>
 
     void Start()
     {
-        
     }
 
     void Update()
@@ -50,6 +51,10 @@ public class ToolbarMgr : Singleton<ToolbarMgr>
             lanCodeIds.Add(Localization.Language.En);
             curLanguageId = 0;
         }
+
+        // register button event
+        //if (changeTagEditorBtn != null)
+        //    changeTagEditorBtn.onClick.AddListener(OnChangeTagEditorBtnPress);
     }
 
     public void Load()
@@ -148,5 +153,11 @@ public class ToolbarMgr : Singleton<ToolbarMgr>
 
             languageDropdown.value = curLanguageId;
         }
+    }
+
+    // === Button Event ===
+    public void OnChangeTagEditorBtnPress()
+    {
+        GameMgr.Instance.OpenEditor(GameMgr.EditorType.TagEditor);
     }
 }

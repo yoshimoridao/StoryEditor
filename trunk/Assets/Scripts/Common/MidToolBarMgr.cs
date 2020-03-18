@@ -95,13 +95,13 @@ public class MidToolBarMgr : Singleton<MidToolBarMgr>
         foreach (Panel panel in panels)
         {
             panel.IsTesting = !alreadyActiveAll;
-            // save testing panel
-            DataMgr.Instance.SetTestPanel(panel.DataType, panel.Genkey, panel.IsTesting);
         }
 
         // set active highlight panel of labels 
         foreach (ElementLabel label in labels)
+        {
             label.IsTesting = !alreadyActiveAll;
+        }
     }
 
     public void OnDeleteButtonPress()

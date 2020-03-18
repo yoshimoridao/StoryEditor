@@ -56,7 +56,7 @@ public class Board : MonoBehaviour
 
     }
 
-    public virtual Panel AddPanel(string _genKey) { return null; }
+    public virtual Panel AddPanel(DataIndex _dataIndex) { return null; }
     public virtual void RemovePanel(Panel _panel)
     {
         int panelId = panels.FindIndex(x => x.Genkey == _panel.Genkey);
@@ -68,22 +68,30 @@ public class Board : MonoBehaviour
             // remove in data storage
             DataMgr.Instance.RemoveData(boardType == BoardType.Element ? DataIndexer.DataType.Element : DataIndexer.DataType.Story, _panel.Genkey);
             // also refresh canvas
-            CanvasMgr.Instance.RefreshCanvas();
+            GameMgr.Instance.RefreshCanvas();
         }
     }
 
     public void OnAddBtnPressed()
     {
-        // get generation key from data
-        string genKey = DataMgr.Instance.GenNewKey();
-        Panel genPanel = AddPanel(genKey);
+        // generate data index first
+        DataIndex genDataIndex = DataMgr.Instance.AddData(boardType == BoardType.Element ? DataIndexer.DataType.Element : DataIndexer.DataType.Story);
+        // set default title
+        genDataIndex.Title = DataDefine.default_name_story_panel;
 
-        if (genPanel)
+        // generate panel
+        Panel genPanel = AddPanel(genDataIndex);
+
+        // refresh canvas
+        GameMgr.Instance.RefreshCanvas();
+    }
+
+    public void ClearAllTestCases()
+    {
+        foreach (Panel ePanel in panels)
         {
-            // save
-            DataMgr.Instance.AddData(boardType == BoardType.Element ? DataIndexer.DataType.Element : DataIndexer.DataType.Story, genPanel);
-            // refresh canvas
-            CanvasMgr.Instance.RefreshCanvas();
+            if (ePanel.IsTesting)
+                ePanel.IsTesting = false;
         }
     }
 }
