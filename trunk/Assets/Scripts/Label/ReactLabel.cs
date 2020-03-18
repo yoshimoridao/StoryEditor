@@ -1,11 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ReactLabel : Label, IPointerClickHandler
+public class ReactLabel : Label, ISelectElement, IDragElement, IDragZone
 {
+    public Action actOnChangeSiblingId;
+
     protected DataElementIndex dataIndex = new DataElementIndex();
 
     protected List<DataIndex> referPanels = new List<DataIndex>();
@@ -13,6 +16,7 @@ public class ReactLabel : Label, IPointerClickHandler
     protected Text text;
 
     // ========================================= PROPERTIES =========================================
+    #region get/set
     public override string PureText
     {
         get { return pureText; }
@@ -43,9 +47,16 @@ public class ReactLabel : Label, IPointerClickHandler
         if (dataIndex != null)
             dataIndex.value = pureText;
     }
+
+    public Color originColor { get; set; }
+    #endregion
+
     // ========================================= UNITY FUNCS =========================================
+    #region common
     void Start()
     {
+        originColor = GetComponent<Image>().color;
+
         base.Start();
     }
 
@@ -62,14 +73,9 @@ public class ReactLabel : Label, IPointerClickHandler
         // un-register font size button's action
         ToolbarMgr.Instance.fontSizeButton.actOnModifyVal -= OnChangeFontSize;
     }
+    #endregion
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        // convert show text to form editing (which without rich text <b><color>,...) 
-        //ConvertToEditText();
-    }
-
-    // ========================================= PUBLIC FUNCS =========================================
+    #region interface
     public override void Init(Panel _panel, string _text)
     {
         base.Init(_panel, _text);
@@ -121,54 +127,61 @@ public class ReactLabel : Label, IPointerClickHandler
         base.OnEditDone();
     }
 
-    public void OnDragPanelInto(Panel _panel)
+    public override void RefreshContentSize()
     {
-        string contentText = pureText + "#" + _panel.Genkey + "#";
-        SetPureText(contentText);
-
-        // add refer panel
-        if (!IsContainReferPanel(_panel.Genkey))
-        {
-            DataIndexer.DataType findDataType;
-            DataIndex findData = DataMgr.Instance.FindData(_panel.Genkey, false, out findDataType);
-            if (findData != null)
-            {
-                AddReferPanel(findData);
-            }
-        }
-
-        // convert to show text
-        ConvertToShowText();
-
-        RefreshContentSize();
-
-        if (actEditDone != null)
-            actEditDone(this);
+        base.RefreshContentSize();
     }
 
-    public void OnReferPanelDestroy(string _dataKey)
+    // === IDropZone ===
+    public void OnMouseIn(GameObject obj)
     {
-        int findId = referPanels.FindIndex(x => x.genKey == _dataKey);
+        if (obj == gameObject || obj.GetComponent<ReactLabel>())
+            return;
 
-        if (findId != -1)
-        {
-            // remove the refer panel
-            RemoveReferPanel(findId);
-            // replace error text
-            string contentText = pureText.Replace("#" + _dataKey + "#", DataDefine.error_refer_text);
-            SetPureText(contentText);
-
-            // convert to show text
-            ConvertToShowText();
-        }
-
-        RefreshContentSize();
-
-        // call action func
-        if (actEditDone != null)
-            actEditDone(this);
+        GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
     }
 
+    public void OnMouseOut()
+    {
+        GetComponent<Image>().color = originColor;
+    }
+
+    public void OnMouseDrop(GameObject obj)
+    {
+        if (obj.GetComponent<ElementLabel>())
+        {
+            obj.GetComponent<ElementLabel>().OnChangeSiblingIndex(transform.GetSiblingIndex());
+        }
+    }
+
+    // === IDragElement ===
+    public void OnDragging()
+    {
+        if (inputField)
+            inputField.GetComponent<Image>().color = DataDefine.highlight_drag_obj_color;
+    }
+
+    public void OnEndDrag()
+    {
+        if (inputField)
+            inputField.GetComponent<Image>().color = originColor;
+    }
+
+    // === ISelectElement ===
+    public void OnSelect()
+    {
+        if (inputField)
+            inputField.GetComponent<Image>().color = DataDefine.highlight_select_obj_color;
+    }
+
+    public void OnEndSelect()
+    {
+        if (inputField)
+            inputField.GetComponent<Image>().color = originColor;
+    }
+    #endregion
+
+    // ========================================= PUBLIC FUNCS =========================================
     public void AddReferPanel(DataIndex _dataIndex)
     {
         if (_dataIndex != null)
@@ -267,16 +280,6 @@ public class ReactLabel : Label, IPointerClickHandler
         return findId != -1;
     }
 
-    public void OnChangeFontSize(int _val)
-    {
-        ChangeFontSize(_val);
-    }
-
-    public override void RefreshContentSize()
-    {
-        base.RefreshContentSize();
-    }
-
     // ========================================= PRIVATE FUNCS =========================================
     /// <summary>
     /// this func to update list refer panels (call when pure text is modified)
@@ -332,4 +335,68 @@ public class ReactLabel : Label, IPointerClickHandler
                 panel.RefreshPanelDt();
         }
     }
+
+    #region event
+    public void OnChangeSiblingIndex(int _siblingId)
+    {
+        transform.SetSiblingIndex(_siblingId);
+        // call action func
+        if (actOnChangeSiblingId != null)
+            actOnChangeSiblingId();
+    }
+
+    public void OnChangeFontSize(int _val)
+    {
+        ChangeFontSize(_val);
+    }
+
+    public void OnReferPanelDestroy(string _dataKey)
+    {
+        int findId = referPanels.FindIndex(x => x.genKey == _dataKey);
+
+        if (findId != -1)
+        {
+            // remove the refer panel
+            RemoveReferPanel(findId);
+            // replace error text
+            string contentText = pureText.Replace("#" + _dataKey + "#", DataDefine.error_refer_text);
+            SetPureText(contentText);
+
+            // convert to show text
+            ConvertToShowText();
+        }
+
+        RefreshContentSize();
+
+        // call action func
+        if (actOnEditDone != null)
+            actOnEditDone(this);
+    }
+
+
+    public void OnDragPanelInto(Panel _panel)
+    {
+        string contentText = pureText + "#" + _panel.Genkey + "#";
+        SetPureText(contentText);
+
+        // add refer panel
+        if (!IsContainReferPanel(_panel.Genkey))
+        {
+            DataIndexer.DataType findDataType;
+            DataIndex findData = DataMgr.Instance.FindData(_panel.Genkey, false, out findDataType);
+            if (findData != null)
+            {
+                AddReferPanel(findData);
+            }
+        }
+
+        // convert to show text
+        ConvertToShowText();
+
+        RefreshContentSize();
+
+        if (actOnEditDone != null)
+            actOnEditDone(this);
+    }
+    #endregion
 }

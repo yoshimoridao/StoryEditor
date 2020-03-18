@@ -212,26 +212,6 @@ public class CursorTagEditor : Singleton<CursorTagEditor>
     private void ActiveTitle(bool isActive)
     {
         dragingTitle.gameObject.SetActive(isActive);
-        if (isActive && dragingObj != null)
-        {
-            // clone (text, font size, size delta) of draging object
-            //InputField tagField = null;
-            //if (dragingObj.GetComponent<TagEditorField>())
-            //{
-            //    tagField = dragingObj.GetComponent<TagEditorField>().TagField;
-            //}
-            //else if (dragingObj.GetComponent<TagElement>())
-            //{
-            //    tagField = dragingObj.GetComponent<TagElement>().TagField;
-            //}
-
-            //if (tagField != null)
-            //{
-            //    dragingTitle.text = tagField.text;
-            //    dragingTitle.GetComponentInChildren<Text>().fontSize = tagField.GetComponentInChildren<Text>().fontSize;
-            //    (dragingTitle.transform as RectTransform).sizeDelta = (dragingObj.transform as RectTransform).sizeDelta;
-            //}
-        }
     }
 
     // === SELECT HANDLE ===
@@ -336,15 +316,16 @@ public class CursorTagEditor : Singleton<CursorTagEditor>
 
     private void ProcessDrag()
     {
-        // refresh canvas
+        // process mouse up on drag zone
         if (dragZone != null && dragingObj != null)
             dragZone.OnMouseDrop(dragingObj.gameObject);
 
-        GameMgr.Instance.RefreshCanvas();
-        // de-active draging
-        ActiveDrag(false);
         // release drag zone
         ReleaseDragZone();
+        // de-active draging
+        ActiveDrag(false);
+        // refresh canvas
+        GameMgr.Instance.RefreshCanvas();
     }
     #endregion
 }

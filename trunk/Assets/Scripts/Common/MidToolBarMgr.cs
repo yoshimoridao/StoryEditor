@@ -65,13 +65,13 @@ public class MidToolBarMgr : Singleton<MidToolBarMgr>
 
     public void OnPressTestingBtn()
     {
-        List<SelectAbleElement> selectedObjs = CursorMgr.Instance.GetSelectedObjs();
+        var selectedObjs = CursorMgr.Instance.GetSelectedObjs();
         bool alreadyActiveAll = true;
 
         // get selected panel also check status all of them is active test tag
         List<Panel> panels = new List<Panel>();
         List<ElementLabel> labels = new List<ElementLabel>();
-        foreach (SelectAbleElement element in selectedObjs)
+        foreach (GameObject element in selectedObjs)
         {
             Panel panel = element.GetComponent<Panel>();
             // testing with label
@@ -112,15 +112,15 @@ public class MidToolBarMgr : Singleton<MidToolBarMgr>
     public void OnPressDestroyBtn()
     {
         // active destroy mode
-        List<SelectAbleElement> elements = CursorMgr.Instance.GetSelectedObjs();
-        for (int i = 0; i < elements.Count; i++)
+        var elements = CursorMgr.Instance.GetSelectedObjs();
+        foreach (var element in elements)
         {
-            SelectAbleElement element = elements[i];
             if (element && element.GetComponent<Panel>())
                 element.GetComponent<Panel>().SelfDestroy();
             if (element && element.GetComponent<Label>())
                 element.GetComponent<Label>().SelfDestroy();
         }
+
 
         // clear list
         elements.Clear();
@@ -130,11 +130,11 @@ public class MidToolBarMgr : Singleton<MidToolBarMgr>
     {
         bool isSelectedPanel = false;
         bool isSelectedElementLabel = false;
-        List<SelectAbleElement> selectedObjs = CursorMgr.Instance.GetSelectedObjs();
+        var selectedObjs = CursorMgr.Instance.GetSelectedObjs();
 
         for (int i = 0; i < selectedObjs.Count; i++)
         {
-            SelectAbleElement element = selectedObjs[i];
+            var element = selectedObjs[i];
             Panel panel = element.GetComponent<Panel>();
             // checking is selected panel
             if (!isSelectedPanel && panel)

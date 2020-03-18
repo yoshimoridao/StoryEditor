@@ -163,8 +163,8 @@ public class EventTagMgr : Singleton<EventTagMgr>
         selectLabels.Clear();
 
         // add panel to colorize
-        List<SelectAbleElement> selectedObjs = CursorMgr.Instance.GetSelectedObjs();
-        foreach (SelectAbleElement element in selectedObjs)
+        var selectedObjs = CursorMgr.Instance.GetSelectedObjs();
+        foreach (var element in selectedObjs)
         {
             // filter element label
             if (!element.GetComponent<ElementLabel>())

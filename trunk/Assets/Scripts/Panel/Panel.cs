@@ -26,7 +26,6 @@ public class Panel : MonoBehaviour
 
     protected List<Transform> rows = new List<Transform>();
     protected List<Label> labels = new List<Label>();
-
     protected DataIndexer.DataType dataType;
 
     // arrange panel
@@ -173,7 +172,7 @@ public class Panel : MonoBehaviour
         if (titleLabel)
         {
             titleLabel.Init(this, "");  // init default
-            titleLabel.actEditDone += OnTitleEdited;
+            titleLabel.actOnEditDone += OnTitleEdited;
         }
 
         // load title, color
@@ -224,7 +223,7 @@ public class Panel : MonoBehaviour
         if (lastRow)
         {
             // add input panel
-            Label genLabel = Instantiate(prefLabel, lastRow.transform).GetComponent<Label>();
+            ReactLabel genLabel = Instantiate(prefLabel, lastRow.transform).GetComponent<ReactLabel>();
             if (genLabel)
             {
                 genLabel.Init(this, _val);
@@ -232,13 +231,13 @@ public class Panel : MonoBehaviour
                 // set data for element
                 if (_isGenData && genData != null)
                 {
-                    (genLabel as ReactLabel).SetDataElementIndex(genData);
+                    genLabel.SetDataElementIndex(genData);
                 }
 
                 // register the Label's action
-                genLabel.actEditDone += OnChildLabelEdited;
-                genLabel.actEditing += OnChildLabelEditing;
-
+                genLabel.actOnEditDone += OnChildLabelEdited;
+                genLabel.actOnEditing += OnChildLabelEditing;
+                genLabel.actOnChangeSiblingId += OnChildChangeSiblingIndex;
                 // store label
                 labels.Add(genLabel);
 
@@ -265,9 +264,9 @@ public class Panel : MonoBehaviour
         {
             // un-register action
             ReactLabel label = labels[_labelId] as ReactLabel;
-            label.actEditDone -= OnChildLabelEdited;
-            label.actEditing -= OnChildLabelEditing;
-
+            label.actOnEditDone -= OnChildLabelEdited;
+            label.actOnEditing -= OnChildLabelEditing;
+            label.actOnChangeSiblingId -= OnChildChangeSiblingIndex;
             // remove in list of row
             labels.RemoveAt(_labelId);
 
@@ -292,6 +291,7 @@ public class Panel : MonoBehaviour
 
     public void RefreshPanel()
     {
+        var labels = Labels;
         List<Label> rowLabels = new List<Label>();
         float rowW = 0;
         int rowCounter = 0;
@@ -354,13 +354,10 @@ public class Panel : MonoBehaviour
         labels = new List<Label>(transform.GetComponentsInChildren<ReactLabel>(true));
 
         List<DataElementIndex> dataElementIds = new List<DataElementIndex>();
-        for (int i = 0; i < labels.Count; i++)
+        foreach (var reactLabel in labels)
         {
-            ReactLabel reactLabel = labels[i] as ReactLabel;
-            if (reactLabel.GetDataElementIndex() != null)
-            {
-                dataElementIds.Add(reactLabel.GetDataElementIndex());
-            }
+            if ((reactLabel as ReactLabel).GetDataElementIndex() != null)
+                dataElementIds.Add((reactLabel as ReactLabel).GetDataElementIndex());
         }
 
         dataIndex.elements = dataElementIds;
@@ -415,6 +412,12 @@ public class Panel : MonoBehaviour
             // refresh canvas
             GameMgr.Instance.RefreshCanvas();
         }
+    }
+
+    public void OnChildChangeSiblingIndex()
+    {
+        UpdateOrderLabels();
+        RefreshRow();
     }
     #endregion
 
@@ -494,11 +497,6 @@ public class Panel : MonoBehaviour
 
     // ================= UTIL =================
     #region util
-    protected int FindLabelIndex(Label _label)
-    {
-        return labels.FindIndex(x => x.gameObject == _label.gameObject);
-    }
-
     protected void RefreshAddButtonPos()
     {
         // get last row

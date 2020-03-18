@@ -7,8 +7,8 @@ using System;
 
 public class Label : MonoBehaviour
 {
-    public Action<Label> actEditDone;
-    public Action actEditing;
+    public Action<Label> actOnEditDone;
+    public Action actOnEditing;
 
     // prop
     protected Image image;
@@ -111,8 +111,8 @@ public class Label : MonoBehaviour
         RefreshContentSize();
 
         // call action func
-        if (actEditDone != null)
-            actEditDone(this);
+        if (actOnEditDone != null)
+            actOnEditDone(this);
     }
 
     public void OnEditing()
@@ -126,8 +126,8 @@ public class Label : MonoBehaviour
         RefreshContentSize();
 
         // call action func
-        if (actEditing != null)
-            actEditing();
+        if (actOnEditing != null)
+            actOnEditing();
     }
 
     public virtual void SelfDestroy()

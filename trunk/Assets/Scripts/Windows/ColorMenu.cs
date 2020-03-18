@@ -130,8 +130,8 @@ public class ColorMenu : Singleton<ColorMenu>
         selectPanels.Clear();
 
         // add panel to colorize
-        List<SelectAbleElement> selectedObjs = CursorMgr.Instance.GetSelectedObjs();
-        foreach (SelectAbleElement element in selectedObjs)
+        var selectedObjs = CursorMgr.Instance.GetSelectedObjs();
+        foreach (var element in selectedObjs)
         {
             Panel panel = element.GetComponent<Panel>();
             if (panel && selectPanels.FindIndex(x => x.gameObject == panel.gameObject) == -1)

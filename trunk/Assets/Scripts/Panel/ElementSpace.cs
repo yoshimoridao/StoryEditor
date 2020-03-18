@@ -31,7 +31,10 @@ public class ElementSpace : MonoBehaviour, IDragZone
 
     public void OnMouseDrop(GameObject obj)
     {
-
+        if (obj.GetComponent<ElementLabel>())
+        {
+            obj.GetComponent<ElementLabel>().OnChangeSiblingIndex(transform.GetSiblingIndex());
+        }
     }
     #endregion
 

@@ -40,6 +40,7 @@ public class StoryPanel : Panel
     public override void OnAddButtonPress()
     {
         // auto add space for story element
+        var labels = Labels;
         if (labels.Count > 0 && labels[labels.Count - 1].PureText != " ")
             AddSpaceMark();
 

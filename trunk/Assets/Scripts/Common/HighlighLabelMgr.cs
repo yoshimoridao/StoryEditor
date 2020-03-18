@@ -32,6 +32,9 @@ public class HighlighLabelMgr : MonoBehaviour
 
     void Update()
     {
+        // debug
+        return;
+
         // arrange labels
         if (referLabel && CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.ARRANGE)
         {
@@ -80,6 +83,8 @@ public class HighlighLabelMgr : MonoBehaviour
 
     public void Hide()
     {
+        return;
+
         // Revert first index in case user drag to another board or panel
         if (referLabel && CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.ARRANGE)
         {

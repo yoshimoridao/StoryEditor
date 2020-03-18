@@ -5,15 +5,9 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System;
 
-public class ElementLabel : ReactLabel, IDragElement, ISelectElement
+public class ElementLabel : ReactLabel
 {
     public Image hlTesting;
-
-    public Color originColor { get; set; }
-
-    // event tag
-    //public Action<ElementLabel> actOnToggleEventTag;
-    //private List<string> eventTagKeys = new List<string>();
 
     // ========================================= PROPERTIES =========================================
     public bool IsTesting
@@ -70,40 +64,7 @@ public class ElementLabel : ReactLabel, IDragElement, ISelectElement
     {
         base.Update();
     }
-
-    #region interface
-    public void OnSelect()
-    {
-        if (inputField)
-            inputField.GetComponent<Image>().color = DataDefine.highlight_select_obj_color;
-    }
-
-    public void OnEndSelect()
-    {
-        if (inputField)
-            inputField.GetComponent<Image>().color = originColor;
-    }
-
-    public void OnDragging()
-    {
-        if (inputField)
-            inputField.GetComponent<Image>().color = DataDefine.highlight_drag_obj_color;
-    }
-
-    public void OnEndDrag()
-    {
-        if (inputField)
-            inputField.GetComponent<Image>().color = originColor;
-    }
-    #endregion
     // ========================================= PUBLIC FUNCS =========================================
-
-
-    //public void ActiveTesting(bool _isActive)
-    //{
-    //    hlTesting.gameObject.SetActive(_isActive);
-    //}
-
     public override void Init(Panel _panel, string _text)
     {
         base.Init(_panel, _text);
