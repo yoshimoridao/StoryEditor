@@ -5,8 +5,6 @@ using UnityEngine;
 public class ElementBoard : Board
 {
     // ========================================= GET/ SET =========================================
-    [SerializeField]
-    private RectTransform panelviewRt;
 
     // ========================================= UNITY FUNCS =========================================
     void Start()
@@ -18,26 +16,6 @@ public class ElementBoard : Board
     }
 
     // ========================================= PUBLIC FUNCS =========================================
-    public override void Init()
-    {
-        base.Init();
-
-        // load prefab
-        prefPanel = Resources.Load<GameObject>(DataDefine.pref_path_elementPanel);
-
-        // load data
-        Load();
-
-        // scale height for all ratio
-        //float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
-        float canvasHeight = (GameMgr.Instance.CurEditor as RectTransform).sizeDelta.y;
-        RectTransform rt = transform as RectTransform;
-        rt.sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
-        // scale height for panel's view
-        if (panelviewRt)
-            panelviewRt.sizeDelta = new Vector2(panelviewRt.sizeDelta.x, (panelviewRt.sizeDelta.y / 1080) * canvasHeight);
-    }
-
     public override void Load()
     {
         base.Load();
@@ -118,32 +96,9 @@ public class ElementBoard : Board
             panels.RemoveRange(beginId, panels.Count - beginId);
         }
 
+        // refresh content
+        StartCoroutine("RefreshContent");
         // refresh canvas
         GameMgr.Instance.RefreshCanvas();
-    }
-
-    public override Panel AddPanel(DataIndex _dataIndex)
-    {
-        if (!prefPanel)
-            return null;
-
-        // create new panel
-        Panel panel = Instantiate(prefPanel, transPanelCont).GetComponent<Panel>();
-        if (panel)
-        {
-            panel.Init(_dataIndex);
-            // register action when panel is destroyed
-            panel.actOnDestroy += RemovePanel;
-
-            panels.Add(panel);
-
-            // set index of adding element panel as last child
-            if (transPlusPanel)
-                transPlusPanel.transform.SetAsLastSibling();
-
-            return panel;
-        }
-
-        return null;
     }
 }

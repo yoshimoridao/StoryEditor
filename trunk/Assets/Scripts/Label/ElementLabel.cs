@@ -55,9 +55,6 @@ public class ElementLabel : ReactLabel
     void Start()
     {
         base.Start();
-
-        if (inputField)
-            originColor = inputField.GetComponent<Image>().color;
     }
 
     public void Update()

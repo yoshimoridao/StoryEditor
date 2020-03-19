@@ -26,39 +26,39 @@ public class HighlighPanelMgr : MonoBehaviour
 
     void Update()
     {
-        // update arrange objects
-        if (referPanel && CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.ARRANGE)
-        {
-            // just process arrange in same board
-            string boardTag = (referPanel is StoryPanel) ? DataDefine.tag_board_story : DataDefine.tag_board_element;
+        //// update arrange objects
+        //if (referPanel && CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.ARRANGE)
+        //{
+        //    // just process arrange in same board
+        //    string boardTag = (referPanel is StoryPanel) ? DataDefine.tag_board_story : DataDefine.tag_board_element;
 
-            GameObject catchObj = null;
-            if (CursorMgr.Instance.IsHoverObjs(out catchObj, DataDefine.tag_panel_common, boardTag))
-            {
-                Panel hoverPanel = catchObj.GetComponent<Panel>();
-                if (hoverPanel)
-                {
-                    // diff panel || diff board
-                    if (hoverPanel == referPanel ||
-                        hoverPanel.transform.parent != referPanel.transform.parent)
-                        return;
+        //    GameObject catchObj = null;
+        //    if (CursorMgr.Instance.IsHoverObjs(out catchObj, DataDefine.tag_panel_common, boardTag))
+        //    {
+        //        Panel hoverPanel = catchObj.GetComponent<Panel>();
+        //        if (hoverPanel)
+        //        {
+        //            // diff panel || diff board
+        //            if (hoverPanel == referPanel ||
+        //                hoverPanel.transform.parent != referPanel.transform.parent)
+        //                return;
 
-                    Transform parentTrans = referPanel.transform.parent;
-                    // update sibling index of the highlight
-                    float mouseY = Input.mousePosition.y;
-                    float panelY = hoverPanel.transform.position.y;
-                    int dropSiblingIndex = hoverPanel.transform.GetSiblingIndex();
-                    int siblingIndex = transform.GetSiblingIndex();
+        //            Transform parentTrans = referPanel.transform.parent;
+        //            // update sibling index of the highlight
+        //            float mouseY = Input.mousePosition.y;
+        //            float panelY = hoverPanel.transform.position.y;
+        //            int dropSiblingIndex = hoverPanel.transform.GetSiblingIndex();
+        //            int siblingIndex = transform.GetSiblingIndex();
 
-                    // arrange
-                    if ((dropSiblingIndex > siblingIndex && mouseY <= panelY) || (dropSiblingIndex <= siblingIndex && mouseY >= panelY))
-                    {
-                        referPanel.transform.SetSiblingIndex(hoverPanel.transform.GetSiblingIndex());
-                        transform.SetSiblingIndex(referPanel.transform.GetSiblingIndex());
-                    }
-                }
-            }
-        }
+        //            // arrange
+        //            if ((dropSiblingIndex > siblingIndex && mouseY <= panelY) || (dropSiblingIndex <= siblingIndex && mouseY >= panelY))
+        //            {
+        //                referPanel.transform.SetSiblingIndex(hoverPanel.transform.GetSiblingIndex());
+        //                transform.SetSiblingIndex(referPanel.transform.GetSiblingIndex());
+        //            }
+        //        }
+        //    }
+        //}
     }
 
     // ========================================= PUBLIC FUNCS =========================================

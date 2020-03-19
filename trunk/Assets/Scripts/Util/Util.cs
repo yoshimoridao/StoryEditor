@@ -232,7 +232,7 @@ public class Util : MonoBehaviour
     }
 
     /// checking cursor's selecting the elements.
-    public static bool IsHoverObjs(GameObject _obj)
+    public static bool IsHoverObj(GameObject _obj)
     {
         // get ray cast all objs
         var rayCast = GetRayCastResultsByMousePos();

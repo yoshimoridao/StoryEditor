@@ -48,12 +48,13 @@ public class ReactLabel : Label, ISelectElement, IDragElement, IDragZone
             dataIndex.value = pureText;
     }
 
+    public bool IsDragIn { get; set; }
     public Color originColor { get; set; }
     #endregion
 
     // ========================================= UNITY FUNCS =========================================
     #region common
-    void Start()
+    public void Start()
     {
         originColor = GetComponent<Image>().color;
 
@@ -135,22 +136,36 @@ public class ReactLabel : Label, ISelectElement, IDragElement, IDragZone
     // === IDropZone ===
     public void OnMouseIn(GameObject obj)
     {
-        if (obj == gameObject || obj.GetComponent<ReactLabel>())
+        if (obj == gameObject)
             return;
 
-        GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
+        if (obj.GetComponent<Panel>() && !Util.IsHoverObj(obj))
+        {
+            IsDragIn = true;
+            GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
+        }
     }
 
     public void OnMouseOut()
     {
+        if (!IsDragIn)
+            return;
+
+        IsDragIn = false;
         GetComponent<Image>().color = originColor;
     }
 
     public void OnMouseDrop(GameObject obj)
     {
-        if (obj.GetComponent<ElementLabel>())
+        if (!IsDragIn)
+            return;
+
+        IsDragIn = false;
+        GetComponent<Image>().color = originColor;
+
+        if (obj.GetComponent<Panel>())
         {
-            obj.GetComponent<ElementLabel>().OnChangeSiblingIndex(transform.GetSiblingIndex());
+            OnDragPanelInto(obj.GetComponent<Panel>());
         }
     }
 

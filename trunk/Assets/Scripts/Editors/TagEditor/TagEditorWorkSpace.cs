@@ -38,6 +38,7 @@ public class TagEditorWorkSpace : MonoBehaviour, IDragZone
     private EditorType curEditorType = EditorType.Group;
     private RectTransform rt;
 
+    public bool IsDragIn { get; set; }
     public Color originColor { get; set; }
 
     void Start()
@@ -56,16 +57,30 @@ public class TagEditorWorkSpace : MonoBehaviour, IDragZone
     public void OnMouseIn(GameObject obj)
     {
         if (obj.GetComponent<TagEditorField>())
+        {
+            IsDragIn = true;
             rootCont.GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
+        }
     }
 
     public void OnMouseOut()
     {
+        if (!IsDragIn)
+            return;
+
+        IsDragIn = false;
+
         rootCont.GetComponent<Image>().color = originColor;
     }
 
     public void OnMouseDrop(GameObject obj)
     {
+        if (!IsDragIn)
+            return;
+
+        IsDragIn = false;
+        GetComponent<Image>().color = originColor;
+
         if (obj.GetComponent<TagEditorField>())
         {
             var tagField = obj.GetComponent<TagEditorField>();

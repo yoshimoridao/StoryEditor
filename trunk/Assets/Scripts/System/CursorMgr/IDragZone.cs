@@ -4,6 +4,7 @@ using UnityEngine;
 
 public interface IDragZone
 {
+    bool IsDragIn { get; set; }
     Color originColor { get; }
     void OnMouseIn(GameObject obj);
     void OnMouseOut();

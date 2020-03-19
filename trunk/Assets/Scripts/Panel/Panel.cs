@@ -6,13 +6,15 @@ using UnityEditor;
 using System;
 
 [System.Serializable]
-public class Panel : MonoBehaviour
+public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
 {
     public Button addBtn;
     public TitleLabel titleLabel;
     public Transform transLabelCont;
     public GameObject testTag;
 
+    // actions
+    public Action actOnChangeSiblingId = null;
     public Action<Panel> actOnDestroy = null;
 
     protected RectTransform rt;
@@ -34,6 +36,9 @@ public class Panel : MonoBehaviour
     [SerializeField]
     protected float contentSize = 0.9f;
     protected Vector2 refreshPanelDt = new Vector2(0, 0.5f);
+
+    public bool IsDragIn { get; set; }
+    public Color originColor { get; set; }
 
     // ========================================= GET/ SET =========================================
     #region getter/setter
@@ -81,6 +86,8 @@ public class Panel : MonoBehaviour
             dataIndex.RGBAColor = value;
 
             image.color = RGBAColor;
+            // change origin color
+            originColor = image.color;
         }
     }
     public DataIndexer.DataType DataType { get { return dataType; } }
@@ -111,6 +118,9 @@ public class Panel : MonoBehaviour
             rt = GetComponent<RectTransform>();
         if (image == null)
             image = GetComponent<Image>();
+
+        // set origin color
+        originColor = image.color;
     }
 
     public void Update()
@@ -205,6 +215,74 @@ public class Panel : MonoBehaviour
     }
     #endregion
 
+    #region inheritance
+    // === IDropZone ===
+    public void OnMouseIn(GameObject obj)
+    {
+        if (obj == gameObject)
+            return;
+
+        if (obj.GetComponent<Panel>())
+        {
+            IsDragIn = true;
+            GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
+        }
+    }
+
+    public void OnMouseOut()
+    {
+        if (!IsDragIn)
+            return;
+
+        IsDragIn = false;
+
+        GetComponent<Image>().color = originColor;
+    }
+
+    public void OnMouseDrop(GameObject obj)
+    {
+        if (!IsDragIn)
+            return;
+
+        IsDragIn = false;
+        GetComponent<Image>().color = originColor;
+
+        // drag panel to panel
+        if (obj.GetComponent<Panel>())
+        {
+            // draging from a panel to panel
+            Panel dragPanel = obj.GetComponent<Panel>();
+            // for link function
+            string labelVal = "#" + dragPanel.Genkey + "#";
+            AddLabel(labelVal);
+
+            // refresh canvas
+            GameMgr.Instance.RefreshCanvas();
+        }
+    }
+
+    // === IDragElement ===
+    public void OnDragging()
+    {
+        image.color = DataDefine.highlight_drag_obj_color;
+    }
+
+    public void OnEndDrag()
+    {
+        image.color = originColor;
+    }
+
+    // === ISelectElement ===
+    public void OnSelect()
+    {
+        image.color = DataDefine.highlight_drag_obj_color;
+    }
+
+    public void OnEndSelect()
+    {
+        image.color = originColor;
+    }
+    #endregion
     // ========================================= PUBLIC FUNCS =========================================
     #region label
     public Label AddLabel(string _val, bool _isGenData = true)
@@ -366,6 +444,20 @@ public class Panel : MonoBehaviour
 
     // ================= EVENT =================
     #region event
+    public void OnChangeSiblingIndex(int _siblingId)
+    {
+        transform.SetSiblingIndex(_siblingId);
+        // call action func
+        if (actOnChangeSiblingId != null)
+            actOnChangeSiblingId();
+    }
+
+    public void OnChildChangeSiblingIndex()
+    {
+        UpdateOrderLabels();
+        RefreshRow();
+    }
+
     public void OnChildLabelEditing()
     {
         RefreshPanelDt();
@@ -412,12 +504,6 @@ public class Panel : MonoBehaviour
             // refresh canvas
             GameMgr.Instance.RefreshCanvas();
         }
-    }
-
-    public void OnChildChangeSiblingIndex()
-    {
-        UpdateOrderLabels();
-        RefreshRow();
     }
     #endregion
 

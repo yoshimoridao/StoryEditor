@@ -158,19 +158,19 @@ public class HighlighLabelMgr : MonoBehaviour
     {
         _catchObj = null;
 
-        if (referLabel.Panel)
-        {
-            // check hover obj in same board
-            string boardTag = (referLabel.Panel is StoryPanel) ? DataDefine.tag_board_story : DataDefine.tag_board_element;
-            // check hover obj on panel
-            if (CursorMgr.Instance.IsHoverObjs(out _catchObj, DataDefine.tag_panel_common, boardTag))
-            {
-                Panel hoverPanel = _catchObj.GetComponent<Panel>();
-                // in case: drop label in same panel
-                if (hoverPanel && hoverPanel.gameObject == referLabel.Panel.gameObject)
-                    return true;
-            }
-        }
+        //if (referLabel.Panel)
+        //{
+        //    // check hover obj in same board
+        //    string boardTag = (referLabel.Panel is StoryPanel) ? DataDefine.tag_board_story : DataDefine.tag_board_element;
+        //    // check hover obj on panel
+        //    if (CursorMgr.Instance.IsHoverObjs(out _catchObj, DataDefine.tag_panel_common, boardTag))
+        //    {
+        //        Panel hoverPanel = _catchObj.GetComponent<Panel>();
+        //        // in case: drop label in same panel
+        //        if (hoverPanel && hoverPanel.gameObject == referLabel.Panel.gameObject)
+        //            return true;
+        //    }
+        //}
 
         return false;
     }

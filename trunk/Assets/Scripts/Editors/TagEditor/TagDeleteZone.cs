@@ -13,6 +13,7 @@ public class TagDeleteZone : MonoBehaviour, IDragZone
     private bool isLerp = false;
     private float targetPosY = 0;
 
+    public bool IsDragIn { get; set; }
     public Color originColor { get; set; }
 
     void Start()
@@ -28,7 +29,7 @@ public class TagDeleteZone : MonoBehaviour, IDragZone
             var dragingObj = CursorTagEditor.Instance.DragingObj;
             if (dragingObj && (dragingObj.GetComponent<TagEditorField>() || dragingObj.GetComponent<TagElement>()))
             {
-                bool tmpIsActive = Util.IsHoverObjs(gameObject);
+                bool tmpIsActive = Util.IsHoverObj(gameObject);
                 if (tmpIsActive != isActive)
                     ActiveZone(tmpIsActive);
             }
@@ -54,14 +55,25 @@ public class TagDeleteZone : MonoBehaviour, IDragZone
     #region interface
     public void OnMouseIn(GameObject obj)
     {
+        IsDragIn = true;
     }
 
     public void OnMouseOut()
     {
+        if (!IsDragIn)
+            return;
+
+        IsDragIn = false;
     }
 
     public void OnMouseDrop(GameObject obj)
     {
+        if (!IsDragIn)
+            return;
+
+        IsDragIn = false;
+        GetComponent<Image>().color = originColor;
+
         if (obj.GetComponent<TagEditorField>())
         {
             var tagField = obj.GetComponent<TagEditorField>();

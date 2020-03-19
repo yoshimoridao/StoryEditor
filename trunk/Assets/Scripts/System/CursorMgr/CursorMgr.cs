@@ -16,7 +16,6 @@ public class CursorMgr : Singleton<CursorMgr>
     public float thresholdSelectTime = 0.1f;
     public float thresholdDragTime = 0.2f;
     public float thresholdDragDistance = 10.0f;
-    public HighlighPanelMgr highlightPanel;
 
     RectTransform rt;
 
@@ -89,9 +88,6 @@ public class CursorMgr : Singleton<CursorMgr>
 
     public void Init()
     {
-        // default hide highlight panel
-        if (highlightPanel && highlightPanel.IsActive())
-            highlightPanel.Hide();
     }
 
     public void Load()
@@ -104,35 +100,6 @@ public class CursorMgr : Singleton<CursorMgr>
     public bool IsDragingObj()
     {
         return dragingObj != null;
-    }
-
-    public bool IsHoverObjs(out GameObject obj, string catchingTag, params string[] tags)
-    {
-        obj = null;
-        List<string> checkingTags = new List<string>(tags);
-        checkingTags.Add(catchingTag);
-
-        // get ray cast all objs
-        var rayCast = GetRayCastResultsByMousePos();
-        for (int i = 0; i < rayCast.Count; i++)
-        {
-            string touchedTag = rayCast[i].gameObject.tag;
-            if (checkingTags.Contains(touchedTag))
-            {
-                // store obj match catching tag
-                if (touchedTag == catchingTag)
-                    obj = rayCast[i].gameObject;
-
-                // remove the tag in list checking
-                checkingTags.Remove(touchedTag);
-                // return true if matched all of tags
-                if (checkingTags.Count == 0)
-                    return true;
-            }
-        }
-
-        obj = null;
-        return false;
     }
 
     public GameObject GetHandleObjOnTop()
@@ -154,21 +121,6 @@ public class CursorMgr : Singleton<CursorMgr>
                     return catchObj.gameObject;
                 if (catchObj.GetComponent<ISelectElement>() != null || catchObj.GetComponent<IDragElement>() != null)
                     return catchObj.gameObject;
-
-                //// layer 3
-                //if (catchObj.GetComponent<SelectAbleElement>())
-                //{
-                //    // ignore select when editing input
-                //    if (catchObj.GetComponent<CustomInputField>() && catchObj.GetComponent<CustomInputField>().isFocused)
-                //        return null;
-
-                //    return catchObj.gameObject;
-                //}
-                //// layer 4
-                //if (catchObj.GetComponent<DragAbleElement>())
-                //{
-                //    return catchObj.gameObject;
-                //}
             }
         }
 
@@ -365,36 +317,6 @@ public class CursorMgr : Singleton<CursorMgr>
         if (dragZone != null && dragingObj != null)
             dragZone.OnMouseDrop(dragingObj.gameObject);
 
-
-        // process for Panel
-        Panel dragPanel = dragingObj.GetComponent<Panel>();
-
-        //if (dragBehavior == DragBehavior.CONNECT && dragPanel)
-        //{
-        //    GameObject catchObj = null;
-        //    // drag from a panel to label
-        //    if (IsHoverObjs(out catchObj, DataDefine.tag_label_input))
-        //    {
-        //        ReactLabel hoverLabel = catchObj.GetComponent<ReactLabel>();
-        //        if (hoverLabel)
-        //            hoverLabel.OnDragPanelInto(dragPanel);
-        //    }
-        //    // draging from a panel to panel
-        //    else if (IsHoverObjs(out catchObj, DataDefine.tag_panel_common))
-        //    {
-        //        Panel hoverPanel = catchObj.GetComponent<Panel>();
-        //        if (hoverPanel)
-        //        {
-        //            // for link function
-        //            string labelVal = "#" + dragPanel.Genkey + "#";
-        //            hoverPanel.AddLabel(labelVal);
-
-        //            // refresh canvas
-        //            GameMgr.Instance.RefreshCanvas();
-        //        }
-        //    }
-        //}
-
         // release drag zone
         ReleaseDragZone();
         // de-active draging
@@ -410,38 +332,28 @@ public class CursorMgr : Singleton<CursorMgr>
             {
                 // begin trigger drag event
                 dragingObj = selectObj;
+
                 // clear all selected objs
                 ClearSelectedObjs(true);
-                //selectObj = null;
+
+                // highlight color of obj
+                dragingObj.GetComponent<IDragElement>().OnDragging();
 
                 // catch mouse position
                 rt.position = Input.mousePosition;
 
                 // visible title
                 ActiveTitle(true);
-
-                // enable highlight obj for this panel
-                if (dragingObj.GetComponent<Panel>() && highlightPanel)
-                    highlightPanel.Show(dragingObj.GetComponent<Panel>());
-
-                //if (dragingObj.GetComponent<Label>() && highlightLabel)
-                //    highlightLabel.Show(dragingObj.GetComponent<Label>());
             }
         }
         else
         {
+            if (dragingObj.GetComponent<IDragElement>() != null)
+                dragingObj.GetComponent<IDragElement>().OnEndDrag();
             dragingObj = null;
 
             // invisible title
             ActiveTitle(false);
-
-            // hide highlight panel
-            if (highlightPanel && highlightPanel.IsActive())
-                highlightPanel.Hide();
-
-            // hide highlight label
-            //if (highlightLabel && highlightLabel.IsActive())
-            //    highlightLabel.Hide();
         }
     }
 

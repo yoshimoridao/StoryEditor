@@ -128,7 +128,7 @@ public class CursorTagEditor : Singleton<CursorTagEditor>
             // non - action
             else if (topObj == null)
             {
-                ClearSelectedObjs();
+                ClearSelectedObjs(false);
             }
         }
     }
@@ -192,7 +192,7 @@ public class CursorTagEditor : Singleton<CursorTagEditor>
                 // de-select obj (which already selected) 
                 if (selectObjs.Count > 0 && selectObjs[0].gameObject && selectObjs[0].gameObject == selectObj)
                 {
-                    ClearSelectedObjs();
+                    ClearSelectedObjs(false);
                 }
                 // select another obj
                 else
@@ -238,7 +238,7 @@ public class CursorTagEditor : Singleton<CursorTagEditor>
             actOnRefreshSelectedObjs.Invoke();
     }
 
-    public void ClearSelectedObjs(bool isDelCurObj = false, bool isInvokeCallback = true)
+    public void ClearSelectedObjs(bool isDelCurObj, bool isInvokeCallback = true)
     {
         if (isDelCurObj)
             selectObj = null;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ElementSpace : MonoBehaviour, IDragZone
+public class PanelSpace : MonoBehaviour, IDragZone
 {
     // ========================================= GET/ SET =========================================
     public bool IsDragIn { get; set; }
@@ -25,7 +25,7 @@ public class ElementSpace : MonoBehaviour, IDragZone
         if (obj == gameObject)
             return;
 
-        if (obj.GetComponent<ReactLabel>())
+        if (obj.GetComponent<Panel>() && obj.transform.parent == transform.parent)
         {
             IsDragIn = true;
             GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
@@ -50,9 +50,9 @@ public class ElementSpace : MonoBehaviour, IDragZone
         IsDragIn = false;
         GetComponent<Image>().color = originColor;
 
-        if (obj.GetComponent<ReactLabel>())
+        if (obj.GetComponent<Panel>())
         {
-            obj.GetComponent<ReactLabel>().OnChangeSiblingIndex(transform.GetSiblingIndex());
+            obj.GetComponent<Panel>().OnChangeSiblingIndex(transform.GetSiblingIndex());
         }
     }
     #endregion

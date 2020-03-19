@@ -13,6 +13,7 @@ public class DataDefine
     public static string pref_path_rowLabel             = "Prefabs/row_label";
     public static string pref_path_result_row           = "Prefabs/result_row";
     public static string pref_path_element_space        = "Prefabs/element_space";
+    public static string pref_path_panel_space          = "Prefabs/panel_space";
 
     public static string pref_tag_editor_field          = "Prefabs/TagEditors/TagEditorField";
 
@@ -57,7 +58,7 @@ public class DataDefine
     public static string popup_content_save = "Do you want to save your change ?";
 
     // highlight color
-    public static Color highlight_drop_zone_color = new Color(33 / 255.0f, 40 / 255.0f, 144 / 255.0f);
-    public static Color highlight_drag_obj_color = new Color(214 / 255.0f, 219 / 255.0f, 32 / 255.0f);
+    public static Color highlight_drop_zone_color = new Color(33 / 255.0f, 40 / 255.0f, 144 / 255.0f, 1.0f);
+    public static Color highlight_drag_obj_color = new Color(214 / 255.0f, 219 / 255.0f, 32 / 255.0f, 1.0f);
     public static Color highlight_select_obj_color = new Color(0 / 255.0f, 0 / 255.0f, 0 / 255.0f, 130 / 255.0f);
 }

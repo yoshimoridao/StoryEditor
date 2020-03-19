@@ -29,6 +29,7 @@ public class GroupTagPanel : MonoBehaviour, IDragZone
     private RectTransform rt;
     private VerticalLayoutGroup vLayoutGroup;
 
+    public bool IsDragIn { get; set; }
     public Color originColor { get; set; }
 
     public DataTagGroup DataGroup
@@ -50,16 +51,30 @@ public class GroupTagPanel : MonoBehaviour, IDragZone
     public void OnMouseIn(GameObject obj)
     {
         if (obj.GetComponent<TagEditorField>())
+        {
+            IsDragIn = true;
             GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
+        }
     }
 
     public void OnMouseOut()
     {
+        if (!IsDragIn)
+            return;
+
+        IsDragIn = false;
+
         GetComponent<Image>().color = originColor;
     }
 
     public void OnMouseDrop(GameObject obj)
     {
+        if (!IsDragIn)
+            return;
+
+        IsDragIn = false;
+        GetComponent<Image>().color = originColor;
+
         if (obj.GetComponent<TagEditorField>())
         {
             var tagField = obj.GetComponent<TagEditorField>();
