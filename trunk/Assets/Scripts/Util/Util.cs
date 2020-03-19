@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -262,5 +263,13 @@ public class Util : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public static string[] SplitString(string _str, char _c)
+    {
+        char[] splitter = { _c };
+        string[] eKeys = _str.Split(splitter, StringSplitOptions.RemoveEmptyEntries);
+
+        return eKeys;
     }
 }

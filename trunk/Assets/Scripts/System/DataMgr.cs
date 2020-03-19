@@ -14,6 +14,13 @@ public class DataMgr : Singleton<DataMgr>
         public string title;
         [SerializeField]
         public List<string> elements = new List<string>();
+
+        public ElementExportGame() { }
+        public ElementExportGame(string _title, string _fstElement)
+        {
+            title = _title;
+            elements.Add(_fstElement);
+        }
     }
 
     [System.Serializable]
@@ -21,6 +28,12 @@ public class DataMgr : Singleton<DataMgr>
     {
         [SerializeField]
         public List<ElementExportGame> elements = new List<ElementExportGame>();
+
+        public DataExportGame() { }
+        public DataExportGame(string _title, string _fstElement)
+        {
+            elements.Add(new ElementExportGame(_title, _fstElement));
+        }
     }
 
     [System.Serializable]
@@ -75,11 +88,13 @@ public class DataMgr : Singleton<DataMgr>
 
     private DataStorage dataStorage = new DataStorage();
     private DataIndexer dataIndexer = new DataIndexer();
+    private DataCSVExporter csvExporter = new DataCSVExporter();
     private bool isModified = true;
     [SerializeField]
     private bool isExportGameSave = false;
 
     // ========================================= GET/ SET =========================================
+    public DataIndexer DataIndexer { get { return this.dataIndexer; } }
     public List<DataIndex> Stories { get { return dataIndexer.stories; } }
     public List<DataIndex> Elements { get { return dataIndexer.elements; } }
     public bool IsModified
@@ -246,6 +261,55 @@ public class DataMgr : Singleton<DataMgr>
     {
     }
 
+    #region load
+    public void LoadLastFile()
+    {
+        if (LastLoadFile.Length > 0)
+            Load(LastLoadFile);
+    }
+
+    public void Load(string _path)
+    {
+        if (File.Exists(_path))
+        {
+            // save loaded file
+            LastLoadFile = _path;
+
+            dataIndexer.Load(_path);
+            // re-load canvas's elements
+            GameMgr.Instance.Load();
+
+            // show notice text && file name
+            NoticeBarMgr.Instance.UpdateFileName();
+            NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_load_done);
+        }
+    }
+    #endregion
+
+    #region save
+    public bool SaveLastFile()
+    {
+        if (LastLoadFile.Length > 0 && File.Exists(LastLoadFile))
+        {
+            Save(LastLoadFile);
+            return true;
+        }
+        return false;
+    }
+
+    public void Save(string _path)
+    {
+        // save and export tracery file
+        dataIndexer.Save(_path);
+        ExportTraceryFile(_path);
+        ExportForGameFile(_path);
+        // export for excel file
+        csvExporter.ExportCSVFile(_path);
+
+        // show notice text
+        NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_save_done);
+    }
+
     public void ExportTraceryFile(string _path)
     {
         string output = "";
@@ -375,8 +439,11 @@ public class DataMgr : Singleton<DataMgr>
             writer.Close();
         }
     }
+    #endregion
 
-    public string MergeAllElements(DataIndex _dataIndex)
+    // ========================================= PRIVATE FUNCS =========================================
+    #region util
+    public static string MergeAllElements(DataIndex _dataIndex)
     {
         string val = "";
         if (_dataIndex != null)
@@ -388,52 +455,7 @@ public class DataMgr : Singleton<DataMgr>
         return val;
     }
 
-    public void LoadLastFile()
-    {
-        if (LastLoadFile.Length > 0)
-            Load(LastLoadFile);
-    }
-
-    public void Load(string _path)
-    {
-        if (File.Exists(_path))
-        {
-            // save loaded file
-            LastLoadFile = _path;
-
-            dataIndexer.Load(_path);
-            // re-load canvas's elements
-            GameMgr.Instance.Load();
-
-            // show notice text && file name
-            NoticeBarMgr.Instance.UpdateFileName();
-            NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_load_done);
-        }
-    }
-
-    public bool SaveLastFile()
-    {
-        if (LastLoadFile.Length > 0 && File.Exists(LastLoadFile))
-        {
-            Save(LastLoadFile);
-            return true;
-        }
-        return false;
-    }
-
-    public void Save(string _path)
-    {
-        // save and export tracery file
-        dataIndexer.Save(_path);
-        ExportTraceryFile(_path);
-        ExportForGameFile(_path);
-
-        // show notice text
-        NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_save_done);
-    }
-
-    // ========================================= PRIVATE FUNCS =========================================
-    private string ReplaceTitleOfHashKey(string _val)
+    public static string ReplaceTitleOfHashKey(string _val)
     {
         string result = _val;
         char[] splitter = { '#' };
@@ -442,10 +464,11 @@ public class DataMgr : Singleton<DataMgr>
         foreach (string eKey in eKeys)
         {
             DataIndexer.DataType findDataType;
-            DataIndex eData = FindData(eKey, false, out findDataType);
+            DataIndex eData = Instance.FindData(eKey, false, out findDataType);
             if (eData != null)
                 result = result.Replace("#" + eData.genKey + "#", "#" + eData.title + "#");
         }
         return result;
     }
+    #endregion
 }

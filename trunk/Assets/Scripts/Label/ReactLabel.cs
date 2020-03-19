@@ -72,7 +72,8 @@ public class ReactLabel : Label, ISelectElement, IDragElement, IDragZone
         ClearAllReferPanels();
 
         // un-register font size button's action
-        ToolbarMgr.Instance.fontSizeButton.actOnModifyVal -= OnChangeFontSize;
+        if (ToolbarMgr.Instance.fontSizeButton.actOnModifyVal != null)
+            ToolbarMgr.Instance.fontSizeButton.actOnModifyVal -= OnChangeFontSize;
     }
     #endregion
 

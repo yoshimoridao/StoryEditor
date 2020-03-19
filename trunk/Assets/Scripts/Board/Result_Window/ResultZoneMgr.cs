@@ -121,7 +121,7 @@ public class ResultZoneMgr : MonoBehaviour
         // get value of Story (merge all childs to text)
         if (_dataType == DataIndexer.DataType.Story)
         {
-            val += DataMgr.Instance.MergeAllElements(_dataIndex);
+            val += DataMgr.MergeAllElements(_dataIndex);
         }
         // pick value of Element
         else
