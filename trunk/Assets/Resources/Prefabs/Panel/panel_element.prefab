@@ -448,8 +448,6 @@ GameObject:
   - component: {fileID: 5597673473024673159}
   - component: {fileID: 5597673473024673152}
   - component: {fileID: 5597673473024673153}
-  - component: {fileID: 4892183773996600794}
-  - component: {fileID: 1619915976442640197}
   - component: {fileID: 3691081104722009737}
   m_Layer: 5
   m_Name: panel_element
@@ -554,32 +552,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 1
---- !u!114 &4892183773996600794
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5597673473024673178}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ccafe529f489c94791da57269fbfd6d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  titleLabel: {fileID: 6283661336439146122}
---- !u!114 &1619915976442640197
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5597673473024673178}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16eb47f80fc2a4d4f95b16d2da9f6486, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  highlightImg: {fileID: 6908949829937071141}
 --- !u!114 &3691081104722009737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -596,7 +568,6 @@ MonoBehaviour:
   titleLabel: {fileID: 6283661336439146122}
   transLabelCont: {fileID: 5597673473371183034}
   testTag: {fileID: 2558818997201781559}
-  rgbaColor: {r: 0, g: 0, b: 0, a: 0}
   contentSize: 0.95
 --- !u!1 &5597673473371183035
 GameObject:
@@ -987,7 +958,7 @@ MonoBehaviour:
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
   m_Text: ???
   m_CaretBlinkRate: 0.85
-  m_CaretWidth: 1
+  m_CaretWidth: 2
   m_ReadOnly: 0
 --- !u!114 &6283661336439146122
 MonoBehaviour:

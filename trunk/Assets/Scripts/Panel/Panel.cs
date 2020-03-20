@@ -43,20 +43,6 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
     // ========================================= GET/ SET =========================================
     #region getter/setter
     public string Genkey { get { return dataIndex.genKey; } }
-    public string Title
-    {
-        get { return dataIndex.title; }
-        set
-        {
-            // set data 
-            if (dataIndex == null)
-                return;
-            dataIndex.title = value;
-
-            if (titleLabel)
-                titleLabel.PureText = dataIndex.title;
-        }
-    }
     public bool IsTesting
     {
         get { return dataIndex.isTest; }
@@ -92,6 +78,7 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
     }
     public DataIndexer.DataType DataType { get { return dataType; } }
     public List<Label> Labels { get { return labels; } }
+    
     public DataIndex GetDataIndex()
     {
         if (dataIndex != null)
@@ -99,13 +86,25 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
 
         return null;
     }
+
     public void SetDataIndex(DataIndex _dataIndex)
     {
         dataIndex = _dataIndex;
 
-        Title = dataIndex.title;            // load title
+        SetDataTitle(dataIndex.title);            // load title
         RGBAColor = dataIndex.RGBAColor;    // load color
         IsTesting = dataIndex.isTest;       // load testing flag
+    }
+
+    private void SetDataTitle(string _val)
+    {
+        // set data 
+        if (dataIndex == null)
+            return;
+        dataIndex.title = _val;
+
+        if (titleLabel)
+            titleLabel.PureText = dataIndex.title;
     }
     #endregion
 
@@ -186,7 +185,7 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
         }
 
         // load title, color
-        Title = dataIndex.title;
+        SetDataTitle(dataIndex.title);
         RGBAColor = dataIndex.RGBAColor;
         IsTesting = dataIndex.isTest;
 
@@ -275,7 +274,8 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
     // === ISelectElement ===
     public void OnSelect()
     {
-        image.color = DataDefine.highlight_drag_obj_color;
+        if (!titleLabel.Field.isFocused)
+            image.color = DataDefine.highlight_drag_obj_color;
     }
 
     public void OnEndSelect()
@@ -373,6 +373,7 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
         List<Label> rowLabels = new List<Label>();
         float rowW = 0;
         int rowCounter = 0;
+        float spaceW = (prefElementSpace.transform as RectTransform).sizeDelta.x;
 
         for (int i = 0; i <= labels.Count; i++)
         {
@@ -382,9 +383,7 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
             {
                 label = labels[i];
                 // get label's width
-                labelW = (label.transform as RectTransform).sizeDelta.x;
-                if (layoutRow)
-                    labelW += layoutRow.spacing;
+                labelW = (label.transform as RectTransform).sizeDelta.x + spaceW;
                 // calculate row's width
                 rowW += labelW;
             }
@@ -416,7 +415,7 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
         }
 
         // refresh space elements
-        RefreshRow();
+        RefreshSpaceCharInRows();
 
         // refresh position of add button
         RefreshAddButtonPos();
@@ -455,7 +454,8 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
     public void OnChildChangeSiblingIndex()
     {
         UpdateOrderLabels();
-        RefreshRow();
+        RefreshSpaceCharInRows();
+        RefreshPanelDt();
     }
 
     public void OnChildLabelEditing()
@@ -485,7 +485,7 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
         if (_title.gameObject != titleLabel.gameObject)
             return;
 
-        dataIndex.title = titleLabel.PureText;
+        dataIndex.Title = titleLabel.PureText;
 
         // refresh canvas
         GameMgr.Instance.RefreshCanvas();
@@ -533,7 +533,7 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
 
         return null;
     }
-    protected void RefreshRow()
+    protected void RefreshSpaceCharInRows()
     {
         for (int i = 0; i < rows.Count; i++)
         {

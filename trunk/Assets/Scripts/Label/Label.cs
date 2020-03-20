@@ -32,23 +32,19 @@ public class Label : MonoBehaviour
             transform.parent = panel.transform;
         }
     }
-
     public virtual string PureText
     {
         get { return pureText; }
         set { pureText = value; }
     }
-
     public Image ImgLabel
     {
         get { return image; }
         set { image = value; }
     }
+    public InputField Field { get { return inputField; } }
 
-    public Text GetTextObject()
-    {
-        return GetComponentInChildren<Text>();
-    }
+    public Text GetTextObject() { return GetComponentInChildren<Text>(); }
 
     // ========================================= UNITY FUNCS =========================================
     public void Start()
@@ -95,10 +91,6 @@ public class Label : MonoBehaviour
         //    _text = DataDefine.defaultLabelVar;
 
         PureText = _text;
-
-        // * fix bug: input field call OnEditing() but not OnEditDone() when init
-        if (isEditing)
-            isEditing = false;
     }
 
     public virtual void OnEditDone()
@@ -120,7 +112,7 @@ public class Label : MonoBehaviour
         //if (!contentSize)
         //    return;
 
-        if (!isEditing)
+        if (!isEditing && inputField.isFocused)
             isEditing = true;
 
         RefreshContentSize();

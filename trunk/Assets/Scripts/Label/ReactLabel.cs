@@ -186,7 +186,7 @@ public class ReactLabel : Label, ISelectElement, IDragElement, IDragZone
     // === ISelectElement ===
     public void OnSelect()
     {
-        if (inputField)
+        if (inputField && !inputField.isFocused)
             inputField.GetComponent<Image>().color = DataDefine.highlight_select_obj_color;
     }
 

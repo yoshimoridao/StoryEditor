@@ -52,6 +52,9 @@ public class ElementSpace : MonoBehaviour, IDragZone
 
         if (obj.GetComponent<ReactLabel>())
         {
+            // change parent
+            obj.transform.parent = transform.parent;
+            // change sibling index
             obj.GetComponent<ReactLabel>().OnChangeSiblingIndex(transform.GetSiblingIndex());
         }
     }
