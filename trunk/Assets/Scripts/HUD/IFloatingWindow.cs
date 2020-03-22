@@ -5,9 +5,9 @@ using System;
 
 public interface IFloatingWindow
 {
-    GameObject SelectedObj { get; set; }
+    List<GameObject> SelectedObjs { get; set; }
     bool IsActiveWindow { get; set; }
     Action ActOnWindowDisable { get; set; }
 
-    void SetActiveWindow(bool _isActive, GameObject _selectObj);
+    void SetActiveWindow(bool _isActive, List<GameObject> _selectObjs);
 }

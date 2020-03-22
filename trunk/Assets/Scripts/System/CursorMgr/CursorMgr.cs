@@ -17,6 +17,9 @@ public class CursorMgr : Singleton<CursorMgr>
     public float thresholdDragTime = 0.2f;
     public float thresholdDragDistance = 10.0f;
 
+    // action
+    public Action actOnMouseRightUp;
+
     RectTransform rt;
 
     Vector2 startPos = Vector2.zero;
@@ -29,6 +32,8 @@ public class CursorMgr : Singleton<CursorMgr>
 
     private IDragZone dragZone = null;
     private GameObject selectObj = null;
+
+    private bool isPressLeftMouse = false;
 
     // ========================================= GET/ SET =========================================
     public DragBehavior DragMode
@@ -73,17 +78,32 @@ public class CursorMgr : Singleton<CursorMgr>
         if (PopupMgr.Instance.IsActive())
             return;
 
-        // mouse down
+        // mouse right
         if (Input.GetMouseButtonDown(0))
             UpdateMouseDown();
-
-        // mouse hold
-        if (Input.GetMouseButton(0))
+        else if (Input.GetMouseButton(0))
             UpdateMouseHold();
-
-        // mouse up
-        if (Input.GetMouseButtonUp(0))
+        else if (Input.GetMouseButtonUp(0))
             OnMouseUp();
+
+        // mouse left (just response select if just one object)
+        if (Input.GetMouseButtonDown(1) && selectObjs.Count <= 1)
+        {
+            isPressLeftMouse = true;
+            UpdateMouseDown();
+        }
+        else if (Input.GetMouseButtonUp(1))
+        {
+            if (isPressLeftMouse)
+            {
+                isPressLeftMouse = false;
+                OnMouseUp();
+            }
+
+            // invoke action
+            if (actOnMouseRightUp != null)
+                actOnMouseRightUp.Invoke();
+        }
     }
 
     public void Init()
@@ -232,6 +252,14 @@ public class CursorMgr : Singleton<CursorMgr>
         holdDt = 0;
     }
 
+    private void OnMouseLeftUp()
+    {
+        ClearSelectedObjs(true, true);
+        startPos = Vector2.zero;
+        selectObj = null;
+        holdDt = 0;
+    }
+
     private void ActiveTitle(bool isActive)
     {
         dragingTitle.gameObject.SetActive(isActive);
@@ -274,7 +302,7 @@ public class CursorMgr : Singleton<CursorMgr>
 
         foreach (var element in selectObjs)
         {
-            if (element.GetComponent<ISelectElement>() != null)
+            if (element && element.GetComponent<ISelectElement>() != null)
                 element.GetComponent<ISelectElement>().OnEndSelect();
         }
 
