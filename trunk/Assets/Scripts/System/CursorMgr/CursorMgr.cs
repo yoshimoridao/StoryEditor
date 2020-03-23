@@ -10,7 +10,6 @@ public class CursorMgr : Singleton<CursorMgr>
     public Action actOnRefreshSelectedObjs;
 
     public enum SelectBehavior { SINGLE, MULTIPLE };
-    public enum DragBehavior { ARRANGE, CONNECT };
 
     public InputField dragingTitle;
     public float thresholdSelectTime = 0.1f;
@@ -24,7 +23,6 @@ public class CursorMgr : Singleton<CursorMgr>
 
     Vector2 startPos = Vector2.zero;
     float holdDt = 0;
-    DragBehavior dragBehavior = DragBehavior.CONNECT;
     SelectBehavior selectBehavior = SelectBehavior.SINGLE;
 
     GameObject dragingObj = null;
@@ -36,12 +34,6 @@ public class CursorMgr : Singleton<CursorMgr>
     private bool isPressLeftMouse = false;
 
     // ========================================= GET/ SET =========================================
-    public DragBehavior DragMode
-    {
-        get { return dragBehavior; }
-        set { dragBehavior = value; }
-    }
-
     public SelectBehavior SelectMode
     {
         get { return selectBehavior; }
@@ -53,7 +45,13 @@ public class CursorMgr : Singleton<CursorMgr>
         return selectObjs;
     }
 
+    public bool IsDragingObj()
+    {
+        return dragingObj != null;
+    }
+
     // ========================================= UNITY FUNCS =========================================
+    #region common
     private void Awake()
     {
         instance = this;
@@ -61,7 +59,6 @@ public class CursorMgr : Singleton<CursorMgr>
 
         // set default cursor mode
         SelectMode = SelectBehavior.SINGLE;
-        DragMode = DragBehavior.ARRANGE;
 
         // hide title default
         ActiveTitle(false);
@@ -80,17 +77,17 @@ public class CursorMgr : Singleton<CursorMgr>
 
         // mouse right
         if (Input.GetMouseButtonDown(0))
-            UpdateMouseDown();
+            OnMouseDown();
         else if (Input.GetMouseButton(0))
-            UpdateMouseHold();
+            OnMouseHold();
         else if (Input.GetMouseButtonUp(0))
             OnMouseUp();
 
         // mouse left (just response select if just one object)
-        if (Input.GetMouseButtonDown(1) && selectObjs.Count <= 1)
+        if (Input.GetMouseButtonDown(1) && selectObjs.Count == 0)
         {
             isPressLeftMouse = true;
-            UpdateMouseDown();
+            OnMouseDown();
         }
         else if (Input.GetMouseButtonUp(1))
         {
@@ -115,12 +112,9 @@ public class CursorMgr : Singleton<CursorMgr>
         // clear all selected obj
         ClearSelectedObjs(true);
     }
+    #endregion
 
     // ========================================= PUBLIC FUNCS =========================================
-    public bool IsDragingObj()
-    {
-        return dragingObj != null;
-    }
 
     public GameObject GetHandleObjOnTop()
     {
@@ -148,7 +142,8 @@ public class CursorMgr : Singleton<CursorMgr>
     }
 
     // ========================================= PRIVATE FUNCS =========================================
-    private void UpdateMouseDown()
+    #region event
+    private void OnMouseDown()
     {
         if (selectObj == null)
         {
@@ -169,7 +164,7 @@ public class CursorMgr : Singleton<CursorMgr>
         }
     }
 
-    private void UpdateMouseHold()
+    private void OnMouseHold()
     {
         holdDt += Time.deltaTime;
 
@@ -259,13 +254,15 @@ public class CursorMgr : Singleton<CursorMgr>
         selectObj = null;
         holdDt = 0;
     }
+    #endregion
 
+    // === SELECT HANDLE ===
+    #region select_handle
     private void ActiveTitle(bool isActive)
     {
         dragingTitle.gameObject.SetActive(isActive);
     }
 
-    // === SELECT HANDLE ===
     private void AddSelectedObj(GameObject _element)
     {
         ISelectElement selectedElemnt = _element.GetComponent<ISelectElement>();
@@ -312,8 +309,10 @@ public class CursorMgr : Singleton<CursorMgr>
         if (isInvokeCallback && actOnRefreshSelectedObjs != null)
             actOnRefreshSelectedObjs.Invoke();
     }
+    #endregion
 
     // === DRAG HANDLE ===
+    #region drag_handle
     private IDragZone GetDragZone()
     {
         // get ray cast all objs
@@ -384,6 +383,7 @@ public class CursorMgr : Singleton<CursorMgr>
             ActiveTitle(false);
         }
     }
+    #endregion
 
     // === UTIL ===
     private List<RaycastResult> GetRayCastResultsByMousePos()

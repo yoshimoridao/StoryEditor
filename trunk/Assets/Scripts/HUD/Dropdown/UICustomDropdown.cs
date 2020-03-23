@@ -318,5 +318,10 @@ namespace UI.ModernUIPack
             Item item = new Item();
             dropdownItems.Add(item);
         }
+
+        public void ClearAllItems()
+        {
+            dropdownItems.Clear();
+        }
     }
 }

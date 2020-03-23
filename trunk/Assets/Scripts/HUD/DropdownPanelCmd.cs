@@ -4,12 +4,11 @@ using System;
 using UnityEngine;
 using UI.ModernUIPack;
 
-public class FloatingPanelCmd : MonoBehaviour, IFloatingWindow
+public class DropdownPanelCmd : MonoBehaviour, IFloatingWindow
 {
     UICustomDropdown dropdown;
 
-    List<FloatingMenuConfig.FloatingItem> floatingItems = new List<FloatingMenuConfig.FloatingItem>();
-    List<GameObject> selectedObjs = new List<GameObject>();
+    List<FloatingMenuConfig.DropdownItem> dropdownItems = new List<FloatingMenuConfig.DropdownItem>();
     bool isActiveWindow = false;
 
     public Action ActOnWindowDisable { get; set; }
@@ -34,17 +33,20 @@ public class FloatingPanelCmd : MonoBehaviour, IFloatingWindow
             dropdown.actOnOff -= OnWindowDisable;
     }
 
-    public void ActiveWindow(List<FloatingMenuConfig.FloatingItem> _items, List<GameObject> _selectObjs)
+    public void ActiveWindow(List<FloatingMenuConfig.DropdownItem> _items)
     {
         // store obj
-        selectedObjs = _selectObjs;
-        floatingItems = _items;
+        dropdownItems = _items;
+        // clear all items of dropdown menu
+        dropdown.ClearAllItems();
 
         // setup drop down
-        foreach (var item in floatingItems)
+        for (int i = 0; i < dropdownItems.Count; i++)
         {
+            var item = dropdownItems[i];
             dropdown.SetItemTitle(item.item.itemName);
             dropdown.SetItemIcon(item.item.itemIcon);
+            dropdown.CreateNewItem();
         }
         dropdown.SetupDropdown();
 
@@ -72,29 +74,22 @@ public class FloatingPanelCmd : MonoBehaviour, IFloatingWindow
 
     public void OnDropdownValChange(int _index)
     {
-        if (_index >= floatingItems.Count)
+        if (_index >= dropdownItems.Count)
             return;
 
-        FloatingMenuItem option = floatingItems[_index].itemType;
-        foreach (var e in selectedObjs)
+        DropdownMenuItem option = dropdownItems[_index].itemType;
+        switch (option)
         {
-            switch (option)
-            {
-                case FloatingMenuItem.TEST:
-                    if (e.GetComponent<Panel>())
-                        e.GetComponent<Panel>().IsTesting = true;
-                    if (e.GetComponent<ElementLabel>())
-                        e.GetComponent<ElementLabel>().IsTesting = true;
-                    break;
-                case FloatingMenuItem.DELETE:
-                    if (e.GetComponent<Panel>())
-                        e.GetComponent<Panel>().SelfDestroy();
-                    if (e.GetComponent<ReactLabel>())
-                        e.GetComponent<ReactLabel>().SelfDestroy();
-                    break;
-                default:
-                    break;
-            }
+            case DropdownMenuItem.SAVE:
+                break;
+            case DropdownMenuItem.LOAD:
+                break;
+            case DropdownMenuItem.EXPORT_CSV:
+                break;
+            case DropdownMenuItem.IMPORT_CSV:
+                break;
+            default:
+                break;
         }
     }
 }

@@ -21,23 +21,20 @@ public class AutoScrollZone : MonoBehaviour
 
     public void Update()
     {
-        if (CursorMgr.Instance.DragMode == CursorMgr.DragBehavior.ARRANGE)
+        if (CursorMgr.Instance.IsDragingObj())
         {
-            if (CursorMgr.Instance.IsDragingObj())
-            {
-                if (!img.enabled)
-                    img.enabled = true;
+            if (!img.enabled)
+                img.enabled = true;
 
-                if (scrollBar && Util.IsHoverObjs(gameObject.tag))
-                {
-                    scrollBar.value += (Time.deltaTime * sensitivity * (sensitivityPerUnit / content.childCount)) * (isTopZone ? 1 : -1);
-                    Mathf.Clamp(scrollBar.value, 0, 1.0f);
-                }
-            }
-            else
+            if (scrollBar && Util.IsHoverObjs(gameObject.tag))
             {
-                img.enabled = false;
+                scrollBar.value += (Time.deltaTime * sensitivity * (sensitivityPerUnit / content.childCount)) * (isTopZone ? 1 : -1);
+                Mathf.Clamp(scrollBar.value, 0, 1.0f);
             }
+        }
+        else
+        {
+            img.enabled = false;
         }
     }
 }

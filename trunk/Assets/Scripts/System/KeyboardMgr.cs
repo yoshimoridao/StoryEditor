@@ -1,14 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class KeyboardMgr : MonoBehaviour
 {
     void Start()
     {
-        
+
     }
-    
+
     void Update()
     {
         // hot key: select mode
@@ -26,7 +27,7 @@ public class KeyboardMgr : MonoBehaviour
         // hot key: delete elements
         if (Input.GetKeyDown(KeyCode.Delete))
         {
-            MidToolBarMgr.Instance.OnDeleteButtonPress();
+            OnDeleteButtonPress();
         }
 
         // hot key: active cheat panel
@@ -43,5 +44,21 @@ public class KeyboardMgr : MonoBehaviour
                 GameMgr.Instance.OpenSaveBrowser();
             }
         }
+    }
+
+    private void OnDeleteButtonPress()
+    {
+        // active destroy mode
+        var elements = CursorMgr.Instance.GetSelectedObjs();
+        foreach (var element in elements)
+        {
+            if (element && element.GetComponent<Panel>())
+                element.GetComponent<Panel>().SelfDestroy();
+            if (element && element.GetComponent<Label>())
+                element.GetComponent<Label>().SelfDestroy();
+        }
+
+        // clear all selected items
+        CursorMgr.Instance.ClearSelectedObjs(true, true);
     }
 }
