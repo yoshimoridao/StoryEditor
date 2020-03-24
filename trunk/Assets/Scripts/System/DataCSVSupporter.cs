@@ -208,8 +208,9 @@ public class DataCSVSupporter
         for (int i = 3; i < lines.Length; i++)
         {
             List<string> fields = new List<string>(lines[i].Split(splitter));
-            // remove all comma & fst element
-            fields.RemoveAt(0);
+            // remove fst and last item empty
+            RemoveFstAndLstEmptyItem(fields);
+            // remove all comma
             fields.RemoveAll(x => x == ",");
 
             if (fields.Count == 0)
@@ -270,6 +271,57 @@ public class DataCSVSupporter
         OverrideData();
     }
 
+    private void OverrideData()
+    {
+        // default override for english
+        List<DataIndex> keys = new List<DataIndex>(loc.Keys);
+        for (int i = 0; i < keys.Count; i++)
+        {
+            DataIndex dataIndex = keys[i];
+            // find data type
+            DataIndexer.DataType readingDataType = DataIndexer.DataType.Story;
+            dataIndexer.FindData(dataIndex.genKey, false, out readingDataType);
+
+            var elemnts = loc[dataIndex];
+            int neededElemnts = elemnts.Count;
+            for (int j = 0; j < elemnts.Count; j++)
+            {
+                if (elemnts[j].Count <= (int)Language.EN)
+                    continue;
+
+                // get value for English language
+                string eVal = elemnts[j][(int)Language.EN];
+
+                // substring into small texts for Story
+                if (readingDataType == DataIndexer.DataType.Story)
+                {
+                    var splitVals = SeparateText(eVal);
+                    for (int k = 0; k < splitVals.Count; k++)
+                    {
+                        OverrideDataIndex(k, dataIndex, splitVals[k]);
+                    }
+                    neededElemnts = splitVals.Count;
+                }
+                // normal save for Element
+                else
+                {
+                    OverrideDataIndex(j, dataIndex, eVal);
+                }
+            }
+            // remove surplus elements
+            if (dataIndex.elements.Count > neededElemnts)
+                dataIndex.RemoveElements(neededElemnts, dataIndex.elements.Count - neededElemnts);
+        }
+    }
+
+    private void OverrideDataIndex(int _index, DataIndex _dataIndex, string _val)
+    {
+        // override element's value
+        if (_index < _dataIndex.elements.Count)
+            _dataIndex.elements[_index].value = _val;   // default override english // add new element
+        else
+            _dataIndex.AddElement(_val);
+    }
     private string GetFieldValue(List<string> fields, int _id)
     {
         if (_id < fields.Count)
@@ -295,28 +347,77 @@ public class DataCSVSupporter
         }
         return result;
     }
-    private void OverrideData()
+    private List<string> SeparateText(string _val)
     {
-        // default override for english
-        List<DataIndex> keys = new List<DataIndex>(loc.Keys);
-        for (int i = 0; i < keys.Count; i++)
+        List<string> result = new List<string>();
+        char[] splitter = { '#', '#' };
+        List<string> splitStr = new List<string>(_val.Split(splitter, StringSplitOptions.RemoveEmptyEntries));
+
+        for (int i = 0; i < splitStr.Count; i++)
         {
-            DataIndex dataIndex = keys[i];
-            var elemnts = loc[dataIndex];
-            for (int j = 0; j < elemnts.Count; j++)
+            string str = splitStr[i];
+            DataIndexer.DataType type = DataIndexer.DataType.Story;
+            if (str == "error" || dataIndexer.FindData(str, false, out type) != null)
             {
-                string val = elemnts[j][(int)Language.EN];
-                // override element's value
-                if (j < dataIndex.elements.Count)
-                    dataIndex.elements[j].value = val;   // default override english
-                // add new element
-                else
-                    dataIndex.AddElement(val);
+                result.Add("#" + str + "#");
             }
-            // remove surplus elements
-            if (dataIndex.elements.Count > elemnts.Count)
-                dataIndex.RemoveElements(elemnts.Count, dataIndex.elements.Count - elemnts.Count);
+            else if (str.Length > 0)
+            {
+                int findId = -1;
+                do
+                {
+                    findId = -1;
+                    for (int j = 0; j <= 4; j++)
+                    {
+                        char splitChar = '.';
+                        switch (j)
+                        {
+                            case 0: splitChar = ' '; break;
+                            case 1: splitChar = ','; break;
+                            case 2: splitChar = '.'; break;
+                            case 3: splitChar = '!'; break;
+                            case 4: splitChar = '?'; break;
+                        }
+                        int tmpFindId = str.IndexOf(splitChar);
+                        // just split for space char for fst index
+                        if (tmpFindId == -1 || (splitChar == ' ' && tmpFindId > 0))
+                            continue;
+
+                        if (findId != -1)
+                        {
+                            if (tmpFindId < findId)
+                                findId = tmpFindId;
+                        }
+                        else
+                        {
+                            findId = tmpFindId;
+                        }
+                    }
+
+                    if (findId != -1)
+                    {
+                        result.Add(str.Substring(0, findId + 1));   // pre split
+                        str = str.Substring(findId + 1);    // suff split
+                    }
+                    else if (str.Length > 0)
+                    {
+                        result.Add(str);    // add left text
+                    }
+                } while (findId != -1);
+            }
         }
+
+        return result;
+    }
+
+    private void RemoveFstAndLstEmptyItem(List<string> _vals)
+    {
+        // remove fst item empty
+        if (_vals.Count > 0 && _vals[0].Length == 0)
+            _vals.RemoveAt(0);
+        // remove lst item empty
+        if (_vals.Count > 0 && _vals[_vals.Count - 1].Length == 0)
+            _vals.RemoveAt(_vals.Count - 1);
     }
     #endregion
 }
