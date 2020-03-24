@@ -123,9 +123,14 @@ namespace UI.ModernUIPack
 
                 Transform goImage;
                 goImage = go.gameObject.transform.Find("Icon");
+                // set image
                 setItemImage = goImage.GetComponent<Image>();
                 imageHelper = dropdownItems[i].itemIcon;
-                setItemImage.sprite = imageHelper;
+                if (imageHelper != null)
+                    setItemImage.sprite = imageHelper;
+                // hide image if sprite null
+                else
+                    setItemImage.gameObject.active = false;
 
                 Button itemButton;
                 itemButton = go.GetComponent<Button>();

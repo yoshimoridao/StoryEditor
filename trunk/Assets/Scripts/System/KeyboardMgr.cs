@@ -39,10 +39,7 @@ public class KeyboardMgr : MonoBehaviour
         // hot key: override save
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.S))
         {
-            if (!DataMgr.Instance.SaveLastFile())
-            {
-                GameMgr.Instance.OpenSaveBrowser();
-            }
+            DataMgr.Instance.OverrideSaveFile();
         }
     }
 

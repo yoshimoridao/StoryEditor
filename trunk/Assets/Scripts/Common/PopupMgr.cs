@@ -115,12 +115,12 @@ public class PopupMgr : Singleton<PopupMgr>
         {
             if (_isConfirm)
             {
-                // auto override current file
-                if (!DataMgr.Instance.SaveLastFile())
-                {
-                    // or asking where to save file if save fail
-                    GameMgr.Instance.OpenSaveBrowser(actCallback);
-                }
+                //// auto override current file
+                //if (!DataMgr.Instance.OverrideSaveFile())
+                //{
+                //    // or asking where to save file if save fail
+                //    GameMgr.Instance.OpenSaveBrowser(actCallback);
+                //}
             }
             else
             {

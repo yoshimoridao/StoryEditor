@@ -81,12 +81,24 @@ public class DropdownPanelCmd : MonoBehaviour, IFloatingWindow
         switch (option)
         {
             case DropdownMenuItem.SAVE:
+                DataMgr.Instance.SaveFile();
                 break;
             case DropdownMenuItem.LOAD:
+                DataMgr.Instance.LoadFile();
+                break;
+            case DropdownMenuItem.EXPORT_TRACERY:
+                DataMgr.Instance.ExportTraceryFile();
                 break;
             case DropdownMenuItem.EXPORT_CSV:
+                DataMgr.Instance.ExportCSVFile();
                 break;
             case DropdownMenuItem.IMPORT_CSV:
+                break;
+            case DropdownMenuItem.COLOR:
+                ColorMenu.Instance.OnPressColorBtn();
+                break;
+            case DropdownMenuItem.HOT_KEY:
+                DisplayMgr.Instance.ShowInfoPanel(true);
                 break;
             default:
                 break;

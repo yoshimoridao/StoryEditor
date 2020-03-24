@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using System;
+using UnityEditor;
+using SFB;
 
 [System.Serializable]
 public class DataMgr : Singleton<DataMgr>
 {
     // ===== store element info =====
+    #region class
     [System.Serializable]
     public class ElementExportGame
     {
@@ -85,6 +88,7 @@ public class DataMgr : Singleton<DataMgr>
             }
         }
     }
+    #endregion
 
     private DataStorage dataStorage = new DataStorage();
     private DataIndexer dataIndexer = new DataIndexer();
@@ -93,7 +97,8 @@ public class DataMgr : Singleton<DataMgr>
     [SerializeField]
     private bool isExportGameSave = false;
 
-    // ========================================= GET/ SET =========================================
+    // ===== Properties =====
+    #region properties
     public DataIndexer DataIndexer { get { return this.dataIndexer; } }
     public List<DataIndex> Stories { get { return dataIndexer.stories; } }
     public List<DataIndex> Elements { get { return dataIndexer.elements; } }
@@ -107,16 +112,6 @@ public class DataMgr : Singleton<DataMgr>
         set { isExportGameSave = value; }
     }
 
-    // ================== Index ==================
-    private string GenNewKey()
-    {
-        string newKey = "@" + dataIndexer.genKey;
-        dataIndexer.genKey++;
-        return newKey;
-    }
-
-    // ===== Properties =====
-    #region properties
     public bool IsRandomTest
     {
         get { return dataIndexer.isRdTest; }
@@ -173,6 +168,14 @@ public class DataMgr : Singleton<DataMgr>
         set { dataIndexer.isActiveGrammarTest = value; }
     }
     #endregion
+
+    // ================== Index ==================
+    private string GenNewKey()
+    {
+        string newKey = "@" + dataIndexer.genKey;
+        dataIndexer.genKey++;
+        return newKey;
+    }
 
     // ====== Data Indexer ======
     public DataIndex GetData(DataIndexer.DataType _type, string _key) { return dataIndexer.GetData(_type, _key); }
@@ -239,9 +242,6 @@ public class DataMgr : Singleton<DataMgr>
     public void RemoveEventTag(string _genKey) { dataIndexer.dataEventTag.RemoveEventTag(_genKey); }
     #endregion
 
-    // ================== Element ==================
-    // ===== Tag =====
-
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
     {
@@ -261,56 +261,60 @@ public class DataMgr : Singleton<DataMgr>
     {
     }
 
-    #region load
-    public void LoadLastFile()
+    #region export_save_load
+    public void SaveFile()
     {
-        if (LastLoadFile.Length > 0)
-            Load(LastLoadFile);
+        var path = StandaloneFileBrowser.SaveFilePanel("Save File", "", "MySaveFile", "txt");
+        if (path.Length == 0)
+            return;
+
+        Save(path);
     }
 
-    public void Load(string _path)
+    public void OverrideSaveFile()
     {
-        if (File.Exists(_path))
-        {
-            // save loaded file
-            LastLoadFile = _path;
-
-            dataIndexer.Load(_path);
-            // re-load canvas's elements
-            GameMgr.Instance.Load();
-
-            // show notice text && file name
-            NoticeBarMgr.Instance.UpdateFileName();
-            NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_load_done);
-        }
-    }
-    #endregion
-
-    #region save
-    public bool SaveLastFile()
-    {
+        // override
         if (LastLoadFile.Length > 0 && File.Exists(LastLoadFile))
         {
             Save(LastLoadFile);
-            return true;
         }
-        return false;
+        // save new file
+        else
+        {
+            SaveFile();
+        }
     }
 
-    public void Save(string _path)
+    private void Save(string _path)
     {
         // save and export tracery file
         dataIndexer.Save(_path);
-        ExportTraceryFile(_path);
         ExportForGameFile(_path);
-        // export for excel file
-        csvExporter.ExportCSVFile(_path);
 
         // show notice text
         NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_save_done);
     }
 
-    public void ExportTraceryFile(string _path)
+    public void LoadFile()
+    {
+        var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", "txt", false);
+        if (paths.Length == 0 || paths[0].Length == 0)
+            return;
+
+        // save loaded file
+        string path = paths[0];
+        LastLoadFile = path;
+
+        dataIndexer.Load(path);
+        // re-load canvas's elements
+        GameMgr.Instance.Load();
+
+        // show notice text && file name
+        NoticeBarMgr.Instance.UpdateFileName();
+        NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_load_done);
+    }
+
+    public void ExportTraceryFile()
     {
         string output = "";
         // clear all dataStorage
@@ -366,19 +370,21 @@ public class DataMgr : Singleton<DataMgr>
         Debug.Log("Export Tracery File = " + output);
 
         // --- Save ---
-        string savePath = _path.Replace(".txt", DataDefine.save_filename_suffix_tracery + ".txt");
-        if (File.Exists(savePath))
+        string savePath = StandaloneFileBrowser.SaveFilePanel("Export Tracery", "", "MyTraceryFile", "txt");
+        if (savePath.Length > 0)
         {
-            File.WriteAllText(savePath, output);
-        }
-        else
-        {
-            StreamWriter writer = new StreamWriter(savePath);
-            writer.Write(output);
-            writer.Close();
+            if (File.Exists(savePath))
+            {
+                File.WriteAllText(savePath, output);
+            }
+            else
+            {
+                StreamWriter writer = new StreamWriter(savePath);
+                writer.Write(output);
+                writer.Close();
+            }
         }
     }
-
     public void ExportForGameFile(string _path)
     {
         if (!isExportGameSave)
@@ -438,6 +444,13 @@ public class DataMgr : Singleton<DataMgr>
             writer.Write(output);
             writer.Close();
         }
+    }
+    public void ExportCSVFile()
+    {
+        string path = StandaloneFileBrowser.SaveFilePanel("Export CSV", "", "MySaveFile", "csv");
+        // export for excel file
+        if (path.Length > 0)
+            csvExporter.ExportCSVFile(path);
     }
     #endregion
 

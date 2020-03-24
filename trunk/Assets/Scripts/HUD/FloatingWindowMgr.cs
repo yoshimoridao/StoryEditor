@@ -91,11 +91,22 @@ public class FloatingWindowMgr : MonoBehaviour
 
     public void OnFileButtonPress(RectTransform _btn)
     {
-        // active window
-        var dropdownItems = config.GetDowndownItems(DropdownMenuType.FILE);
-        dropdownPanelCmd.ActiveWindow(dropdownItems);
+        ActiveDropdownPanel(DropdownMenuType.FILE);
         // set position
         dropdownPanelCmd.transform.position = _btn.position;
+    }
+    public void OnWindowButtonPress(RectTransform _btn)
+    {
+        ActiveDropdownPanel(DropdownMenuType.WINDOW);
+        // set position
+        dropdownPanelCmd.transform.position = _btn.position;
+    }
+
+    private void ActiveDropdownPanel(DropdownMenuType _type)
+    {
+        // active window
+        var dropdownItems = config.GetDowndownItems(_type);
+        dropdownPanelCmd.ActiveWindow(dropdownItems);
 
         // on active 
         OnActiveWindow(dropdownPanelCmd.gameObject);

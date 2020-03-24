@@ -55,17 +55,6 @@ public class DataIndexer
 
     public string LastLoadFile
     {
-        //get
-        //{
-        //    if (PlayerPrefs.HasKey(DataDefine.save_key_last_load_file))
-        //        return PlayerPrefs.GetString(DataDefine.save_key_last_load_file);
-        //    return "";
-        //}
-        //set
-        //{
-        //    PlayerPrefs.SetString(DataDefine.save_key_last_load_file, value);
-        //}
-
         get { return lastLoadFile; }
         set { lastLoadFile = value; }
     }

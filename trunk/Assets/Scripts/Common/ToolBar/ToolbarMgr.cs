@@ -89,7 +89,7 @@ public class ToolbarMgr : Singleton<ToolbarMgr>
     {
         if (nextLocFilePath.Length > 0)
         {
-            DataMgr.Instance.Load(nextLocFilePath);
+            //DataMgr.Instance.Load(nextLocFilePath);
             nextLocFilePath = "";
         }
     }

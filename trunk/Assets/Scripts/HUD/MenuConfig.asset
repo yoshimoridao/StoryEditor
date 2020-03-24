@@ -19,7 +19,9 @@ MonoBehaviour:
     items: 0000000001000000
   dropdownMenus:
   - menu: 0
-    items: 00000000010000000200000003000000
+    items: 0000000001000000040000000200000003000000
+  - menu: 1
+    items: 0500000006000000
   floatingItems:
   - itemType: 0
     item:
@@ -60,6 +62,27 @@ MonoBehaviour:
   - itemType: 3
     item:
       itemName: Export *.csv
+      itemIcon: {fileID: 0}
+      OnItemSelection:
+        m_PersistentCalls:
+          m_Calls: []
+  - itemType: 4
+    item:
+      itemName: Export Tracery
+      itemIcon: {fileID: 0}
+      OnItemSelection:
+        m_PersistentCalls:
+          m_Calls: []
+  - itemType: 5
+    item:
+      itemName: Color
+      itemIcon: {fileID: 0}
+      OnItemSelection:
+        m_PersistentCalls:
+          m_Calls: []
+  - itemType: 6
+    item:
+      itemName: Hot key
       itemIcon: {fileID: 0}
       OnItemSelection:
         m_PersistentCalls:

@@ -188,7 +188,7 @@ public class DataCSVExporter
 
     private string GetNameSaveFile(string _path)
     {
-        var splitStr = Util.SplitString(_path, '/');
+        var splitStr = Util.SplitString(_path, '\\');
         if (splitStr.Length > 0)
             return splitStr[splitStr.Length - 1].Replace(".txt", "");
         return "";

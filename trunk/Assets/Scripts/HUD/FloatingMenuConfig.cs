@@ -6,8 +6,8 @@ using UI.ModernUIPack;
 public enum FloatingMenuType { PANEL, LABEL };
 public enum FloatingMenuItem { TEST, DELETE };
 
-public enum DropdownMenuType { FILE };
-public enum DropdownMenuItem { SAVE, LOAD, IMPORT_CSV, EXPORT_CSV };
+public enum DropdownMenuType { FILE, WINDOW };
+public enum DropdownMenuItem { SAVE, LOAD, IMPORT_CSV, EXPORT_CSV, EXPORT_TRACERY, COLOR, HOT_KEY };
 
 [CreateAssetMenu (fileName = "Data", menuName = "ScriptableObjects/MenuConfig")]
 public class FloatingMenuConfig : ScriptableObject
