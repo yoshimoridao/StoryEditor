@@ -87,10 +87,14 @@ public class DataIndexer
         int findId = -1;
         // find data by title
         if (_isFindByTitle)
-            findId = datas.FindIndex(x => x.title == _key);
+        {
+            findId = datas.FindIndex(x => x.title.ToLower() == _key.ToLower());
+        }
         // find data by generated key
         else
+        {
             findId = datas.FindIndex(x => x.genKey == _key);
+        }
 
         if (findId != -1 && findId < datas.Count)
             return datas[findId];

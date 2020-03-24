@@ -93,6 +93,7 @@ public class DropdownPanelCmd : MonoBehaviour, IFloatingWindow
                 DataMgr.Instance.ExportCSVFile();
                 break;
             case DropdownMenuItem.IMPORT_CSV:
+                DataMgr.Instance.ImportCSVFile();
                 break;
             case DropdownMenuItem.COLOR:
                 ColorMenu.Instance.OnPressColorBtn();

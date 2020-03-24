@@ -72,6 +72,11 @@ public class DataIndex
         if (_id < elements.Count)
             elements.RemoveAt(_id);
     }
+    public void RemoveElements(int _startId, int _count)
+    {
+        if (_startId < elements.Count && _startId + _count <= elements.Count)
+            elements.RemoveRange(_startId, _count);
+    }
     #endregion
 
     // === Testing Index ===

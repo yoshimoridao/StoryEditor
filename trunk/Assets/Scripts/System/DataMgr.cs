@@ -92,14 +92,13 @@ public class DataMgr : Singleton<DataMgr>
 
     private DataStorage dataStorage = new DataStorage();
     private DataIndexer dataIndexer = new DataIndexer();
-    private DataCSVExporter csvExporter = new DataCSVExporter();
+    private DataCSVSupporter csvSupporter = new DataCSVSupporter();
     private bool isModified = true;
     [SerializeField]
     private bool isExportGameSave = false;
 
     // ===== Properties =====
     #region properties
-    public DataIndexer DataIndexer { get { return this.dataIndexer; } }
     public List<DataIndex> Stories { get { return dataIndexer.stories; } }
     public List<DataIndex> Elements { get { return dataIndexer.elements; } }
     public bool IsModified
@@ -259,6 +258,7 @@ public class DataMgr : Singleton<DataMgr>
     // ========================================= PUBLIC FUNCS =========================================
     public void Init()
     {
+        csvSupporter.Init(dataIndexer);
     }
 
     #region export_save_load
@@ -306,12 +306,9 @@ public class DataMgr : Singleton<DataMgr>
         LastLoadFile = path;
 
         dataIndexer.Load(path);
-        // re-load canvas's elements
-        GameMgr.Instance.Load();
 
-        // show notice text && file name
-        NoticeBarMgr.Instance.UpdateFileName();
-        NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_load_done);
+        // trigger event load data done
+        OnLoadDataDone();
     }
 
     public void ExportTraceryFile()
@@ -450,7 +447,27 @@ public class DataMgr : Singleton<DataMgr>
         string path = StandaloneFileBrowser.SaveFilePanel("Export CSV", "", "MySaveFile", "csv");
         // export for excel file
         if (path.Length > 0)
-            csvExporter.ExportCSVFile(path);
+            csvSupporter.Export(path);
+    }
+    public void ImportCSVFile()
+    {
+        var paths = StandaloneFileBrowser.OpenFilePanel("Import CSV", "", "csv", false);
+        // import for excel file
+        if (paths.Length > 0)
+            csvSupporter.Import(paths[0]);
+
+        // trigger event load data done
+        OnLoadDataDone();
+    }
+
+    private void OnLoadDataDone()
+    {
+        // re-load canvas's elements
+        GameMgr.Instance.Load();
+
+        // show notice text && file name
+        NoticeBarMgr.Instance.UpdateFileName();
+        NoticeBarMgr.Instance.ShowNotice(DataDefine.notice_load_done);
     }
     #endregion
 
