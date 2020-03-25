@@ -43,8 +43,6 @@ public class TagEditorWorkSpace : MonoBehaviour, IDragZone
 
     void Start()
     {
-        originColor = rootCont.GetComponent<Image>().color;
-
         groupBtn.onClick.AddListener(delegate { OnSwitchBtnPressed(EditorType.Group); });
         flowBtn.onClick.AddListener(delegate { OnSwitchBtnPressed(EditorType.Flow); });
     }
@@ -59,6 +57,9 @@ public class TagEditorWorkSpace : MonoBehaviour, IDragZone
         if (obj.GetComponent<TagEditorField>())
         {
             IsDragIn = true;
+
+            // store origin color before change highlight color
+            originColor = rootCont.GetComponent<Image>().color;
             rootCont.GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
         }
     }

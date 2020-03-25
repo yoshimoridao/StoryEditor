@@ -48,6 +48,8 @@ public class TagElement : MonoBehaviour, IDragElement
     #region interface
     public void OnDragging()
     {
+        // store origin color before change highlight color
+        originColor = GetComponent<Image>().color;
         GetComponent<Image>().color = DataDefine.highlight_drag_obj_color;
     }
 
@@ -59,7 +61,6 @@ public class TagElement : MonoBehaviour, IDragElement
 
     private void Start()
     {
-        originColor = GetComponent<Image>().color;
     }
 
     private void OnDestroy()

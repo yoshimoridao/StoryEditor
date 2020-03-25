@@ -33,7 +33,6 @@ public class TagEditorField : MonoBehaviour, IDragElement
 
     void Start()
     {
-        originColor = inputField.GetComponent<Image>().color;
     }
 
     void Update()
@@ -45,7 +44,11 @@ public class TagEditorField : MonoBehaviour, IDragElement
     public void OnDragging()
     {
         if (inputField)
+        {
+            // store origin color before change highlight color
+            originColor = inputField.GetComponent<Image>().color;
             inputField.GetComponent<Image>().color = DataDefine.highlight_drag_obj_color;
+        }
     }
 
     public void OnEndDrag()

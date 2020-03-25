@@ -72,7 +72,6 @@ public class TagDeleteZone : MonoBehaviour, IDragZone
             return;
 
         IsDragIn = false;
-        GetComponent<Image>().color = originColor;
 
         if (obj.GetComponent<TagEditorField>())
         {

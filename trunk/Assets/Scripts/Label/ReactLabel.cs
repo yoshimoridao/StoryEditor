@@ -56,8 +56,6 @@ public class ReactLabel : Label, ISelectElement, IDragElement, IDragZone
     #region common
     public void Start()
     {
-        originColor = GetComponent<Image>().color;
-
         base.Start();
     }
 
@@ -91,7 +89,11 @@ public class ReactLabel : Label, ISelectElement, IDragElement, IDragZone
     public override void OnEditDone()
     {
         if (!isEditing || !gameObject.active)
+        {
+            // convert to show text
+            ConvertToShowText();
             return;
+        }
 
         // remove content empty
         if (inputField.text.Length == 0)
@@ -143,6 +145,9 @@ public class ReactLabel : Label, ISelectElement, IDragElement, IDragZone
         if (obj.GetComponent<Panel>() && !Util.IsHoverObj(obj))
         {
             IsDragIn = true;
+
+            // store origin color before change highlight color
+            originColor = GetComponent<Image>().color;
             GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
         }
     }
@@ -174,7 +179,11 @@ public class ReactLabel : Label, ISelectElement, IDragElement, IDragZone
     public void OnDragging()
     {
         if (inputField)
+        {
+            // store origin color before change highlight color
+            originColor = GetComponent<Image>().color;
             inputField.GetComponent<Image>().color = DataDefine.highlight_drag_obj_color;
+        }
     }
 
     public void OnEndDrag()
@@ -187,7 +196,11 @@ public class ReactLabel : Label, ISelectElement, IDragElement, IDragZone
     public void OnSelect()
     {
         if (inputField && !inputField.isFocused)
+        {
+            // store origin color before change highlight color
+            originColor = GetComponent<Image>().color;
             inputField.GetComponent<Image>().color = DataDefine.highlight_select_obj_color;
+        }
     }
 
     public void OnEndSelect()

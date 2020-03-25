@@ -12,7 +12,6 @@ public class PanelSpace : MonoBehaviour, IDragZone
     // ========================================= UNITY FUNCS =========================================
     void Start()
     {
-        originColor = GetComponent<Image>().color;
     }
 
     void Update()
@@ -28,6 +27,9 @@ public class PanelSpace : MonoBehaviour, IDragZone
         if (obj.GetComponent<Panel>() && obj.transform.parent == transform.parent)
         {
             IsDragIn = true;
+
+            // store origin color before change highlight color
+            originColor = GetComponent<Image>().color;
             GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
         }
     }

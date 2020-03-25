@@ -72,8 +72,6 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
             dataIndex.RGBAColor = value;
 
             image.color = RGBAColor;
-            // change origin color
-            originColor = image.color;
         }
     }
     public DataIndexer.DataType DataType { get { return dataType; } }
@@ -117,9 +115,6 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
             rt = GetComponent<RectTransform>();
         if (image == null)
             image = GetComponent<Image>();
-
-        // set origin color
-        originColor = image.color;
     }
 
     public void Update()
@@ -224,7 +219,10 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
         if (obj.GetComponent<Panel>())
         {
             IsDragIn = true;
-            GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
+
+            // store origin color before change highlight color
+            originColor = image.color;
+            image.color = DataDefine.highlight_drop_zone_color;
         }
     }
 
@@ -235,7 +233,7 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
 
         IsDragIn = false;
 
-        GetComponent<Image>().color = originColor;
+        image.color = originColor;
     }
 
     public void OnMouseDrop(GameObject obj)
@@ -244,7 +242,7 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
             return;
 
         IsDragIn = false;
-        GetComponent<Image>().color = originColor;
+        image.color = originColor;
 
         // drag panel to panel
         if (obj.GetComponent<Panel>())
@@ -263,6 +261,8 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
     // === IDragElement ===
     public void OnDragging()
     {
+        // store origin color before change highlight color
+        originColor = image.color;
         image.color = DataDefine.highlight_drag_obj_color;
     }
 
@@ -275,7 +275,11 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
     public void OnSelect()
     {
         if (!titleLabel.Field.isFocused)
+        {
+            // store origin color before change highlight color
+            originColor = image.color;
             image.color = DataDefine.highlight_drag_obj_color;
+        }
     }
 
     public void OnEndSelect()
@@ -334,6 +338,9 @@ public class Panel : MonoBehaviour, ISelectElement, IDragElement, IDragZone
         int findId = labels.FindIndex(x => x.gameObject == _label.gameObject);
         if (findId != -1)
             RemoveLabel(findId);
+
+        // refresh panel
+        RefreshPanelDt();
     }
 
     public void RemoveLabel(int _labelId)

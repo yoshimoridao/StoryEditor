@@ -93,6 +93,18 @@ public class Label : MonoBehaviour
         PureText = _text;
     }
 
+    public void OnEditing()
+    {
+        if (!isEditing && inputField.isFocused)
+            isEditing = true;
+
+        RefreshContentSize();
+
+        // call action func
+        if (actOnEditing != null)
+            actOnEditing();
+    }
+
     public virtual void OnEditDone()
     {
         if (!isEditing || !gameObject.active)
@@ -105,21 +117,6 @@ public class Label : MonoBehaviour
         // call action func
         if (actOnEditDone != null)
             actOnEditDone(this);
-    }
-
-    public void OnEditing()
-    {
-        //if (!contentSize)
-        //    return;
-
-        if (!isEditing && inputField.isFocused)
-            isEditing = true;
-
-        RefreshContentSize();
-
-        // call action func
-        if (actOnEditing != null)
-            actOnEditing();
     }
 
     public virtual void SelfDestroy()

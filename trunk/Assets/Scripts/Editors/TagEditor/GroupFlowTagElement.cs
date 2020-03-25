@@ -33,7 +33,6 @@ public class GroupFlowTagElement : MonoBehaviour, IDragZone
 
     private void Start()
     {
-        originColor = GetComponent<Image>().color;
     }
 
     #region interface
@@ -42,6 +41,9 @@ public class GroupFlowTagElement : MonoBehaviour, IDragZone
         if (obj.GetComponent<TagEditorField>())
         {
             IsDragIn = true;
+
+            // store origin color before change highlight color
+            originColor = GetComponent<Image>().color;
             GetComponent<Image>().color = DataDefine.highlight_drop_zone_color;
         }
     }
