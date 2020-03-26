@@ -54,14 +54,14 @@ MonoBehaviour:
           m_Calls: []
   - itemType: 2
     item:
-      itemName: Import *.csv
+      itemName: Import Loc (*.csv)
       itemIcon: {fileID: 0}
       OnItemSelection:
         m_PersistentCalls:
           m_Calls: []
   - itemType: 3
     item:
-      itemName: Export *.csv
+      itemName: Export Loc (*.csv)
       itemIcon: {fileID: 0}
       OnItemSelection:
         m_PersistentCalls:

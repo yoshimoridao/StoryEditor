@@ -205,10 +205,10 @@ namespace GracesGames.SimpleFileBrowser.Scripts.UI {
             dropDownMenu.ClearOptions();
             List<string> options = new List<string>();
             options.Add("Append Language Tag");
-            for (int i = 0; i < (int)Localization.Language.COUNT; i++)
+            for (int i = 0; i < (int)Localization.LanguageCode.COUNT; i++)
             {
-                Localization.Language lanCode = (Localization.Language)i;
-                options.Add(Localization.GetFullLanguageCode(lanCode));
+                Localization.LanguageCode lanCode = (Localization.LanguageCode)i;
+                options.Add(Localization.GetLanguage(lanCode));
             }
             dropDownMenu.AddOptions(options);
         }
@@ -276,7 +276,7 @@ namespace GracesGames.SimpleFileBrowser.Scripts.UI {
         {
             string languageTag = "";
             if (dropDownMenu.value > 0)
-                languageTag = ((Localization.Language)dropDownMenu.value - 1).ToString();
+                languageTag = ((Localization.LanguageCode)dropDownMenu.value - 1).ToString();
 
             // call back
             if (actOnChangeLanguageTag != null)

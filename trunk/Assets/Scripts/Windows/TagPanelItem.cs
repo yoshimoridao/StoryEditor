@@ -1,21 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EventTag : MonoBehaviour
+public class TagPanelItem : MonoBehaviour
 {
     // effected all elements
     public System.Action<EventTagId> actOnErase;
 
     // effect selected elements
-    public System.Action<EventTag, bool> actOnToggleApply;
+    public System.Action<TagPanelItem, bool> actOnToggleApply;
 
     [SerializeField]
     private Toggle applyToggle;
     
     [SerializeField]
-    private InputField inputField;
+    private TextMeshProUGUI inputField;
 
     [SerializeField]
     private Toggle visibleToggle;
@@ -57,9 +58,7 @@ public class EventTag : MonoBehaviour
             isApply = applyToggle.isOn;
             applyToggle.onValueChanged.AddListener(OnToggleApply);
         }
-        
-        if (inputField)
-            inputField.onEndEdit.AddListener(OnTextValueChanged);
+
         if (visibleToggle)
             visibleToggle.onValueChanged.AddListener(OnToggleVisible);
         if (testToggle)

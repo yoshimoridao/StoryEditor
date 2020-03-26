@@ -61,7 +61,8 @@ public class GameMgr : Singleton<GameMgr>
 
         // init tool bar
         ToolbarMgr.Instance.Init();
-        EventTagMgr.Instance.Init();
+        //EventTagMgr.Instance.Init();
+        TagPanelMgr.Instance.Init();
 
         // init notice bar
         NoticeBarMgr.Instance.Init();
@@ -121,7 +122,8 @@ public class GameMgr : Singleton<GameMgr>
 
         // load tool bar
         ToolbarMgr.Instance.Load();
-        EventTagMgr.Instance.Load();
+        //EventTagMgr.Instance.Load();
+        TagPanelMgr.Instance.Load();
         // load notice bar
         NoticeBarMgr.Instance.Load();
 

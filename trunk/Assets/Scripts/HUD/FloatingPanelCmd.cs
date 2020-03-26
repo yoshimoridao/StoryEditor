@@ -82,9 +82,9 @@ public class FloatingPanelCmd : MonoBehaviour, IFloatingWindow
             {
                 case FloatingMenuItem.TEST:
                     if (e.GetComponent<Panel>())
-                        e.GetComponent<Panel>().IsTesting = true;
+                        e.GetComponent<Panel>().IsTesting = !e.GetComponent<Panel>().IsTesting;
                     if (e.GetComponent<ElementLabel>())
-                        e.GetComponent<ElementLabel>().IsTesting = true;
+                        e.GetComponent<ElementLabel>().IsTesting = !e.GetComponent<ElementLabel>().IsTesting;
                     break;
                 case FloatingMenuItem.DELETE:
                     if (e.GetComponent<Panel>())

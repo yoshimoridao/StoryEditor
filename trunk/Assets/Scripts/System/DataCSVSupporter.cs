@@ -9,15 +9,15 @@ public class DataCSVSupporter
     // Section, String, Character Limit, Speaker > Audience, Context, Termino
     public enum Title { SCT = 0, STR, LIM, SPK, CTX, TRM, COUNT };
     string[] titles = { "SECTION", "STRING_ID", "Character Limit", "Speaker > Audience", "Context", "Termino" };
-    enum Language { EN = 0, FR, ES, DE, PT, RU, TH, TR, AR, ID, IT, COUNT };
-    string[] languages = { "English", "French", "Spanish", "German", "Portuguese", "Russian", "Thai", "Turkish", "Arabic", "Indonesian", "Italian" };
 
     // constant
     const int characterLimit = 120;
-    DataIndexer dataIndexer;
+    private DataIndexer dataIndexer;
 
     // localization (pair: data_key -> elements -> localizations)
-    Dictionary<DataIndex, List<List<string>>> loc = new Dictionary<DataIndex, List<List<string>>>();
+    private Dictionary<DataIndex, List<List<string>>> loc = new Dictionary<DataIndex, List<List<string>>>();
+
+    public bool IsLocAvailable { get { return loc.Count > 0; } }
 
     // ========================================= UNITY FUNCS =========================================
     public void Init(DataIndexer _dataIndexer)
@@ -94,7 +94,7 @@ public class DataCSVSupporter
                 var val = exportData.elements[j];
 
                 // traverse each columns
-                int columns = (int)Title.COUNT + (int)Language.EN;
+                int columns = (int)Title.COUNT + (int)Localization.LanguageCode.EN;
                 for (int col = 0; col <= columns; col++)
                 {
                     // title
@@ -151,10 +151,9 @@ public class DataCSVSupporter
                     AddField(ref _cont, r == 0 ? titles[col] : "[" + ((Title)col).ToString() + "]");
             }
             // add languages
-            for (int col = 0; col < (int)Language.COUNT; col++)
+            for (int col = 0; col < (int)Localization.LanguageCode.COUNT; col++)
             {
-                if (col < languages.Length)
-                    AddField(ref _cont, r == 0 ? languages[col] : "[" + ((Language)col).ToString() + "]");
+                AddField(ref _cont, r == 0 ? Localization.GetLanguage(col) : "[" + ((Localization.LanguageCode)col).ToString() + "]");
             }
             BreakDown(ref _cont);
         }
@@ -196,6 +195,9 @@ public class DataCSVSupporter
     // import for excel file
     public void Import(string _path)
     {
+        // clear all LOC before import new LOC
+        loc.Clear();
+
         if (_path.Length == 0 || !File.Exists(_path))
             return;
 
@@ -241,8 +243,8 @@ public class DataCSVSupporter
             {
                 // add element's value
                 List<string> locVal = new List<string>();
-                int startId = (int)(Title.COUNT) + (int)(Language.EN);
-                for (int j = startId; j < (int)(startId + Language.COUNT); j++)
+                int startId = (int)(Title.COUNT) + (int)(Localization.LanguageCode.EN);
+                for (int j = startId; j < (int)(startId + Localization.LanguageCode.COUNT); j++)
                 {
                     fieldVal = GetFieldValue(fields, j);
                     // if null for english
@@ -286,11 +288,11 @@ public class DataCSVSupporter
             int neededElemnts = elemnts.Count;
             for (int j = 0; j < elemnts.Count; j++)
             {
-                if (elemnts[j].Count <= (int)Language.EN)
+                if (elemnts[j].Count <= (int)Localization.LanguageCode.EN)
                     continue;
 
                 // get value for English language
-                string eVal = elemnts[j][(int)Language.EN];
+                string eVal = elemnts[j][(int)Localization.LanguageCode.EN];
 
                 // substring into small texts for Story
                 if (readingDataType == DataIndexer.DataType.Story)

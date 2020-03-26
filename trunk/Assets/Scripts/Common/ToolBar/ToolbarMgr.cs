@@ -3,22 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using UI.ModernUIPack;
 
 public class ToolbarMgr : Singleton<ToolbarMgr>
 {
     public FontSizeButton fontSizeButton;
-    public Dropdown languageDropdown;
+    public UICustomDropdown languageDropdown;
 
-    // drop down
-    private List<Localization.Language> lanCodeIds = new List<Localization.Language>();
-    private int curLanguageId = -1;
-
-    // path without Lan Code
-    private string lastPathWithoutLan = "";
-    private string nextLocFilePath = "";
-
-    [SerializeField]
-    private Button changeTagEditorBtn;
+    private Localization.LanguageCode curLanguage = Localization.LanguageCode.EN;
 
     public void Awake()
     {
@@ -31,30 +23,29 @@ public class ToolbarMgr : Singleton<ToolbarMgr>
 
     void Update()
     {
-        
+
     }
 
     // ==================================== PUBLIC ====================================
     public void Init()
     {
-        fontSizeButton.Init();
+        //fontSizeButton.Init();
 
-        if (languageDropdown)
-        {
-            languageDropdown.ClearOptions();
+        //if (languageDropdown)
+        //{
+        //    // clear all items of dropdown menu
+        //    languageDropdown.ClearAllItems();
 
-            // set default language for drop down (is English)
-            List<string> defaultVal = new List<string>();
-            defaultVal.Add(Localization.GetFullLanguageCode(Localization.Language.En));
-            languageDropdown.AddOptions(defaultVal);
+        //    //// create default english language
+        //    //languageDropdown.SetItemTitle(Localization.GetLanguage(curLanguage));
+        //    //languageDropdown.CreateNewItem();
+        //    //languageDropdown.SetupDropdown();
 
-            lanCodeIds.Add(Localization.Language.En);
-            curLanguageId = 0;
-        }
+        //    // register event for drop down
+        //    languageDropdown.dropdownEvent.AddListener(OnChangeLanguageVal);
+        //}
 
-        // register button event
-        //if (changeTagEditorBtn != null)
-        //    changeTagEditorBtn.onClick.AddListener(OnChangeTagEditorBtnPress);
+        Load();
     }
 
     public void Load()
@@ -64,97 +55,40 @@ public class ToolbarMgr : Singleton<ToolbarMgr>
         RefreshDropDownVals();
     }
 
-    public void OnChangeLanguageVal()
-    {
-        if (languageDropdown.value != curLanguageId)
-        {
-            curLanguageId = languageDropdown.value;
-
-            if (lastPathWithoutLan.Length == 0 || curLanguageId >= lanCodeIds.Count)
-                return;
-
-            string loadPath = lastPathWithoutLan + "_" + lanCodeIds[curLanguageId].ToString() + ".txt";
-            if (File.Exists(loadPath))
-            {
-                // save loaded file
-                //DataMgr.Instance.LastLoadFile = loadPath;
-                nextLocFilePath = loadPath;
-
-                PopupMgr.Instance.ShowPopup(PopupMgr.PopupType.CHANGELANGUAGE, LoadNextLocFile);
-            }
-        }
-    }
-
-    public void LoadNextLocFile()
-    {
-        if (nextLocFilePath.Length > 0)
-        {
-            //DataMgr.Instance.Load(nextLocFilePath);
-            nextLocFilePath = "";
-        }
-    }
-
     private void RefreshDropDownVals()
     {
-        if (languageDropdown && File.Exists(DataMgr.Instance.LastLoadFile))
+        if (languageDropdown)
         {
-            var splitVal = DataMgr.Instance.LastLoadFile.Split('\\');
-            if (splitVal.Length == 0)
-                return;
-
-            string loadFile = splitVal[splitVal.Length - 1];
-            string loadPath = DataMgr.Instance.LastLoadFile.Replace(loadFile, "");      // loaded path
-
-            var tmpVals = loadFile.Split('_');
-
-            List<Localization.Language> tmpLans = new List<Localization.Language>();  // list contain options of drop down menu
-            int tmpLanId = -1;
-
-            if (tmpVals.Length > 1)
+            int endLanCode = (DataMgr.Instance.IsLocAvailable) ? (int)Localization.LanguageCode.COUNT : (int)(Localization.LanguageCode.EN + 1);
+            List<string> lanItems = new List<string>();
+            for (int i = 0; i < endLanCode; i++)
             {
-                // remove "_<lancode>.txt" part of file path
-                string curLancode = tmpVals[tmpVals.Length - 1].Replace(".txt", "");    // current language code
-                loadFile = tmpVals[tmpVals.Length - 2];             // loaded file (already remove lan code)
-
-                // store path without language code
-                lastPathWithoutLan = loadPath + loadFile;
-
-                for (int i = 0; i < (int)Localization.Language.COUNT; i++)
-                {
-                    string tmpLanCode = ((Localization.Language)i).ToString();
-                    string tmpFile = loadPath + (loadFile + "_" + tmpLanCode + ".txt");
-                    if (File.Exists(tmpFile))
-                    {
-                        if (tmpLanCode == curLancode)
-                            tmpLanId = tmpLans.Count;
-                        tmpLans.Add((Localization.Language)i);
-                    }
-                }
+                string lanItem = Localization.GetLanguage(i);
+                if (lanItem.Length > 0)
+                    lanItems.Add(lanItem);
             }
 
-            // default with english language
-            if (tmpLans.Count == 0)
+            // clear all items of drop down
+            languageDropdown.ClearAllItems();
+            foreach (string item in lanItems)
             {
-                tmpLans.Add(Localization.Language.En);
-                tmpLanId = 0;
-                lastPathWithoutLan = "";
+                languageDropdown.SetItemTitle(item);
+                languageDropdown.CreateNewItem();
             }
-
-            // store option && cur option
-            lanCodeIds = new List<Localization.Language>(tmpLans);
-            curLanguageId = tmpLanId;
-
-            // add options for drop down menu
-            languageDropdown.ClearOptions();
-            List<string> options = new List<string>();
-            foreach (var lancode in lanCodeIds)
-                options.Add(Localization.GetFullLanguageCode(lancode));
-            languageDropdown.AddOptions(options);
-
-            languageDropdown.value = curLanguageId;
+            languageDropdown.SetupDropdown();
         }
     }
 
+    // === Button Event ===
+    public void OnChangeLanguageVal(int _index)
+    {
+        if (_index != (int)curLanguage)
+        {
+            curLanguage = (Localization.LanguageCode)_index;
+
+
+        }
+    }
     // === Button Event ===
     public void OnChangeTagEditorBtnPress()
     {

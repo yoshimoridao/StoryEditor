@@ -80,7 +80,7 @@ public class TagEditorWorkSpace : MonoBehaviour, IDragZone
             return;
 
         IsDragIn = false;
-        GetComponent<Image>().color = originColor;
+        rootCont.GetComponent<Image>().color = originColor;
 
         if (obj.GetComponent<TagEditorField>())
         {

@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EventTagMgr : Singleton<EventTagMgr>
+public class TagPanelMgr : Singleton<TagPanelMgr>
 {
     // tag menu
     [SerializeField] private Transform tagMenu;
     [SerializeField] private Transform contTrans;
-    [SerializeField] private EventTag prefEventTag;
-    [SerializeField] private Button addTagBtn;
+    [SerializeField] private TagPanelItem prefTagItem;
     // tag objects've generated
-    private List<EventTag> eventTags = new List<EventTag>();
+    private List<TagPanelItem> eventTags = new List<TagPanelItem>();
 
     // these label're selected
     private List<Label> selectLabels = new List<Label>();
@@ -32,6 +31,19 @@ public class EventTagMgr : Singleton<EventTagMgr>
 
     void Start()
     {
+        // destroy child objs
+        for (int i = 0; i < contTrans.childCount; i++)
+            Destroy(contTrans.GetChild(i).gameObject);
+
+        // register button event
+        if (selectTestBtn)
+            selectTestBtn.onValueChanged.AddListener(OnToggleSelectTest);
+        if (tagTestBtn)
+            tagTestBtn.onValueChanged.AddListener(OnToggleTagTest);
+        if (groupTestBtn)
+            groupTestBtn.onValueChanged.AddListener(OnToggleGroupTest);
+        if (grammarTestBtn)
+            grammarTestBtn.onValueChanged.AddListener(OnToggleGrammarTest);
     }
 
     void Update()
@@ -46,11 +58,6 @@ public class EventTagMgr : Singleton<EventTagMgr>
 
     private void OnDestroy()
     {
-        if (addTagBtn)
-        {
-            addTagBtn.onClick.RemoveListener(AddNewEventTag);
-        }
-
         // unregister events
         if (CursorMgr.Instance && CursorMgr.Instance.actOnRefreshSelectedObjs != null)
             CursorMgr.Instance.actOnRefreshSelectedObjs -= OnRefreshSelectLabels;
@@ -64,12 +71,6 @@ public class EventTagMgr : Singleton<EventTagMgr>
         if (CursorMgr.Instance)
             CursorMgr.Instance.actOnRefreshSelectedObjs += OnRefreshSelectLabels;
 
-        // add event button
-        if (addTagBtn)
-        {
-            addTagBtn.onClick.AddListener(AddNewEventTag);
-        }
-
         Load();
     }
 
@@ -82,37 +83,31 @@ public class EventTagMgr : Singleton<EventTagMgr>
         List<EventTagId> tagIds = DataMgr.Instance.GetEventTags();
 
         // destroy template and get add btn
-        if (contTrans)
+        int turn = Mathf.Max(eventTags.Count, tagIds.Count);
+        for (int i = 0; i < tagIds.Count; i++)
         {
-            int turn = Mathf.Max(eventTags.Count, tagIds.Count);
-            for (int i = 0; i < tagIds.Count; i++)
+            EventTagId tagId = tagIds[i];
+            // generate new tag
+            if (i >= eventTags.Count)
             {
-                EventTagId tagId = tagIds[i];
-                // generate new tag
-                if (i >= eventTags.Count)
-                {
-                    GenNewEventTag(tagId);
-                }
-                // re-use existed tag
-                else
-                {
-                    eventTags[i].Init(tagId);
-                }
+                GenNewEventTag(tagId);
             }
-
-            // remove surplus tags
-            if (tagIds.Count < eventTags.Count)
+            // re-use existed tag
+            else
             {
-                for (int i = tagIds.Count; i < eventTags.Count; i++)
-                {
-                    // if remove event tag success
-                    if (RemoveEventTag(i))
-                        i--;
-                }
+                eventTags[i].Init(tagId);
             }
+        }
 
-            // refresh position of add btn
-            RefreshAddBtnPos();
+        // remove surplus tags
+        if (tagIds.Count < eventTags.Count)
+        {
+            for (int i = tagIds.Count; i < eventTags.Count; i++)
+            {
+                // if remove event tag success
+                if (RemoveEventTag(i))
+                    i--;
+            }
         }
     }
 
@@ -133,19 +128,6 @@ public class EventTagMgr : Singleton<EventTagMgr>
         {
             tagMenu.gameObject.SetActive(_isActive);
         }
-    }
-
-    public void AddNewEventTag()
-    {
-        // gen new tag in data mgr
-        EventTagId newTagId = DataMgr.Instance.AddEventTag(DataDefine.default_event_tag_value);
-
-        GenNewEventTag(newTagId);
-        // refresh position of add btn
-        RefreshAddBtnPos();
-
-        // refresh canvas
-        GameMgr.Instance.RefreshCanvas();
     }
 
     public void OnEraseBtnPress(EventTagId _tagId)
@@ -186,7 +168,7 @@ public class EventTagMgr : Singleton<EventTagMgr>
             {
                 for (int i = 0; i < eventTags.Count; i++)
                 {
-                    EventTag tmpEventTag = eventTags[i];
+                    TagPanelItem tmpEventTag = eventTags[i];
                     if (tmpEventTag.TagId == null)
                         continue;
 
@@ -203,11 +185,10 @@ public class EventTagMgr : Singleton<EventTagMgr>
             return;
 
         // gen new tag object
-        EventTag genEventTag = Instantiate(prefEventTag.gameObject, contTrans).GetComponent<EventTag>();
+        TagPanelItem genEventTag = Instantiate(prefTagItem.gameObject, contTrans).GetComponent<TagPanelItem>();
         genEventTag.Init(_eventTagId);
 
         // register events
-        genEventTag.actOnErase += OnEraseBtnPress;
         genEventTag.actOnToggleApply += OnToggleApplyTag;
 
         eventTags.Add(genEventTag);
@@ -218,7 +199,7 @@ public class EventTagMgr : Singleton<EventTagMgr>
         if (_index < eventTags.Count)
         {
             // destroy and remove out of mgr list
-            EventTag eventTag = eventTags[_index];
+            TagPanelItem eventTag = eventTags[_index];
             // un-register action
             if (eventTag.actOnErase != null)
                 eventTag.actOnErase -= OnEraseBtnPress;
@@ -234,15 +215,9 @@ public class EventTagMgr : Singleton<EventTagMgr>
         return false;
     }
 
-    private void RefreshAddBtnPos()
-    {
-        // refresh position of add btn
-        addTagBtn.transform.SetAsLastSibling();
-    }
-
     // === Apply tag ===
     #region event
-    public void OnToggleApplyTag(EventTag _eventTag, bool _isActive)
+    public void OnToggleApplyTag(TagPanelItem _eventTag, bool _isActive)
     {
         int findId = eventTags.FindIndex(x => x.gameObject == _eventTag.gameObject);
 
@@ -257,13 +232,10 @@ public class EventTagMgr : Singleton<EventTagMgr>
         }
     }
 
-    public void OnToggleTagMenu(RectTransform _snailPos)
+    public void OnToggleTagMenu()
     {
         // set position window
         bool isActive = !IsActive();
-
-        if (isActive)
-            tagMenu.transform.position = _snailPos.position;
 
         SetActiveWindow(isActive);
     }

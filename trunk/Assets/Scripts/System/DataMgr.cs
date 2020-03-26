@@ -101,15 +101,9 @@ public class DataMgr : Singleton<DataMgr>
     #region properties
     public List<DataIndex> Stories { get { return dataIndexer.stories; } }
     public List<DataIndex> Elements { get { return dataIndexer.elements; } }
-    public bool IsModified
-    {
-        get { return isModified; }
-    }
-
-    public bool IsExportGameSave
-    {
-        set { isExportGameSave = value; }
-    }
+    public bool IsModified { get { return isModified; } }
+    public bool IsExportGameSave { set { isExportGameSave = value; } }
+    public bool IsLocAvailable { get { return csvSupporter.IsLocAvailable; } }
 
     public bool IsRandomTest
     {

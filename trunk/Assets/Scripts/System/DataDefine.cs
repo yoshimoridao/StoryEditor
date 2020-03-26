@@ -61,4 +61,5 @@ public class DataDefine
     public static Color highlight_drop_zone_color = new Color(33 / 255.0f, 40 / 255.0f, 144 / 255.0f, 1.0f);
     public static Color highlight_drag_obj_color = new Color(214 / 255.0f, 219 / 255.0f, 32 / 255.0f, 1.0f);
     public static Color highlight_select_obj_color = new Color(0 / 255.0f, 0 / 255.0f, 0 / 255.0f, 130 / 255.0f);
+    public static Color highlight_disable_field_color = new Color(130 / 255.0f, 130 / 255.0f, 130 / 255.0f, 1.0f);
 }
