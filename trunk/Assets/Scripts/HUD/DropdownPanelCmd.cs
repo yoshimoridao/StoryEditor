@@ -101,6 +101,9 @@ public class DropdownPanelCmd : MonoBehaviour, IFloatingWindow
             case DropdownMenuItem.HOT_KEY:
                 DisplayMgr.Instance.ShowInfoPanel(true);
                 break;
+            case DropdownMenuItem.EXIT:
+                GameMgr.Instance.ExitApp();
+                break;
             default:
                 break;
         }

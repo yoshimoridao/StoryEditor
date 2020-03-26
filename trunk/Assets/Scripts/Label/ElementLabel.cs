@@ -7,7 +7,7 @@ using System;
 
 public class ElementLabel : ReactLabel
 {
-    public Image hlTesting;
+    public GameObject hlTesting;
 
     // ========================================= PROPERTIES =========================================
     public bool IsTesting
@@ -26,7 +26,7 @@ public class ElementLabel : ReactLabel
             dataIndex.isTest = value;
 
             if (hlTesting)
-                hlTesting.gameObject.SetActive(value);
+                hlTesting.SetActive(value);
         }
     }
 

@@ -4,10 +4,10 @@ using UnityEngine;
 using UI.ModernUIPack;
 
 public enum FloatingMenuType { PANEL, LABEL };
-public enum FloatingMenuItem { TEST, DELETE };
+public enum FloatingMenuItem { TEST, NONTEST, DELETE };
 
 public enum DropdownMenuType { FILE, WINDOW };
-public enum DropdownMenuItem { SAVE, LOAD, IMPORT_CSV, EXPORT_CSV, EXPORT_TRACERY, COLOR, HOT_KEY };
+public enum DropdownMenuItem { SAVE, LOAD, IMPORT_CSV, EXPORT_CSV, EXPORT_TRACERY, COLOR, HOT_KEY, EXIT };
 
 [CreateAssetMenu (fileName = "Data", menuName = "ScriptableObjects/MenuConfig")]
 public class FloatingMenuConfig : ScriptableObject
@@ -54,6 +54,11 @@ public class FloatingMenuConfig : ScriptableObject
     }
 
     #region getter/ setter
+    public FloatingItem GetFloatingItem(FloatingMenuItem _type)
+    {
+        return floatingItems.Find(x => x.itemType == _type);
+    }
+
     public List<FloatingItem> GetFloatingItems(FloatingMenuType _type)
     {
         FloatingMenu menu = floatingMenus.Find(x => x.menu == _type);

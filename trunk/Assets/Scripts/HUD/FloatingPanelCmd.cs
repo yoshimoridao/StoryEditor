@@ -6,6 +6,9 @@ using UI.ModernUIPack;
 
 public class FloatingPanelCmd : MonoBehaviour, IFloatingWindow
 {
+    [SerializeField]
+    private FloatingMenuConfig menuConfig;
+
     UICustomDropdown dropdown;
 
     List<FloatingMenuConfig.FloatingItem> floatingItems = new List<FloatingMenuConfig.FloatingItem>();
@@ -36,6 +39,9 @@ public class FloatingPanelCmd : MonoBehaviour, IFloatingWindow
 
     public void ActiveWindow(List<FloatingMenuConfig.FloatingItem> _items, List<GameObject> _selectObjs)
     {
+        // clear all item of drop down
+        dropdown.ClearAllItems();
+
         // store obj
         selectedObjs = _selectObjs;
         floatingItems = _items;
@@ -43,8 +49,17 @@ public class FloatingPanelCmd : MonoBehaviour, IFloatingWindow
         // setup drop down
         foreach (var item in floatingItems)
         {
-            dropdown.SetItemTitle(item.item.itemName);
-            dropdown.SetItemIcon(item.item.itemIcon);
+            FloatingMenuConfig.FloatingItem floatingItem = item;
+            // get item only for TEST || NON-TEST mode
+            if (item.itemType == FloatingMenuItem.TEST && selectedObjs.Count > 0)
+            {
+                floatingItem = GetItemOnlyTestMode(item, selectedObjs[0]);
+            }
+
+            // create new item for drop down
+            dropdown.SetItemTitle(floatingItem.item.itemName);
+            dropdown.SetItemIcon(floatingItem.item.itemIcon);
+            dropdown.CreateNewItem();
         }
         dropdown.SetupDropdown();
 
@@ -53,6 +68,20 @@ public class FloatingPanelCmd : MonoBehaviour, IFloatingWindow
             dropdown.Animate();
             isActiveWindow = true;
         }
+    }
+
+    private FloatingMenuConfig.FloatingItem GetItemOnlyTestMode(FloatingMenuConfig.FloatingItem _item, GameObject _obj)
+    {
+        bool isTest = false;
+        FloatingMenuItem option = _item.itemType;
+
+        if (_obj.GetComponent<Panel>())
+            isTest = _obj.GetComponent<Panel>().IsTesting;
+        else if (_obj.GetComponent<ElementLabel>())
+            isTest = _obj.GetComponent<ElementLabel>().IsTesting;
+        option = isTest ? FloatingMenuItem.NONTEST : FloatingMenuItem.TEST;
+
+        return menuConfig.GetFloatingItem(option);
     }
 
     public void DeactiveWindow()

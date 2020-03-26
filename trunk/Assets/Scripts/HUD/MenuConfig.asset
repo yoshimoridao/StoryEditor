@@ -14,23 +14,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   floatingMenus:
   - menu: 0
-    items: 0000000001000000
+    items: 0000000002000000
   - menu: 1
-    items: 0000000001000000
+    items: 0000000002000000
   dropdownMenus:
   - menu: 0
-    items: 0000000001000000040000000200000003000000
+    items: 000000000100000004000000020000000300000007000000
   - menu: 1
     items: 0500000006000000
   floatingItems:
   - itemType: 0
     item:
       itemName: Test
-      itemIcon: {fileID: 21300000, guid: c07549e02a2d55049906af989d15fe22, type: 3}
+      itemIcon: {fileID: 21300000, guid: 9df0f4d8c02014347ad2d7de427e0ced, type: 3}
       OnItemSelection:
         m_PersistentCalls:
           m_Calls: []
   - itemType: 1
+    item:
+      itemName: Non-Test
+      itemIcon: {fileID: 21300000, guid: c07549e02a2d55049906af989d15fe22, type: 3}
+      OnItemSelection:
+        m_PersistentCalls:
+          m_Calls: []
+  - itemType: 2
     item:
       itemName: Delete
       itemIcon: {fileID: 21300000, guid: 8c998213d53883d4b8fdf7a3eb3c2909, type: 3}
@@ -83,6 +90,13 @@ MonoBehaviour:
   - itemType: 6
     item:
       itemName: Hot key
+      itemIcon: {fileID: 0}
+      OnItemSelection:
+        m_PersistentCalls:
+          m_Calls: []
+  - itemType: 7
+    item:
+      itemName: Exit
       itemIcon: {fileID: 0}
       OnItemSelection:
         m_PersistentCalls:
