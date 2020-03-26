@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class TagEditorFieldCont : Singleton<TagEditorFieldCont>
 {
+    [SerializeField]
+    private RectTransform panelviewRt;
+
     private GameObject prefTagEditorField;
     [SerializeField]
     private Transform transCont;
@@ -64,6 +67,15 @@ public class TagEditorFieldCont : Singleton<TagEditorFieldCont>
         }
 
         Load();
+
+        // scale height for all ratio
+        float canvasHeight = (GameMgr.Instance.CurEditor as RectTransform).sizeDelta.y;
+
+        RectTransform rt = transform as RectTransform;
+        rt.sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
+        // scale height for panel's view
+        if (panelviewRt)
+            panelviewRt.sizeDelta = new Vector2(panelviewRt.sizeDelta.x, (panelviewRt.sizeDelta.y / 1080) * canvasHeight);
     }
 
     public void Load()

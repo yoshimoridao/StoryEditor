@@ -9,7 +9,7 @@ public class TagEditorWorkSpace : MonoBehaviour, IDragZone
     [SerializeField]
     private Transform transCont;
     [SerializeField]
-    private Transform rootCont;
+    private RectTransform rootCont;
 
     [SerializeField]
     private GameObject prefTagGroupPanel;
@@ -101,6 +101,14 @@ public class TagEditorWorkSpace : MonoBehaviour, IDragZone
             Destroy(transCont.GetChild(i).gameObject);
 
         Load();
+
+        // scale height for all ratio
+        float canvasHeight = (GameMgr.Instance.CurEditor as RectTransform).sizeDelta.y;
+        
+        rt.sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
+        // scale height for panel's view
+        if (rootCont)
+            (rootCont as RectTransform).sizeDelta = new Vector2(rootCont.sizeDelta.x, (rootCont.sizeDelta.y / 1080) * canvasHeight);
     }
 
     public void Load()

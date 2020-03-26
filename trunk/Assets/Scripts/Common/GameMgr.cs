@@ -32,7 +32,7 @@ public class GameMgr : Singleton<GameMgr>
 
     public Transform CurEditor
     {
-        get { return cvStoryEditor; }
+        get { return curEditor; }
     }
 
     // ========================================= UNITY FUNCS =========================================
