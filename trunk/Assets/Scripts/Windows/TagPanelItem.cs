@@ -14,7 +14,7 @@ public class TagPanelItem : MonoBehaviour
 
     [SerializeField]
     private Toggle applyToggle;
-    
+
     [SerializeField]
     private TextMeshProUGUI inputField;
 
@@ -38,12 +38,17 @@ public class TagPanelItem : MonoBehaviour
     // --- apply ---
     public bool IsApplyTag
     {
+        get { return isApply; }
         set
         {
             isApply = value;
             applyToggle.isOn = isApply;
         }
     }
+
+    public Toggle VisibleToggle { get { return visibleToggle; } }
+    public bool IsVisible { get { return visibleToggle.isOn; } }
+
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
     {
@@ -91,6 +96,11 @@ public class TagPanelItem : MonoBehaviour
         // call back event
         if (actOnToggleApply != null && tagId != null)
             actOnToggleApply.Invoke(this, isApply);
+    }
+
+    public void ToggleVisible(bool _val)
+    {
+        visibleToggle.isOn = _val;
     }
 
     // --- apply all btns ---
