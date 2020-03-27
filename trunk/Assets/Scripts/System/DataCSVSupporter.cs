@@ -80,17 +80,16 @@ public class DataCSVSupporter
 
                 if (tmpElement != null)
                     dataExportGame.elements.Add(tmpElement);
+
+                // add pronouns row for story contain [Pronoun]
+                if (dataType == DataIndexer.DataType.Story)
+                    AddPronounRowForStory(dataExportGame, tmpElement);
             }
         }
 
         string output = "";
         // add header for row 1,2
         AddHeaderR1_2(ref output);
-
-        int titleCol = (int)Title.COUNT;
-        int lanCol = (int)Localization.LanguageCode.COUNT;
-        int appendCol = (int)AppendTitle.COUNT;
-        int columns = titleCol + lanCol + appendCol;
 
         // add elements's value (from row 4,...)
         for (int i = 0; i < dataExportGame.elements.Count; i++)
@@ -103,47 +102,13 @@ public class DataCSVSupporter
             BreakDown(ref output);
 
             // --- add VAL
-            // traverse each rows (value of element)
-            for (int j = 0; j < exportData.elements.Count; j++)
-            {
-                var val = exportData.elements[j];
+            // append reference value of story (-1 for first title)
+            string referStoryVal = "";
+            if (i >= 1 && (i - 1) < referStoryVals.Count)
+                referStoryVal = referStoryVals[i - 1];
 
-                // traverse each columns
-                for (int col = 0; col < columns; col++)
-                {
-                    // title
-                    if (col == (int)Title.STR)
-                    {
-                        string fieldVal = dataTitle;
-                        // skip plus index for fist story title
-                        if (i != 0)
-                            fieldVal += "_" + ((j + 1) <= 9 ? "0" : "") + (j + 1).ToString();
-                        AddField(ref output, fieldVal);
-                    }
-                    // character limit
-                    else if (col == (int)Title.LIM)
-                    {
-                        AddField(ref output, characterLimit.ToString());
-                    }
-                    // english field
-                    else if (col == titleCol + (int)Localization.LanguageCode.EN)
-                    {
-                        AddField(ref output, ReplaceTitleOfHashKey(val));
-                    }
-                    // append title (reference)
-                    else if (col == titleCol + lanCol + (int)AppendTitle.RFN)
-                    {
-                        // append reference value of story (-1 for first title)
-                        if (i >= 1 && (i - 1) < referStoryVals.Count)
-                            AddField(ref output, referStoryVals[i - 1]);
-                    }
-                    else
-                    {
-                        AddEmptyField(ref output, 1);
-                    }
-                }
-                BreakDown(ref output);
-            }
+            // traverse each rows (value of element)
+            FillValForEachColumns(ref output, exportData, dataTitle, (i != 0), referStoryVal);
         }
 
         // --- Save ---
@@ -158,6 +123,132 @@ public class DataCSVSupporter
             writer.Write(output);
             writer.Close();
         }
+    }
+
+    private void FillValForEachColumns(ref string output, DataMgr.ElementExportGame exportData, string dataTitle, bool isAddNumbSuffix, string referStoryVal)
+    {
+        int titleCol = (int)Title.COUNT;
+        int lanCol = (int)Localization.LanguageCode.COUNT;
+        int appendCol = (int)AppendTitle.COUNT;
+        int columns = titleCol + lanCol + appendCol;
+
+        for (int j = 0; j < exportData.elements.Count; j++)
+        {
+            var val = exportData.elements[j];
+
+            // traverse each columns
+            for (int col = 0; col < columns; col++)
+            {
+                // title
+                if (col == (int)Title.STR)
+                {
+                    string fieldVal = dataTitle;
+                    // skip plus index for first story title
+                    if (isAddNumbSuffix)
+                        fieldVal += "_" + ((j + 1) <= 9 ? "0" : "") + (j + 1).ToString();
+                    AddField(ref output, fieldVal);
+                }
+                // character limit
+                else if (col == (int)Title.LIM)
+                {
+                    AddField(ref output, characterLimit.ToString());
+                }
+                // english field
+                else if (col == titleCol + (int)Localization.LanguageCode.EN)
+                {
+                    AddField(ref output, ReplaceTitleOfHashKey(val));
+                }
+                // append title (reference)
+                else if (col == titleCol + lanCol + (int)AppendTitle.RFN)
+                {
+                    // append reference value of story (-1 for first title)
+                    if (referStoryVal.Length > 0 && j == 0)
+                        AddField(ref output, referStoryVal);
+                }
+                else
+                {
+                    AddEmptyField(ref output, 1);
+                }
+            }
+            BreakDown(ref output);
+        }
+    }
+    private void AddPronounRowForStory(DataMgr.DataExportGame _dataExport, DataMgr.ElementExportGame _eExport)
+    {
+        if (_eExport == null || _eExport.elements.Count == 0)
+            return;
+
+        string rootExportVal = _eExport.elements[0];
+        DataIndexer.DataType dataType;
+        var pronounData = DataMgr.Instance.FindData("Pronoun", true, out dataType);
+        if (pronounData == null || !rootExportVal.Contains(pronounData.genKey))
+            return;
+
+        string markStr = "++" + pronounData.genKey + "++"; // ++key++
+
+        // Replace all #key# to mark key "++key++id"
+        string pattern = "#" + pronounData.genKey + "#";
+        int refCount = 0;
+        int traverseId = 0;
+        while ((traverseId = rootExportVal.IndexOf(pattern, traverseId)) != -1)
+        {
+            string tmpMark = markStr + refCount;
+            // replace key "#key# by mark "++key++id"
+            rootExportVal = rootExportVal.Remove(traverseId, pattern.Length).Insert(traverseId, tmpMark);
+            traverseId += tmpMark.Length;
+            refCount++;
+        }
+        // replace #key# to result [value]
+        rootExportVal = ReplaceTitleOfHashKey(rootExportVal);
+
+        // Gen vals for each Pronoun
+        List<int> indexes = new List<int>();
+        for (int i = 0; i < refCount; i++)
+            indexes.Add(0);
+        traverseId = indexes.Count - 1;
+
+        int eCount = pronounData.elements.Count;
+        int loopTurn = Mathf.FloorToInt(Mathf.Pow(eCount, refCount));
+        for (int i = 0; i < loopTurn; i++)
+        {
+            // gen export data
+            string cloneExportVal = rootExportVal;
+            for (int j = 0; j < refCount; j++)
+            {
+                int eId = indexes[j];
+                string eValue = pronounData.elements[eId].value;
+                // replace ++key++id -> element's value
+                cloneExportVal = cloneExportVal.Replace(markStr + j.ToString(), eValue);
+            }
+            _eExport.elements.Add(cloneExportVal);
+
+            // update id
+            for (int j = indexes.Count - 1; j >= 0; j--)
+            {
+                indexes[j]++;
+                if (indexes[j] >= eCount)
+                {
+                    indexes[j] = 0;
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+    private int CountStringOccurrences(string text, string pattern)
+    {
+        // Loop through all instances of the string 'text'.
+        int count = 0;
+        int i = 0;
+        while ((i = text.IndexOf(pattern, i)) != -1)
+        {
+            i += pattern.Length;
+            count++;
+        }
+        return count;
     }
 
     private void AddHeaderR1_2(ref string _cont)
