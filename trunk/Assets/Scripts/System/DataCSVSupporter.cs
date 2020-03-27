@@ -10,6 +10,9 @@ public class DataCSVSupporter
     public enum Title { SCT = 0, STR, LIM, SPK, CTX, TRM, COUNT };
     string[] titles = { "SECTION", "STRING_ID", "Character Limit", "Speaker > Audience", "Context", "Termino" };
 
+    public enum AppendTitle { RFN, COUNT };
+    string[] appendTitles = { "Reference" };
+
     // constant
     const int characterLimit = 120;
     private DataIndexer dataIndexer;
@@ -37,6 +40,9 @@ public class DataCSVSupporter
         string storyTitle = GetNameSaveFile(_path);
         dataExportGame.elements.Add(new DataMgr.ElementExportGame("Story_Title", storyTitle));
 
+        // list reference value of story (for append column of reference value)
+        List<string> referStoryVals = new List<string>();
+
         // load data
         for (int i = 0; i < 2; i++)
         {
@@ -55,6 +61,10 @@ public class DataCSVSupporter
                 {
                     tmpElement.elements = new List<string>();
                     tmpElement.elements.Add(DataMgr.MergeAllElements(dataIndex));
+
+                    // get reference value of story (for append column of reference value)
+                    List<string> eventTagsInSentence = new List<string>();
+                    referStoryVals.Add(ResultZoneUtil.ParseToText(eventTagsInSentence, dataIndex, DataIndexer.DataType.Story, false, false));
                 }
                 // clone element value
                 else
@@ -77,6 +87,11 @@ public class DataCSVSupporter
         // add header for row 1,2
         AddHeaderR1_2(ref output);
 
+        int titleCol = (int)Title.COUNT;
+        int lanCol = (int)Localization.LanguageCode.COUNT;
+        int appendCol = (int)AppendTitle.COUNT;
+        int columns = titleCol + lanCol + appendCol;
+
         // add elements's value (from row 4,...)
         for (int i = 0; i < dataExportGame.elements.Count; i++)
         {
@@ -94,8 +109,7 @@ public class DataCSVSupporter
                 var val = exportData.elements[j];
 
                 // traverse each columns
-                int columns = (int)Title.COUNT + (int)Localization.LanguageCode.EN;
-                for (int col = 0; col <= columns; col++)
+                for (int col = 0; col < columns; col++)
                 {
                     // title
                     if (col == (int)Title.STR)
@@ -112,9 +126,16 @@ public class DataCSVSupporter
                         AddField(ref output, characterLimit.ToString());
                     }
                     // english field
-                    else if (col == columns)
+                    else if (col == titleCol + (int)Localization.LanguageCode.EN)
                     {
                         AddField(ref output, ReplaceTitleOfHashKey(val));
+                    }
+                    // append title (reference)
+                    else if (col == titleCol + lanCol + (int)AppendTitle.RFN)
+                    {
+                        // append reference value of story (-1 for first title)
+                        if (i >= 1 && (i - 1) < referStoryVals.Count)
+                            AddField(ref output, referStoryVals[i - 1]);
                     }
                     else
                     {
@@ -154,6 +175,11 @@ public class DataCSVSupporter
             for (int col = 0; col < (int)Localization.LanguageCode.COUNT; col++)
             {
                 AddField(ref _cont, r == 0 ? Localization.GetLanguage(col) : "[" + ((Localization.LanguageCode)col).ToString() + "]");
+            }
+            // add append
+            for (int col = 0; col < (int)AppendTitle.COUNT; col++)
+            {
+                AddField(ref _cont, r == 0 ? appendTitles[col] : "[" + ((AppendTitle)col).ToString() + "]");
             }
             BreakDown(ref _cont);
         }
