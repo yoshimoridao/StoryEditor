@@ -116,8 +116,7 @@ public class DataMgr : Singleton<DataMgr>
         get { return dataIndexer.rdTestCaseAmount; }
         set
         {
-            if (value < 1)
-                value = 1;
+            value = Mathf.Clamp(value, 1, dataIndexer.stories.Count);
             dataIndexer.rdTestCaseAmount = value;
         }
     }

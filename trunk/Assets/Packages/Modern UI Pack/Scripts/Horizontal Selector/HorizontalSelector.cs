@@ -116,7 +116,7 @@ namespace Michsky.UI.ModernUIPack
                 }
             }
 
-            else
+            else if (indicatorParent)
             {
                 Destroy(indicatorParent.gameObject);
             }

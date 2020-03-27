@@ -3,21 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using TMPro;
+using Michsky.UI.ModernUIPack;
 
 public class ResultWindow : Singleton<ResultWindow>
 {
     public ResultZoneMgr resultZone;
-    public Transform randomModePanel;
-    public InputField rdCaseAmountText;
-    // pick-up panel
-    public Transform pickingModePanel;
-    public InputField pickupAmountText;
-    public OriginSwitchButton switchPickModeBtn;
-    public OriginSwitchButton switchRdModeBtn;
+
+    [SerializeField]
+    private SwitchManager switchBtn;
+
+    [SerializeField]
+    private HorizontalSelector rdAmountSelector;
+    [SerializeField]
+    private TextMeshProUGUI numbRd;
+
+    [SerializeField]
+    private Transform transTest;
+    [SerializeField]
+    private TextMeshProUGUI numbTest;
 
     [SerializeField]
     private bool isRandom = true;
-    private int oldRdCaseAmounts = -1;
+    private int oldRd = -1;
 
     // ========================================= UNITY FUNCS =========================================
     private void Awake()
@@ -46,7 +54,7 @@ public class ResultWindow : Singleton<ResultWindow>
         // scale height for all ratio
         //float canvasHeight = (CanvasMgr.Instance.transform as RectTransform).sizeDelta.y;
         float canvasHeight = (GameMgr.Instance.CurEditor as RectTransform).sizeDelta.y;
-        
+
         RectTransform rt = transform as RectTransform;
         rt.sizeDelta = new Vector2(rt.sizeDelta.x, (rt.sizeDelta.y / 1080) * canvasHeight);
 
@@ -63,11 +71,10 @@ public class ResultWindow : Singleton<ResultWindow>
         // Load testing mode
         isRandom = DataMgr.Instance.IsRandomTest;
 
-        // active mode btn
-        if (switchPickModeBtn)
-            switchPickModeBtn.Init(!isRandom);
-        if (switchRdModeBtn)
-            switchRdModeBtn.Init(isRandom);
+        if (switchBtn.isOn == isRandom)
+        {
+            switchBtn.AnimateSwitch();
+        }
 
         // active panel
         ActivePanel();
@@ -78,15 +85,6 @@ public class ResultWindow : Singleton<ResultWindow>
 
     public void OnDestroy()
     {
-    }
-
-    public void RefreshPickupAmountText()
-    {
-        // update text
-        if (pickupAmountText)
-        {
-            pickupAmountText.text = DataMgr.Instance.GetTestingDataVals().Count.ToString();
-        }
     }
 
     // ====== Event Button ======
@@ -124,84 +122,80 @@ public class ResultWindow : Singleton<ResultWindow>
         resultZone.ShowResult(testCases, isRandom);
     }
 
-    public void OnSwitchButtonPress(bool _isRdMode)
+    public void OnSwitchButtonPress(bool _isTestMode)
     {
         // default de-active random mode
-        isRandom = _isRdMode;
-        //// active panel
-        //ActivePanel();
-
-        // do active switch btn
-        if (switchRdModeBtn)
-            switchRdModeBtn.SetActive(isRandom, isRandom ? (Action)ActivePanel : null);
-        if (switchPickModeBtn)
-            switchPickModeBtn.SetActive(!isRandom, isRandom ? null : (Action)ActivePanel);
-
+        isRandom = !_isTestMode;
         // Save current testing mode
         DataMgr.Instance.IsRandomTest = isRandom;
+        // active panel
+        ActivePanel();
     }
 
-    // = Picking up panel =
-    public void OnArrowButtonPress(bool isPlusArrow)
+    public void ForwardClick()
     {
-        // update amount of random test cases
-        DataMgr.Instance.RdTestCaseAmount += isPlusArrow ? 1 : -1;
+        int storiesAmount = DataMgr.Instance.Stories.Count;
 
-        if (rdCaseAmountText)
+        oldRd = DataMgr.Instance.RdTestCaseAmount;
+        DataMgr.Instance.RdTestCaseAmount++;
+
+        if (rdAmountSelector.itemList.Count > 1)
         {
-            rdCaseAmountText.text = DataMgr.Instance.RdTestCaseAmount.ToString();
-            oldRdCaseAmounts = int.Parse(rdCaseAmountText.text);
+            rdAmountSelector.index = oldRd < storiesAmount ? 0 : 1;
+            rdAmountSelector.itemList[0].itemTitle = oldRd.ToString();
+            rdAmountSelector.itemList[1].itemTitle = DataMgr.Instance.RdTestCaseAmount.ToString();
         }
-
-        // refresh random mode text
-        RefreshRdAmountText();
     }
 
-    public void OnClearAllBtnPress()
+    public void PreviousClick()
     {
-        GameMgr.Instance.ClearAllTestCases();
+        oldRd = DataMgr.Instance.RdTestCaseAmount;
+        DataMgr.Instance.RdTestCaseAmount--;
+
+        if (rdAmountSelector.itemList.Count > 1)
+        {
+            rdAmountSelector.index = oldRd <= 1 ? 0 : 1;
+            rdAmountSelector.itemList[0].itemTitle = DataMgr.Instance.RdTestCaseAmount.ToString();
+            rdAmountSelector.itemList[1].itemTitle = oldRd.ToString();
+        }
     }
+
+    //public void OnClearAllBtnPress()
+    //{
+    //    GameMgr.Instance.ClearAllTestCases();
+    //}
 
     // = Random mode panel =
     public void OnEditRdAmountTextDone()
     {
         int inputAmount = -1;
-        if (rdCaseAmountText && int.TryParse(rdCaseAmountText.text, out inputAmount) && inputAmount != -1)
+        if (numbRd && int.TryParse(numbRd.text, out inputAmount) && inputAmount != -1)
         {
             DataMgr.Instance.RdTestCaseAmount = inputAmount;
         }
         else
         {
-            rdCaseAmountText.text = oldRdCaseAmounts.ToString();
+            numbRd.text = oldRd.ToString();
         }
     }
 
     // ========================================= PRIVATE FUNCS =========================================
     private void ActivePanel()
     {
-        // panel of picking mode
-        if (pickingModePanel)
-        {
-            pickingModePanel.gameObject.SetActive(!isRandom);
-            // refresh text
-            RefreshPickupAmountText();
-        }
-        // panel of random mode
-        if (randomModePanel)
-        {
-            randomModePanel.gameObject.SetActive(isRandom);
-            // refresh text
-            RefreshRdAmountText();
-        }
+        // test
+        transTest.gameObject.SetActive(!isRandom);
+        numbTest.gameObject.SetActive(!isRandom);
+        numbTest.text = DataMgr.Instance.GetTestingDataVals().Count.ToString();
+
+        // random
+        rdAmountSelector.gameObject.SetActive(isRandom);
+        numbRd.gameObject.SetActive(isRandom);
+        numbRd.text = DataMgr.Instance.RdTestCaseAmount.ToString();
     }
 
-    private void RefreshRdAmountText()
+    public void RefreshPickupAmountText()
     {
-        // init text
-        if (rdCaseAmountText)
-        {
-            rdCaseAmountText.text = DataMgr.Instance.RdTestCaseAmount.ToString();
-            oldRdCaseAmounts = int.Parse(rdCaseAmountText.text);
-        }
+        // update text
+        numbTest.text = DataMgr.Instance.GetTestingDataVals().Count.ToString();
     }
 }
